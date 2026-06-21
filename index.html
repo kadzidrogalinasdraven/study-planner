@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Study planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+  :root{
+    --paper:#FAF6EC; --paper-2:#F2ECDC; --card:#FFFDF7;
+    --ink:#2C2A26; --ink-2:#6E6757; --ink-3:#9C9484;
+    --line:#E7E0CF; --line-2:#DAD2BD; --accent:#5E7155; --accent-soft:#EAEAD9;
+    --warn:#B45309;
+    --r-sm:7px; --r-md:11px; --r-lg:15px;
+    --serif:'Newsreader',Georgia,'Times New Roman',serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    --mono:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+  #root{max-width:760px;margin:0 auto;padding:0 18px 64px}
+  h1,h2,h3{font-family:var(--serif);font-weight:500;color:var(--ink);line-height:1.2}
+  button{font-family:inherit;cursor:pointer;color:inherit}
+  a{color:inherit}
+  input,textarea,select{font-family:inherit;font-size:14px;color:var(--ink)}
+  ::selection{background:#dfe3d2}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+  .eyebrow{font-family:var(--serif);font-size:13px;color:var(--ink-3);font-style:italic}
+  .rule{height:1px;background:var(--line);border:0}
+  .num{font-family:var(--serif);font-variant-numeric:lining-nums;letter-spacing:-.01em}
+  .ln-btn{background:transparent;border:0.5px solid var(--line-2);border-radius:var(--r-md);padding:7px 12px;font-size:13px;color:var(--ink-2);display:inline-flex;align-items:center;gap:7px;text-decoration:none;transition:background .15s,border-color .15s}
+  .ln-btn:hover{background:var(--paper-2);border-color:var(--accent)}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;border-radius:20px;padding:4px 11px;border:0.5px solid var(--line-2);background:var(--card);color:var(--ink-2);text-decoration:none;transition:background .15s}
+  .chip:hover{background:var(--paper-2)}
+  .cb{appearance:none;-webkit-appearance:none;width:18px;height:18px;border:1.5px solid var(--line-2);border-radius:6px;background:var(--card);flex:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s,border-color .15s}
+  .cb:checked{background:var(--ck,#534AB7);border-color:var(--ck,#534AB7)}
+  .cb:checked::after{content:"\2713";color:#fff;font-size:11px;font-weight:700}
+  .navbtn{background:transparent;border:0;padding:10px 2px;font-size:14px;color:var(--ink-3);position:relative}
+  .navbtn[aria-current="true"]{color:var(--ink)}
+  .navbtn[aria-current="true"]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);border-radius:2px}
+  .seclabel{font-family:var(--serif);font-size:15px;color:var(--ink);margin:22px 0 4px}
+  .txtin{width:100%;background:var(--card);border:0.5px solid var(--line-2);border-radius:var(--r-md);padding:9px 12px;outline:none}
+  .txtin:focus{border-color:var(--accent)}
+  .sm{font-size:13px;padding:7px 9px;border:0.5px solid var(--line-2);border-radius:var(--r-md);background:var(--card)}
+  .iconbtn{background:transparent;border:0;color:var(--ink-3);padding:6px;border-radius:6px;line-height:1;transition:color .15s,background .15s}
+  .iconbtn:hover{color:var(--ink);background:var(--paper-2)}
+  .copied{font-size:11px;color:var(--accent)}
+  @media (prefers-reduced-motion: reduce){*{transition:none !important}}
+  @media (max-width:520px){#root{padding:0 13px 64px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+/* ── identity & links ───────────────────────────────────────────── */
+const SUBJ = { physio:"#534AB7", micro:"#0F6E56", im:"#BE123C", czech:"#185FA5", italian:"#2F8F57" };
+const PROJECT_PHYSIO = "https://claude.ai/project/019cc8a2-db77-7717-b48d-d8fff233e1c9";
+const CHAT_CZECH   = "https://claude.ai/chat/53820c71-73a6-4d0c-bd13-87f8136b833b";
+const CHAT_ITALIAN = "https://claude.ai/chat/a3aebc22-8fa1-41ec-8205-a05785d4ba0f";
+const FLASH = "physio_flashcards.html";
+const FLASH_IM = "intrena_flashcards.html";
+const LIVE_URL = "https://peppy-lokum-2c5109.netlify.app/";
+const IS_FILE = (typeof location!=="undefined" && location.protocol === "file:");
+const DECK_NAME = { nervous:"Nervous System", endocrine:"Endocrinology", genphys:"General Physiology", blood:"Blood", senses:"Special Senses", kidney:"Kidney", respiratory:"Respiratory", circulation:"Circulation", git:"GIT" };
+const DECK_BY_PREFIX = { NS:"nervous", EN:"endocrine", GP:"genphys", BL:"blood", SS:"senses", KI:"kidney", RS:"respiratory", CV:"circulation", GI:"git", MT:"git" };
+
+/* ── Google Calendar (browser OAuth, no backend) ─────────────────── */
+const GOOGLE_CLIENT_ID = "272590603949-tfgcscp9b13kka7gg8epj5tg4o47g6cq.apps.googleusercontent.com";
+const AUTH_SCOPES = "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.appdata";
+const GCAL_BASE = "https://www.googleapis.com/calendar/v3/calendars/primary/events";
+let _tokenClient = null, _accessToken = null, _tokenExpiry = 0, _tokenPromise = null;
+
+function gisReady(){ return !!(window.google && window.google.accounts && window.google.accounts.oauth2); }
+function ensureTokenClient(){
+  if(_tokenClient) return _tokenClient;
+  if(!gisReady()) return null;
+  _tokenClient = window.google.accounts.oauth2.initTokenClient({ client_id:GOOGLE_CLIENT_ID, scope:AUTH_SCOPES, hint:"kadzidrogalinas@gmail.com", callback:function(){} });
+  return _tokenClient;
+}
+function waitForGis(ms){
+  return new Promise(function(resolve,reject){
+    if(gisReady()) return resolve(true);
+    const t0=Date.now();
+    const iv=setInterval(function(){
+      if(gisReady()){ clearInterval(iv); resolve(true); }
+      else if(Date.now()-t0>ms){ clearInterval(iv); reject(new Error("Google sign-in library didn't load. Check your connection and reload.")); }
+    },150);
+  });
+}
+function getToken(){
+  if(_accessToken && Date.now() < _tokenExpiry - 60000) return Promise.resolve(_accessToken);
+  if(_tokenPromise) return _tokenPromise;
+  const tc=ensureTokenClient();
+  if(!tc) return Promise.reject(new Error("Google sign-in is still loading. Wait a moment and tap Connect again."));
+  _tokenPromise = new Promise(function(resolve,reject){
+    tc.callback=function(resp){
+      _tokenPromise=null;
+      if(resp && resp.access_token){ _accessToken=resp.access_token; _tokenExpiry=Date.now()+((resp.expires_in||3600)*1000); resolve(_accessToken); }
+      else { reject(resp||new Error("No access token")); }
+    };
+    tc.error_callback=function(err){ _tokenPromise=null; reject(err||new Error("Sign-in was cancelled")); };
+    try{ tc.requestAccessToken({ prompt:"" }); }catch(e){ _tokenPromise=null; reject(e); }
+  });
+  return _tokenPromise;
+}
+function gcalForget(){ _accessToken=null; _tokenExpiry=0; }
+
+const pad = n => String(n).padStart(2,"0");
+function toNaiveLocal(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes())+":00"; }
+/* reminders by urgency: normal → 30 min before; important → 1 day, 1 hour, 10 min before */
+function remindersFor(task){
+  return task.important
+    ? [{method:"popup",minutes:1440},{method:"popup",minutes:60},{method:"popup",minutes:10}]
+    : [{method:"popup",minutes:30}];
+}
+function eventFromTask(task){
+  const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone) || "Europe/Berlin";
+  const startStr = task.date + "T" + task.time + ":00";
+  const end = new Date(new Date(startStr).getTime() + 30*60000);
+  return {
+    summary: task.text,
+    description: "Added from Study planner",
+    start: { dateTime:startStr, timeZone:tz },
+    end:   { dateTime:toNaiveLocal(end), timeZone:tz },
+    reminders: { useDefault:false, overrides:remindersFor(task) },
+  };
+}
+async function gcalCreate(task){
+  const tok=await getToken();
+  const r=await fetch(GCAL_BASE,{method:"POST",headers:{Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:JSON.stringify(eventFromTask(task))});
+  if(!r.ok) throw new Error("create "+r.status); return r.json();
+}
+async function gcalUpdate(id,task){
+  const tok=await getToken();
+  const r=await fetch(GCAL_BASE+"/"+encodeURIComponent(id),{method:"PATCH",headers:{Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:JSON.stringify(eventFromTask(task))});
+  if(!r.ok) throw new Error("update "+r.status); return r.json();
+}
+async function gcalDelete(id){
+  const tok=await getToken();
+  const r=await fetch(GCAL_BASE+"/"+encodeURIComponent(id),{method:"DELETE",headers:{Authorization:"Bearer "+tok}});
+  if(!r.ok && r.status!==404 && r.status!==410) throw new Error("delete "+r.status); return true;
+}
+
+/* ── Google Drive sync — a hidden app-data file, invisible in your normal Drive ── */
+const DRIVE_FILE = "study-planner-sync.json";
+let _driveFileId = null;
+function tokenValid(){ return !!_accessToken && Date.now() < _tokenExpiry - 60000; }
+async function driveFind(){
+  const tok=await getToken();
+  const r=await fetch("https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime)&pageSize=20",{headers:{Authorization:"Bearer "+tok}});
+  if(!r.ok) throw new Error("drive list "+r.status);
+  const j=await r.json(); const files=j.files||[];
+  return files.find(function(x){return x.name===DRIVE_FILE;}) || files[0] || null;
+}
+async function driveRead(id){
+  const tok=await getToken();
+  const r=await fetch("https://www.googleapis.com/drive/v3/files/"+id+"?alt=media",{headers:{Authorization:"Bearer "+tok}});
+  if(!r.ok) throw new Error("drive read "+r.status);
+  return r.json();
+}
+async function driveCreate(obj){
+  const tok=await getToken();
+  const boundary="planner"+Date.now();
+  const body="--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+JSON.stringify({name:DRIVE_FILE,parents:["appDataFolder"]})+"\r\n--"+boundary+"\r\nContent-Type: application/json\r\n\r\n"+JSON.stringify(obj)+"\r\n--"+boundary+"--";
+  const r=await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",{method:"POST",headers:{Authorization:"Bearer "+tok,"Content-Type":"multipart/related; boundary="+boundary},body:body});
+  if(!r.ok) throw new Error("drive create "+r.status);
+  const j=await r.json(); return j.id;
+}
+async function driveUpdate(id,obj){
+  const tok=await getToken();
+  const r=await fetch("https://www.googleapis.com/upload/drive/v3/files/"+id+"?uploadType=media",{method:"PATCH",headers:{Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:JSON.stringify(obj)});
+  if(!r.ok) throw new Error("drive update "+r.status);
+  return true;
+}
+
+/* ── exams ──────────────────────────────────────────────────────── */
+const EXAMS = [
+  { id:"ct", label:"Physiology · computer test", iso:"2026-06-26", time:"08:00", place:"Unimec 1 – 5. patro · U5.29-TESTY", color:SUBJ.physio },
+  { id:"or", label:"Physiology · oral exam",      iso:"2026-08-17", time:"09:00", place:"Department of Physiology",        color:SUBJ.physio },
+];
+
+/* ── the nine keystone topics ─────────────────────────────────────── */
+const T = {
+  NS12:{t:"Autonomic NS — sympathetic", s:"adrenergic mediators, receptors, organ effects", cmd:"/physiology-guide Autonomic nervous system – sympathetic division", hrs:"~1 h", v:[["Ninja Nerd","Autonomic nervous system — overview","https://www.youtube.com/watch?v=7dZHmKMLdC0"]]},
+  NS13:{t:"Autonomic NS — parasympathetic", s:"cholinergic mediators, receptors, organ effects", cmd:"/physiology-guide Autonomic nervous system – parasympathetic division", hrs:"~1 h"},
+  KI02:{t:"Glomerular filtration", s:"filtration pressure, GFR, autoregulation, TGF", cmd:"/physiology-guide Glomerular Filtration", v:[["Ninja Nerd","Renal — glomerular filtration","https://www.youtube.com/watch?v=SVqSqPOcahY"]]},
+  EN01:{t:"General endocrinology", s:"hormone classes, feedback, receptors, signalling", cmd:"/physiology-guide General Endocrinology"},
+  EN04:{t:"Thyroid gland", s:"TH synthesis, effects, regulation, dysfunction", cmd:"/physiology-guide Thyroid Gland", v:[["Osmosis","Hypothyroidism","https://www.osmosis.org/learn/Hypothyroidism"]]},
+  EN07:{t:"Adrenal cortex — glucocorticoids", s:"cortisol, stress, Cushing/Addison", cmd:"/physiology-guide Adrenal Cortex – Glucocorticoids", v:[["Ninja Nerd","Adrenal cortex — cortisol & aldosterone","https://www.youtube.com/watch?v=rk2b3X6CU4w"]]},
+  EN09:{t:"Endocrine pancreas", s:"insulin, glucagon, diabetes mellitus", cmd:"/physiology-guide Endocrine Pancreas", v:[["Ninja Nerd","Pancreas — insulin function","https://www.youtube.com/watch?v=w4jHtPUNg6E"]]},
+  SS07:{t:"Retina, phototransduction & visual pathway", s:"photoreceptors, colour vision, fields", cmd:"/physiology-guide Retina and phototransduction. Visual pathway", v:[["Osmosis","Visual pathway","https://www.osmosis.org/learn/Visual_pathway"]]},
+  BL09:{t:"Hemocoagulation", s:"clotting factors, cascade, cell-based model", cmd:"/physiology-guide Hemocoagulation", v:[["Ninja Nerd","Coagulation cascade","https://www.youtube.com/watch?v=SGzp9wqeu84"]]},
+  GP11:{t:"Action potential & its propagation", s:"AP phases, refractoriness, fibre types", cmd:"/physiology-guide Action potential and its propagation", v:[["Osmosis","Action potential","https://www.osmosis.org/learn/Action_potential"]]},
+};
+
+/* ── realistic first pass ─────────────────────────────────────────── */
+/* ── full physiology curriculum (for the Progress tab) ─────────────── */
+const CURRICULUM = [
+  { key:"GP", name:"General physiology", topics:[
+    ["GP01","Functional morphology of the cell"],["GP02","Biological membranes"],["GP03","Membrane channels"],["GP04","Membrane transport · body fluids"],["GP05","Intercellular communication"],["GP06","Synapse"],["GP07","Neurotransmitters"],["GP08","Receptors"],["GP09","Resting membrane potential"],["GP10","Graded membrane response"],["GP11","Action potential & propagation"],["GP12","Skeletal muscle"],["GP13","Neuromuscular transmission"],["GP14","Smooth muscle"],["GP15","Body fluids"],["GP16","Homeostasis"]
+  ]},
+  { key:"NS", name:"Nervous system", topics:[
+    ["NS01","Structure & function of the NS"],["NS02","Cerebrospinal fluid system"],["NS03","Electrical activity of the brain"],["NS04","Alert behavior & sleep"],["NS05","Biological rhythms"],["NS06","Higher cognitive functions"],["NS07","Hemispheric asymmetry & language"],["NS08","Emotions, motivation & affect"],["NS09","Learning"],["NS10","Memory"],["NS11","Hypothalamus"],["NS12","Autonomic NS — sympathetic"],["NS13","Autonomic NS — parasympathetic"],["NS14","Somatic nervous system"],["NS15","Spinal cord — proprioceptive reflexes"],["NS16","Spinal cord — exteroceptive reflexes"],["NS17","Brain stem & locomotion"],["NS18","Cerebellum"],["NS19","Basal ganglia"],["NS20","Voluntary movement"]
+  ]},
+  { key:"SS", name:"Special senses", topics:[
+    ["SS01","General physiology of senses"],["SS02","Somatosensory system"],["SS03","Nociception"],["SS04","Taste"],["SS05","Smell"],["SS06","Vision"],["SS07","Retina & visual pathway"],["SS08","Hearing"],["SS09","Vestibular function"]
+  ]},
+  { key:"BL", name:"Blood & immunity", topics:[
+    ["BL01","Blood — general characteristics"],["BL02","Plasma"],["BL03","Erythrocytes"],["BL04","Erythropoiesis"],["BL05","Destruction of erythrocytes"],["BL06","Blood groups"],["BL07","Thrombocytes"],["BL08","Hemostasis"],["BL09","Hemocoagulation"],["BL10","White blood cells & endothelium"],["BL11","Nonspecific immune defenses"],["BL12","Lymphatic organs"],["BL13","Specific immune defenses"]
+  ]},
+  { key:"CV", name:"Circulation", topics:[
+    ["CV01","General properties of the CVS"],["CV02","Electrophysiology of ventricular cardiomyocytes"],["CV03","Conduction system of the heart"],["CV04","Cardiac muscle"],["CV05","Cardiac contractility & regulation"],["CV06","Cardiac cycle"],["CV07","Electrocardiogram"],["CV08","Recording cardiac activity from the surface"],["CV09","Cardiac output"],["CV10","Vascular system — general"],["CV11","Arteries"],["CV12","Microcirculation"],["CV13","Veins"],["CV14","Lymphatic system"],["CV15","Regulation of the heart"],["CV16","Local control of tissue blood flow"],["CV17","Extrinsic control of tissue blood flow"],["CV18","Short-term regulation of MAP"],["CV19","Humoral & long-term regulation of MAP"],["CV20","Coronary circulation & cardiac metabolism"]
+  ]},
+  { key:"RS", name:"Respiratory", topics:[
+    ["RS01","Organization & functions of respiration"],["RS02","Mechanics of pulmonary ventilation"],["RS03","Spirometry"],["RS04","Pulmonary circulation"],["RS05","Gas exchange in alveoli & tissues"],["RS06","Transport of oxygen"],["RS07","Transport of carbon dioxide"],["RS08","Neural control of respiration"],["RS09","Chemical control of respiration"],["RS10","Adaptation of respiration"]
+  ]},
+  { key:"KI", name:"Kidney", topics:[
+    ["KI01","Physiological anatomy of the kidney"],["KI02","Glomerular filtration"],["KI03","Clearance"],["KI04","Tubular functions"],["KI05","Excretion of water"],["KI06","Excretion of Na⁺, Cl⁻, K⁺ & ions"],["KI07","Regulation of renal functions"],["KI08","Acid–base balance & the kidney"],["KI09","Micturition"]
+  ]},
+  { key:"GI", name:"Gastrointestinal", topics:[
+    ["GI01","General characteristics of the GIT"],["GI02","Motility of the GIT"],["GI03","Oral cavity, pharynx & oesophagus"],["GI04","Stomach"],["GI05","Liver & bile"],["GI06","Pancreas (exocrine)"],["GI07","Small intestine"],["GI08","Large intestine"],["GI09","Digestion & absorption"],["GI10","Regulation of GI functions"]
+  ]},
+  { key:"EN", name:"Endocrine", topics:[
+    ["EN01","General endocrinology"],["EN02","Hypothalamus & posterior pituitary"],["EN03","Hypothalamus & anterior pituitary"],["EN04","Thyroid gland"],["EN05","Calcium & phosphate · bone"],["EN06","Adrenal medulla"],["EN07","Adrenal cortex — glucocorticoids"],["EN08","Adrenal cortex — mineralocorticoids"],["EN09","Endocrine pancreas"],["EN10","Male reproduction"],["EN11","Female reproduction"],["EN12","Endocrine functions of ovaries"],["EN13","Pregnancy & lactation"]
+  ]},
+  { key:"MT", name:"Metabolism & temperature", topics:[
+    ["MT01","Metabolism"],["MT02","Regulation of body temperature"]
+  ]},
+];
+
+const PLAN = [
+  { date:"2026-06-18", day:"Thu", label:"Nervous system — finish", est:"~3 h",
+    note:"Finish any open NS topics, then lock the field in by drilling the deck. The autonomic pair (sympathetic + parasympathetic) is the highest-yield if you have a gap.",
+    keystones:["NS12","NS13"], drill:"nervous", q:[], mock:[], lang:"czech" },
+  { date:"2026-06-19", day:"Fri", label:"Kidney", est:"~3 h",
+    keystones:["KI02"], drill:"kidney", q:[{deck:"respiratory", label:"Respiratory questions"}], mock:[], lang:"italian" },
+  { date:"2026-06-20", day:"Sat", label:"Endocrine · part 1", est:"~5 h",
+    note:"Weekend — the long day. The mechanism that unlocks the field, then the pancreas.",
+    keystones:["EN01","EN09"], drill:"endocrine", q:[{deck:"circulation", label:"Circulation questions"}], mock:[], lang:null },
+  { date:"2026-06-21", day:"Sun", label:"Endocrine · part 2", est:"~5 h",
+    keystones:["EN04","EN07"], drill:"endocrine", q:[{deck:"git", label:"GIT questions"}], mock:[], lang:null },
+  { date:"2026-06-22", day:"Mon", label:"Special senses", est:"~3 h",
+    keystones:["SS07"], drill:"senses", q:[{deck:"kidney", label:"Kidney questions"}], mock:[], lang:"czech" },
+  { date:"2026-06-23", day:"Tue", label:"Blood & immunity", est:"~3 h",
+    keystones:["BL09"], drill:"blood", q:[{deck:"endocrine", label:"Endocrine questions"}], mock:[], lang:"italian" },
+  { date:"2026-06-24", day:"Wed", label:"General physiology + mock", est:"~4 h",
+    note:"Deep-dive the action potential — the most foundational concept — then a full mixed mock.",
+    keystones:["GP11"], drill:null, q:[], mock:[{label:"Master Exam — mixed mock #1"}], lang:"czech" },
+  { date:"2026-06-25", day:"Thu", label:"Weak spots + timed mock", est:"~3 h",
+    note:"No new material. Run a timed mock, then re-drill your weakest decks. Stop by 20:00 and sleep early.",
+    keystones:[], drill:null, q:[], mock:[{label:"Master Exam — timed mock #2"}], weak:true, lang:null },
+  { date:"2026-06-26", day:"Fri", label:"Computer test", est:"08:00", exam:true,
+    note:"Unimec 1 – 5. patro · U5.29-TESTY.", keystones:[], drill:null, q:[], mock:[], lang:null },
+];
+
+const LANG = { czech:{name:"Czech",color:SUBJ.czech,url:CHAT_CZECH}, italian:{name:"Italian",color:SUBJ.italian,url:CHAT_ITALIAN} };
+
+const TIMELINE = [
+  { kind:"done",  label:"Microbiology, Internal Medicine & Czech", detail:"All passed · May – Jun 9" },
+  { kind:"phase", label:"Physiology · Round 1 — first pass", detail:"now → 25 Jun · keystones + deck drilling" },
+  { kind:"exam",  label:"Physiology computer test", detail:"Fri 26 Jun · 08:00 · Unimec 1, U5.29", color:SUBJ.physio, big:true },
+  { kind:"note",  label:"Hospital internship", detail:"≈ mid-Jun → mid-Jul · study around clinical hours" },
+  { kind:"phase", label:"Physiology · Round 2 — deep revision", detail:"after the test → mid-Aug · every system in depth, 26 practicals, oral simulations" },
+  { kind:"exam",  label:"Physiology oral exam", detail:"Mon 17 Aug · 09:00 · Dept of Physiology", color:SUBJ.physio, big:true, final:true },
+];
+
+/* ── helpers ────────────────────────────────────────────────────────── */
+const todayStr = () => { const d=new Date(); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
+const parseISO = iso => { const [y,m,d]=iso.split("-").map(Number); return new Date(y,m-1,d); };
+const fmtLong = iso => parseISO(iso).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+const fmtShort = iso => parseISO(iso).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+const fmtDay = iso => parseISO(iso).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+const daysUntil = iso => { const t=parseISO(iso); const n=new Date(); const a=new Date(n.getFullYear(),n.getMonth(),n.getDate()); return Math.round((t-a)/86400000); };
+const countLabel = n => n<0 ? "passed" : n===0 ? "today" : n===1 ? "tomorrow" : n+" days";
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+function copyText(t){
+  try{ if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(t); return true; } }catch(e){}
+  try{ const ta=document.createElement("textarea"); ta.value=t; ta.style.position="fixed"; ta.style.top="-1000px"; ta.style.opacity="0"; document.body.appendChild(ta); ta.focus(); ta.select(); const ok=document.execCommand("copy"); document.body.removeChild(ta); return ok; }catch(e){ return false; }
+}
+function fmtTaskWhen(task){
+  const dayPart = task.date===todayStr() ? "today" : fmtDay(task.date);
+  return task.time ? dayPart+" · "+task.time : dayPart;
+}
+
+/* ── persistence ──────────────────────────────────────────────────── */
+const KEY = "study_planner_v2";
+const DEFAULT_DATA = () => ({
+  done:{}, tasks:[], gcalEnabled:false, updatedAt:0,
+  goals:[
+    { id:uid(), title:"Pass the Physiology computer test", date:"2026-06-26",
+      steps:[ {id:uid(),text:"One clean pass over every keystone",done:false}, {id:uid(),text:"≥95% on the Master Exam decks",done:false} ] },
+    { id:uid(), title:"Secure summer Pflegepraktikum", date:"2026-08-31",
+      steps:[ {id:uid(),text:"Confirm start date with the hospital",done:false} ] },
+  ],
+});
+function migrate(d){
+  const out = Object.assign(DEFAULT_DATA(), d);
+  if(out.tasks && !Array.isArray(out.tasks)){            // old per-date map → flat array
+    const flat=[];
+    Object.keys(out.tasks).forEach(function(date){
+      (out.tasks[date]||[]).forEach(function(t){ flat.push({ id:t.id||uid(), text:t.text, date:date, time:t.time||null, important:!!t.important, done:!!t.done, gcalId:t.gcalId||null }); });
+    });
+    out.tasks=flat;
+  }
+  return out;
+}
+const hasCloud = () => { try{ return window.storage && typeof window.storage.get==="function"; }catch(e){ return false; } };
+function loadData(){ try{ const s=localStorage.getItem(KEY); if(s) return migrate(JSON.parse(s)); }catch(e){} return DEFAULT_DATA(); }
+function saveData(d){ const s=JSON.stringify(d); if(hasCloud()){ try{ window.storage.set(KEY,s); }catch(e){} } try{ localStorage.setItem(KEY,s); }catch(e){} }
+
+/* ── atoms ───────────────────────────────────────────────────────── */
+function Dot({color,size=9}){ return <span style={{width:size,height:size,borderRadius:"50%",background:color,flex:"none",display:"inline-block"}}/>; }
+function ProgressBar({pct,color,h=4}){ return <div style={{height:h,background:"var(--line)",borderRadius:h,overflow:"hidden",flex:1}}><div style={{width:pct+"%",height:"100%",background:color,borderRadius:h,transition:"width .3s"}}/></div>; }
+function CodeChip({code}){ return <span style={{fontFamily:"var(--mono)",fontSize:11,color:SUBJ.physio,background:"#ECEAFB",padding:"2px 8px",borderRadius:6,flex:"none"}}>{code}</span>; }
+
+function VideoChips({vids}){
+  if(!vids||!vids.length) return null;
+  const col={"Osmosis":"#C2622E","Ninja Nerd":"#3577C2","Khan Academy":"#0E8A74"};
+  return <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:10}}>
+    {vids.map(([ch,title,url],i)=>{ const c=col[ch]||"#6E6757"; return (
+      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="chip" style={{paddingLeft:0,overflow:"hidden"}}>
+        <span style={{background:c,color:"#fff",padding:"4px 8px",fontWeight:500,fontSize:11}}>{ch}</span><span style={{padding:"0 10px 0 2px"}}>{title}</span>
+      </a>
+    );})}
+  </div>;
+}
+
+function TopicCard({code, done, onToggle}){
+  const top=T[code]; const [open,setOpen]=useState(false); const [copied,setCopied]=useState("");
+  if(!top) return null;
+  const deck=DECK_BY_PREFIX[(code||"").replace(/[0-9]/g,"")]||"";
+  const ping=(w)=>{ setCopied(w); setTimeout(()=>setCopied(""),1600); };
+  return (
+    <div style={{border:`0.5px solid ${done?SUBJ.physio+"55":"var(--line)"}`,borderRadius:"var(--r-lg)",background:done?SUBJ.physio+"0c":"var(--card)",marginBottom:9}}>
+      <div style={{display:"flex",alignItems:"center",gap:11,padding:"12px 14px"}}>
+        <input type="checkbox" className="cb" style={{"--ck":SUBJ.physio}} checked={done} onChange={onToggle} aria-label={"Mark "+top.t+" done"}/>
+        <CodeChip code={code}/>
+        <button onClick={()=>setOpen(o=>!o)} style={{flex:1,minWidth:0,textAlign:"left",background:"none",border:0,padding:0,opacity:done?.55:1}}>
+          <div style={{fontSize:14,color:"var(--ink)",display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>{top.t}<span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"var(--accent-soft)",color:"var(--accent)"}}>keystone · {top.hrs||"~2 h"}</span></div>
+          {top.s && <div style={{fontSize:12.5,color:"var(--ink-3)",marginTop:2}}>{top.s}</div>}
+        </button>
+        <button className="iconbtn" onClick={()=>setOpen(o=>!o)} aria-label="Toggle detail"><i className={"fa-solid fa-chevron-"+(open?"up":"down")} style={{fontSize:12}} aria-hidden="true"/></button>
+      </div>
+      {open && (
+        <div style={{padding:"0 14px 14px"}}>
+          <hr className="rule" style={{marginBottom:12}}/>
+          <div style={{fontFamily:"var(--mono)",fontSize:12,color:SUBJ.physio,background:"var(--paper-2)",borderRadius:"var(--r-md)",padding:"8px 11px",wordBreak:"break-word"}}>{top.cmd}</div>
+          <VideoChips vids={top.v}/>
+          <div style={{display:"flex",flexWrap:"wrap",gap:8,alignItems:"center",marginTop:12}}>
+            <a className="ln-btn" href={PROJECT_PHYSIO} target="_blank" rel="noopener noreferrer" onClick={()=>{copyText(top.cmd);ping("g");}}><i className="fa-solid fa-feather" aria-hidden="true"/> New guide <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/></a>
+            <a className="ln-btn" href={PROJECT_PHYSIO} target="_blank" rel="noopener noreferrer" onClick={()=>{copyText("/discussion topics");ping("d");}}><i className="fa-solid fa-comments" aria-hidden="true"/> Discuss <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/></a>
+            {deck && <a className="ln-btn" href={FLASH+"#"+deck} target="_blank" rel="noopener noreferrer"><i className="fa-regular fa-clone" aria-hidden="true"/> Flashcards</a>}
+            {copied==="g" && <span className="copied">guide command copied — paste it in the project</span>}
+            {copied==="d" && <span className="copied">/discussion topics copied — paste &amp; add your objectives</span>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DrillCard({deck}){
+  const name=DECK_NAME[deck]||"deck";
+  return (
+    <a href={FLASH+"#"+deck} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:11,padding:"12px 14px",border:`0.5px solid ${SUBJ.physio}33`,borderRadius:"var(--r-lg)",background:SUBJ.physio+"0c",textDecoration:"none",marginBottom:9}}>
+      <span style={{width:30,height:30,borderRadius:8,background:SUBJ.physio+"1c",color:SUBJ.physio,display:"flex",alignItems:"center",justifyContent:"center",flex:"none"}}><i className="fa-regular fa-clone" aria-hidden="true"/></span>
+      <div style={{flex:1,minWidth:0}}><div style={{fontSize:14,color:"var(--ink)"}}>Drill the {name} deck</div><div style={{fontSize:12.5,color:"var(--ink-3)"}}>breadth for the test — every statement, as yes / no</div></div>
+      <i className="fa-solid fa-arrow-right" style={{color:SUBJ.physio,fontSize:13}} aria-hidden="true"/>
+    </a>
+  );
+}
+
+function QuestionCard({item}){
+  const href=item.mock?FLASH+"#master":FLASH+"#"+item.deck;
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:11,padding:"12px 14px",border:`0.5px solid ${SUBJ.physio}26`,borderRadius:"var(--r-lg)",background:"var(--card)",textDecoration:"none",marginBottom:9}}>
+      <span style={{width:30,height:30,borderRadius:8,background:SUBJ.physio+"14",color:SUBJ.physio,display:"flex",alignItems:"center",justifyContent:"center",flex:"none"}}><i className={item.mock?"fa-solid fa-stopwatch":"fa-regular fa-circle-question"} aria-hidden="true"/></span>
+      <div style={{flex:1,minWidth:0}}><div style={{fontSize:14,color:"var(--ink)"}}>{item.label}</div><div style={{fontSize:12.5,color:"var(--ink-3)"}}>{item.mock?"all decks shuffled · time yourself":"keep a finished field warm"}</div></div>
+      <i className="fa-solid fa-arrow-right" style={{color:SUBJ.physio,fontSize:13}} aria-hidden="true"/>
+    </a>
+  );
+}
+
+function LangChip({lang}){
+  const L=LANG[lang]; if(!L) return null;
+  return (
+    <a href={L.url} target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:9,padding:"9px 13px",border:`0.5px solid ${L.color}44`,borderRadius:"var(--r-lg)",background:L.color+"0d",textDecoration:"none",marginBottom:9}}>
+      <Dot color={L.color}/><span style={{fontSize:14,color:"var(--ink)"}}>{L.name} practice</span><span style={{fontSize:12,color:"var(--ink-3)"}}>· 30 min</span><i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:11,color:L.color,marginLeft:2}} aria-hidden="true"/>
+    </a>
+  );
+}
+
+function DayBody({p, data, A, showNote}){
+  return (
+    <>
+      {showNote && p.note && <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px",fontStyle:"italic"}}>{p.note} <span style={{color:"var(--ink-3)",fontStyle:"normal"}}>· {p.est}</span></p>}
+      {p.keystones.filter(c=>!data.done[c]).map(c=><TopicCard key={c} code={c} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)}/>)}
+      {p.drill && <DrillCard deck={p.drill}/>}
+      {p.q.map((q,i)=><QuestionCard key={"q"+i} item={q}/>)}
+      {p.mock.map((m,i)=><QuestionCard key={"m"+i} item={{mock:true,label:m.label}}/>)}
+      {p.weak && <a className="ln-btn" href={FLASH} target="_blank" rel="noopener noreferrer" style={{marginBottom:9}}><i className="fa-solid fa-bullseye" aria-hidden="true"/> Re-drill your weakest decks</a>}
+      {p.lang && <LangChip lang={p.lang}/>}
+      {p.exam && <div style={{padding:"12px 14px",border:`0.5px solid ${SUBJ.physio}44`,borderRadius:"var(--r-lg)",background:SUBJ.physio+"0c",fontSize:14,color:SUBJ.physio}}><i className="fa-regular fa-calendar-check" style={{marginRight:8}} aria-hidden="true"/>Computer test · 08:00 · {p.note}</div>}
+    </>
+  );
+}
+
+/* ── calendar connection bar ─────────────────────────────────────── */
+function CalendarBar({status, onConnect, onDisconnect, busy, sync, onSync}){
+  if(status==="on"){
+    const syncLbl = sync==="syncing" ? "syncing…" : sync==="error" ? "retry sync" : sync==="synced" ? "synced" : "sync";
+    return (
+      <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",padding:"10px 13px",border:`0.5px solid ${SUBJ.physio}33`,borderRadius:"var(--r-lg)",background:SUBJ.physio+"0a",marginBottom:12}}>
+        <i className="fa-regular fa-calendar-check" style={{color:SUBJ.physio}} aria-hidden="true"/>
+        <span style={{fontSize:13.5,color:"var(--ink)"}}>Reminders + sync on</span>
+        <span style={{fontSize:11.5,color:"var(--ink-3)",flex:1,minWidth:140}}>timed tasks → Google Calendar · your ticks &amp; tasks save to your Google Drive</span>
+        <button className="iconbtn" style={{fontSize:11,color:sync==="error"?"var(--warn)":"var(--ink-3)",display:"inline-flex",alignItems:"center",gap:5}} onClick={onSync} title="Sync now"><i className={"fa-solid fa-rotate"+(sync==="syncing"?" fa-spin":"")} aria-hidden="true"/> {syncLbl}</button>
+        <button className="iconbtn" style={{fontSize:12}} onClick={onDisconnect} title="Turn off">Turn off</button>
+      </div>
+    );
+  }
+  if(status==="reconnect"){
+    return (
+      <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",padding:"10px 13px",border:`0.5px solid var(--line-2)`,borderRadius:"var(--r-lg)",background:"var(--card)",marginBottom:12}}>
+        <i className="fa-solid fa-rotate" style={{color:"var(--warn)"}} aria-hidden="true"/>
+        <span style={{fontSize:13.5,color:"var(--ink)"}}>Google session expired — reminders &amp; sync paused</span>
+        <button className="ln-btn" onClick={onConnect} disabled={busy} style={{marginLeft:"auto"}}>{busy?"…":"Reconnect"}</button>
+      </div>
+    );
+  }
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:11,flexWrap:"wrap",padding:"12px 14px",border:`0.5px solid var(--line-2)`,borderRadius:"var(--r-lg)",background:"var(--card)",marginBottom:12}}>
+      <i className="fa-regular fa-bell" style={{color:"var(--ink-2)"}} aria-hidden="true"/>
+      <div style={{flex:1,minWidth:160}}><div style={{fontSize:13.5,color:"var(--ink)"}}>Turn on reminders &amp; device sync</div><div style={{fontSize:11.5,color:"var(--ink-3)"}}>timed tasks remind you, and everything syncs across your devices via your Google account</div></div>
+      <button className="ln-btn" onClick={onConnect} disabled={busy}><i className="fa-brands fa-google" aria-hidden="true"/> {busy?"Connecting…":"Connect"}</button>
+    </div>
+  );
+}
+
+/* ── task composer + item ────────────────────────────────────────── */
+function TaskComposer({onAdd}){
+  const [text,setText]=useState("");
+  const [time,setTime]=useState("");
+  const [date,setDate]=useState(todayStr());
+  const [important,setImportant]=useState(false);
+  const add=()=>{ const t=text.trim(); if(!t) return; onAdd({text:t,time:time||null,date:date||todayStr(),important}); setText(""); setTime(""); setDate(todayStr()); setImportant(false); };
+  return (
+    <div style={{marginTop:10}}>
+      <input className="txtin" placeholder="Add a plan or task…" value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")add();}}/>
+      <div style={{display:"flex",flexWrap:"wrap",gap:8,marginTop:8,alignItems:"center"}}>
+        <input className="sm" type="time" value={time} onChange={e=>setTime(e.target.value)} aria-label="Time"/>
+        <input className="sm" type="date" value={date} onChange={e=>setDate(e.target.value)} aria-label="Date"/>
+        <button className="sm" onClick={()=>setImportant(v=>!v)} aria-pressed={important} style={{color:important?"var(--warn)":"var(--ink-3)",borderColor:important?"var(--warn)":"var(--line-2)",display:"inline-flex",alignItems:"center",gap:6}}>
+          <i className={important?"fa-solid fa-star":"fa-regular fa-star"} aria-hidden="true"/> Important
+        </button>
+        <button className="ln-btn" style={{marginLeft:"auto"}} onClick={add}><i className="fa-solid fa-plus" aria-hidden="true"/> Add</button>
+      </div>
+      {!time && text && <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:6}}>No time set — this stays a checklist item with no reminder.</div>}
+    </div>
+  );
+}
+
+function TaskItem({task, A, gcalOn}){
+  const [editing,setEditing]=useState(false);
+  const [text,setText]=useState(task.text);
+  const [time,setTime]=useState(task.time||"");
+  const [date,setDate]=useState(task.date||todayStr());
+  const [important,setImportant]=useState(!!task.important);
+  const overdue = !task.done && task.date < todayStr();
+  const save=()=>{ A.updateTask(task.id,{text:text.trim()||task.text,time:time||null,date:date||todayStr(),important}); setEditing(false); };
+  return (
+    <div style={{padding:"10px 0",borderBottom:"0.5px solid var(--line)"}}>
+      {!editing ? (
+        <div style={{display:"flex",alignItems:"flex-start",gap:11}}>
+          <input type="checkbox" className="cb" style={{"--ck":"var(--accent)",marginTop:1}} checked={task.done} onChange={()=>A.toggleTask(task.id)} aria-label="Mark task done"/>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:14,color:"var(--ink)",opacity:task.done?.5:1,textDecoration:task.done?"line-through":"none",display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>
+              {task.important && <i className="fa-solid fa-star" style={{color:"var(--warn)",fontSize:11}} aria-hidden="true"/>}
+              {task.text}
+            </div>
+            <div style={{fontSize:12,color:overdue?"var(--warn)":"var(--ink-3)",marginTop:2,display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>
+              <span>{overdue?"overdue · ":""}{fmtTaskWhen(task)}</span>
+              {gcalOn && task.time && task.gcalId && !task.gcalError && <span style={{color:SUBJ.physio}}><i className="fa-regular fa-calendar-check" aria-hidden="true"/> reminder set</span>}
+              {gcalOn && task.time && task.gcalError && <button onClick={()=>A.retryTask(task.id)} style={{background:"none",border:0,color:"var(--warn)",padding:0,fontSize:12}}><i className="fa-solid fa-triangle-exclamation" aria-hidden="true"/> not synced — retry</button>}
+            </div>
+          </div>
+          <button className="iconbtn" onClick={()=>setEditing(true)} aria-label="Edit task"><i className="fa-solid fa-pen" style={{fontSize:12}} aria-hidden="true"/></button>
+          <button className="iconbtn" onClick={()=>A.deleteTask(task.id)} aria-label="Delete task"><i className="fa-solid fa-xmark" aria-hidden="true"/></button>
+        </div>
+      ) : (
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          <input className="txtin" value={text} onChange={e=>setText(e.target.value)}/>
+          <div style={{display:"flex",flexWrap:"wrap",gap:8,alignItems:"center"}}>
+            <input className="sm" type="time" value={time} onChange={e=>setTime(e.target.value)}/>
+            <input className="sm" type="date" value={date} onChange={e=>setDate(e.target.value)}/>
+            <button className="sm" onClick={()=>setImportant(v=>!v)} style={{color:important?"var(--warn)":"var(--ink-3)",borderColor:important?"var(--warn)":"var(--line-2)",display:"inline-flex",alignItems:"center",gap:6}}><i className={important?"fa-solid fa-star":"fa-regular fa-star"} aria-hidden="true"/> Important</button>
+            <button className="ln-btn" onClick={save}><i className="fa-solid fa-check" aria-hidden="true"/> Save</button>
+            <button className="ln-btn" onClick={()=>{setEditing(false);setText(task.text);setTime(task.time||"");setDate(task.date||todayStr());setImportant(!!task.important);}}>Cancel</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── views ───────────────────────────────────────────────────────── */
+function Countdown(){
+  const next=EXAMS.find(e=>daysUntil(e.iso)>=0)||EXAMS[EXAMS.length-1]; const d=daysUntil(next.iso);
+  return (
+    <div style={{background:"var(--card)",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",padding:"14px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+      <div style={{minWidth:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:9}}><Dot color={next.color}/><span style={{fontSize:14.5,color:"var(--ink)"}}>{next.label}</span></div>
+        <div style={{fontSize:12.5,color:"var(--ink-3)",marginTop:4}}>{fmtLong(next.iso)} · {next.time} · {next.place}</div>
+      </div>
+      <div style={{textAlign:"right",flex:"none"}}><div className="num" style={{fontFamily:"var(--serif)",fontSize:30,color:next.color,lineHeight:1}}>{d<0?"–":d}</div><div style={{fontSize:11,color:"var(--ink-3)",marginTop:2}}>{d<=0?countLabel(d):"days left"}</div></div>
+    </div>
+  );
+}
+
+function TodayView({data, A, gcalStatus}){
+  const ts=todayStr();
+  const today=PLAN.find(p=>p.date===ts);
+  const overdue=data.tasks.filter(t=>!t.done && t.date<ts);
+  const todays=data.tasks.filter(t=>t.date===ts);
+  const upcoming=data.tasks.filter(t=>t.date>ts).sort((a,b)=> (a.date+ (a.time||"")) < (b.date+(b.time||"")) ? -1:1);
+  const catchUp=PLAN.filter(p=>p.date<ts && !p.exam).flatMap(p=>p.keystones).filter(c=>!data.done[c]);
+  const topGoals=data.goals.slice(0,2);
+  const gcalOn=gcalStatus==="on";
+  return (
+    <div>
+      <div className="eyebrow" style={{marginTop:18}}>{fmtLong(ts)}</div>
+      <h1 style={{fontSize:30,margin:"2px 0 16px"}}>Today</h1>
+      <Countdown/>
+
+      {today ? (
+        <>
+          <div className="seclabel">Today’s study — {today.label}</div><hr className="rule" style={{marginBottom:10}}/>
+          <DayBody p={today} data={data} A={A} showNote={true}/>
+          {today.exam && <p style={{fontSize:14,color:SUBJ.physio}}>Exam day — good luck. Nothing new to study.</p>}
+        </>
+      ) : (
+        <>
+          <div className="seclabel">Today’s study</div><hr className="rule" style={{marginBottom:10}}/>
+          <p style={{fontSize:14,color:"var(--ink-2)"}}>No study block scheduled for today. Open <button onClick={()=>A.go("plan")} style={{background:"none",border:0,color:"var(--accent)",padding:0,textDecoration:"underline"}}>the plan</button>, or clear anything in catch-up below.</p>
+        </>
+      )}
+
+      {catchUp.length>0 && (
+        <>
+          <div className="seclabel">Catch up <span style={{fontSize:12,color:"var(--ink-3)"}}>({catchUp.length} unfinished)</span></div><hr className="rule" style={{marginBottom:10}}/>
+          {catchUp.map(c=><TopicCard key={c} code={c} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)}/>)}
+        </>
+      )}
+
+      <div className="seclabel">Today’s plan</div><hr className="rule" style={{marginBottom:10}}/>
+      <CalendarBar status={gcalStatus} onConnect={A.connectGcal} onDisconnect={A.disconnectGcal} busy={A.gcalBusy} sync={A.syncState} onSync={A.syncNow}/>
+      {overdue.length>0 && <div style={{fontSize:11.5,color:"var(--warn)",margin:"4px 0 2px",fontWeight:500}}>Overdue</div>}
+      {overdue.map(t=><TaskItem key={t.id} task={t} A={A} gcalOn={gcalOn}/>)}
+      {todays.length>0 && overdue.length>0 && <div style={{fontSize:11.5,color:"var(--ink-3)",margin:"10px 0 2px"}}>Today</div>}
+      {todays.map(t=><TaskItem key={t.id} task={t} A={A} gcalOn={gcalOn}/>)}
+      <TaskComposer onAdd={A.addTask}/>
+      {upcoming.length>0 && (
+        <>
+          <div style={{fontSize:11.5,color:"var(--ink-3)",margin:"16px 0 2px"}}>Upcoming</div>
+          {upcoming.map(t=><TaskItem key={t.id} task={t} A={A} gcalOn={gcalOn}/>)}
+        </>
+      )}
+
+      {topGoals.length>0 && (
+        <>
+          <div className="seclabel">Goals</div><hr className="rule" style={{marginBottom:10}}/>
+          {topGoals.map(g=><GoalRowMini key={g.id} g={g}/>)}
+          <button onClick={()=>A.go("goals")} className="ln-btn" style={{marginTop:8}}>All goals <i className="fa-solid fa-arrow-right" style={{fontSize:11}} aria-hidden="true"/></button>
+        </>
+      )}
+
+      <div style={{display:"flex",flexWrap:"wrap",gap:8,marginTop:22}}>
+        <a className="ln-btn" href={FLASH+"#master"} target="_blank" rel="noopener noreferrer"><i className="fa-solid fa-stopwatch" aria-hidden="true"/> Master Exam</a>
+        <a className="ln-btn" href={FLASH} target="_blank" rel="noopener noreferrer"><i className="fa-regular fa-clone" aria-hidden="true"/> All flashcard decks</a>
+        <button className="ln-btn" onClick={A.exportData}><i className="fa-solid fa-download" aria-hidden="true"/> Export backup</button>
+        <button className="ln-btn" onClick={A.importData}><i className="fa-solid fa-upload" aria-hidden="true"/> Import</button>
+      </div>
+    </div>
+  );
+}
+
+function GoalRowMini({g}){
+  const total=g.steps.length, done=g.steps.filter(s=>s.done).length, pct=total?Math.round(done/total*100):0;
+  return (
+    <div style={{padding:"9px 0",borderBottom:"0.5px solid var(--line)"}}>
+      <div style={{display:"flex",alignItems:"center",gap:9}}><i className="fa-regular fa-flag" style={{color:"var(--ink-2)",fontSize:14}} aria-hidden="true"/><span style={{flex:1,fontSize:14,color:"var(--ink)"}}>{g.title}</span>{g.date && <span style={{fontSize:11,color:"var(--ink-3)"}}>{fmtShort(g.date)}</span>}</div>
+      {total>0 && <div style={{display:"flex",alignItems:"center",gap:8,margin:"8px 0 0 23px"}}><ProgressBar pct={pct} color={SUBJ.physio}/><span style={{fontSize:11,color:"var(--ink-3)"}}>{done}/{total}</span></div>}
+    </div>
+  );
+}
+
+function PlanView({data, A}){
+  const ts=todayStr();
+  return (
+    <div>
+      <div className="eyebrow" style={{marginTop:18}}>now → 26 June</div>
+      <h1 style={{fontSize:28,margin:"2px 0 6px"}}>Physiology plan</h1>
+      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 4px"}}>One keystone deep-dive (~2 h) on weekdays, two on weekends — the rest of each field comes from drilling its deck. Respiratory, circulation and GIT are done, so they appear as question blocks. Round 2 after the test goes deep on everything.</p>
+      {PLAN.map(p=>{
+        const done=p.keystones.filter(c=>data.done[c]).length; const isToday=p.date===ts, past=p.date<ts;
+        return (
+          <div key={p.date} style={{marginTop:18,opacity:past&&!isToday?.7:1}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+              {isToday && <span style={{fontSize:10,fontWeight:500,padding:"2px 9px",borderRadius:20,background:SUBJ.physio,color:"#fff"}}>today</span>}
+              <h2 style={{fontSize:18}}>{p.day} {fmtShort(p.date)} — {p.label}</h2>
+              <span style={{fontSize:12,color:"var(--ink-3)",marginLeft:"auto"}}>{p.est}{p.keystones.length>0?` · ${done}/${p.keystones.length}`:""}</span>
+            </div>
+            <hr className="rule" style={{marginBottom:10}}/>
+            {p.note && !p.exam && <p style={{fontSize:12.5,color:"var(--ink-2)",margin:"0 0 10px",fontStyle:"italic"}}>{p.note}</p>}
+            <DayBody p={p} data={data} A={A} showNote={false}/>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function GoalCard({g, A}){
+  const [editing,setEditing]=useState(false); const [title,setTitle]=useState(g.title); const [date,setDate]=useState(g.date||""); const [step,setStep]=useState("");
+  const total=g.steps.length, done=g.steps.filter(s=>s.done).length, pct=total?Math.round(done/total*100):0;
+  const save=()=>{ A.updateGoal(g.id,{title:title.trim()||g.title,date}); setEditing(false); };
+  const addStep=()=>{ const t=step.trim(); if(t){ A.addStep(g.id,t); setStep(""); } };
+  return (
+    <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"14px 16px",marginBottom:12}}>
+      {!editing ? (
+        <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
+          <i className="fa-regular fa-flag" style={{color:SUBJ.physio,fontSize:15,marginTop:3}} aria-hidden="true"/>
+          <div style={{flex:1,minWidth:0}}><div style={{fontSize:15.5,color:"var(--ink)",fontFamily:"var(--serif)"}}>{g.title}</div>{g.date && <div style={{fontSize:12,color:"var(--ink-3)",marginTop:2}}>target · {fmtLong(g.date)}</div>}</div>
+          <button className="iconbtn" onClick={()=>setEditing(true)} aria-label="Edit goal"><i className="fa-solid fa-pen" style={{fontSize:12}} aria-hidden="true"/></button>
+          <button className="iconbtn" onClick={()=>{ if(confirm("Delete this goal?")) A.delGoal(g.id); }} aria-label="Delete goal"><i className="fa-solid fa-trash" style={{fontSize:12}} aria-hidden="true"/></button>
+        </div>
+      ) : (
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          <input className="txtin" value={title} onChange={e=>setTitle(e.target.value)} placeholder="Goal"/>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}><input className="txtin" type="date" value={date} onChange={e=>setDate(e.target.value)} style={{maxWidth:180}}/><button className="ln-btn" onClick={save}><i className="fa-solid fa-check" aria-hidden="true"/> Save</button><button className="ln-btn" onClick={()=>{setEditing(false);setTitle(g.title);setDate(g.date||"");}}>Cancel</button></div>
+        </div>
+      )}
+      {total>0 && <div style={{display:"flex",alignItems:"center",gap:8,margin:"12px 0 4px"}}><ProgressBar pct={pct} color={SUBJ.physio}/><span style={{fontSize:11,color:"var(--ink-3)"}}>{done}/{total}</span></div>}
+      <div style={{marginTop:8}}>
+        {g.steps.map(s=>(
+          <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"6px 0"}}>
+            <input type="checkbox" className="cb" style={{"--ck":SUBJ.physio,width:16,height:16}} checked={s.done} onChange={()=>A.toggleStep(g.id,s.id)} aria-label="Toggle step"/>
+            <span style={{flex:1,fontSize:13.5,color:"var(--ink-2)",opacity:s.done?.5:1,textDecoration:s.done?"line-through":"none"}}>{s.text}</span>
+            <button className="iconbtn" onClick={()=>A.delStep(g.id,s.id)} aria-label="Delete step"><i className="fa-solid fa-xmark" style={{fontSize:12}} aria-hidden="true"/></button>
+          </div>
+        ))}
+        <div style={{display:"flex",gap:8,marginTop:6}}><input className="txtin" placeholder="Add a step…" value={step} onChange={e=>setStep(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")addStep();}}/><button className="ln-btn" onClick={addStep}><i className="fa-solid fa-plus" aria-hidden="true"/></button></div>
+      </div>
+    </div>
+  );
+}
+
+function GoalsView({data, A}){
+  const [val,setVal]=useState("");
+  const add=()=>{ const t=val.trim(); if(t){ A.addGoal(t); setVal(""); } };
+  return (
+    <div>
+      <div className="eyebrow" style={{marginTop:18}}>what you’re working toward</div>
+      <h1 style={{fontSize:28,margin:"2px 0 14px"}}>Goals</h1>
+      <div style={{display:"flex",gap:8,marginBottom:18}}><input className="txtin" placeholder="Add a goal…" value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")add();}}/><button className="ln-btn" onClick={add}><i className="fa-solid fa-plus" aria-hidden="true"/> Add goal</button></div>
+      {data.goals.length===0 ? <p style={{fontSize:14,color:"var(--ink-2)"}}>No goals yet. Add one above — then break it into steps and watch the bar fill.</p> : data.goals.map(g=><GoalCard key={g.id} g={g} A={A}/>)}
+    </div>
+  );
+}
+
+function TimelineView(){
+  return (
+    <div>
+      <div className="eyebrow" style={{marginTop:18}}>the bigger arc</div>
+      <h1 style={{fontSize:28,margin:"2px 0 16px"}}>Timeline</h1>
+      <div style={{position:"relative",paddingLeft:22}}>
+        <div style={{position:"absolute",left:5,top:6,bottom:6,width:1.5,background:"var(--line-2)"}}/>
+        {TIMELINE.map((it,i)=>{ const c=it.color||(it.kind==="done"?"#9C9484":"var(--ink-3)"); return (
+          <div key={i} style={{position:"relative",marginBottom:18}}>
+            <span style={{position:"absolute",left:-22,top:4,width:it.big?12:9,height:it.big?12:9,borderRadius:"50%",background:it.kind==="exam"?c:"var(--paper)",border:`2px solid ${c}`,boxSizing:"border-box"}}/>
+            <div style={{fontSize:it.big?16:14.5,color:"var(--ink)",fontFamily:it.big?"var(--serif)":"inherit",display:"flex",alignItems:"center",gap:8}}>{it.kind==="done" && <i className="fa-solid fa-check" style={{color:SUBJ.micro,fontSize:12}} aria-hidden="true"/>}{it.label}{it.final && <span style={{fontSize:10,padding:"1px 8px",borderRadius:20,background:SUBJ.physio+"18",color:SUBJ.physio}}>final</span>}</div>
+            <div style={{fontSize:12.5,color:"var(--ink-3)",marginTop:2}}>{it.detail}</div>
+          </div>
+        );})}
+      </div>
+      <div style={{marginTop:8,padding:"12px 14px",background:"var(--card)",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)"}}>
+        <div style={{fontSize:13,color:"var(--ink-2)",marginBottom:8}}>Past subjects — passed</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:7}}>
+          <span className="chip"><Dot color={SUBJ.micro} size={8}/> Microbiology</span><span className="chip"><Dot color={SUBJ.im} size={8}/> Internal Medicine</span><span className="chip"><Dot color={SUBJ.czech} size={8}/> Czech</span>
+          <a className="chip" href={FLASH_IM} target="_blank" rel="noopener noreferrer"><i className="fa-regular fa-clone" aria-hidden="true"/> IM flashcards</a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FieldBlock({field, data, A}){
+  const [open,setOpen]=useState(false);
+  const codes=field.topics.map(t=>t[0]);
+  const dn=codes.filter(c=>data.done[c]).length, tot=codes.length, pct=Math.round(dn/tot*100);
+  const allDone=dn===tot;
+  return (
+    <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",marginBottom:10,overflow:"hidden"}}>
+      <div style={{display:"flex",alignItems:"center",gap:11,padding:"12px 14px"}}>
+        <button onClick={()=>setOpen(o=>!o)} style={{flex:1,minWidth:0,textAlign:"left",background:"none",border:0,padding:0,display:"flex",alignItems:"center",gap:11}}>
+          <i className={"fa-solid fa-chevron-"+(open?"down":"right")} style={{fontSize:11,color:"var(--ink-3)",flex:"none"}} aria-hidden="true"/>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:14.5,color:"var(--ink)"}}>{field.name}</div>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginTop:5}}><ProgressBar pct={pct} color={SUBJ.physio}/><span style={{fontSize:11,color:"var(--ink-3)",flex:"none"}}>{dn}/{tot}</span></div>
+          </div>
+        </button>
+        <button className="iconbtn" style={{fontSize:11,flex:"none",color:allDone?"var(--ink-3)":"var(--accent)"}} onClick={()=>A.setMany(codes,!allDone)} title={allDone?"Clear all":"Mark all done"}>{allDone?"clear":"all done"}</button>
+      </div>
+      {open && (
+        <div style={{padding:"0 14px 10px"}}>
+          <hr className="rule" style={{marginBottom:8}}/>
+          {field.topics.map(([code,title])=>(
+            <div key={code} style={{display:"flex",alignItems:"center",gap:10,padding:"6px 0"}}>
+              <input type="checkbox" className="cb" style={{"--ck":SUBJ.physio,width:16,height:16}} checked={!!data.done[code]} onChange={()=>A.toggleDone(code)} aria-label={"Mark "+title+" done"}/>
+              <span style={{fontFamily:"var(--mono)",fontSize:10.5,color:SUBJ.physio,flex:"none",width:38}}>{code}</span>
+              <span style={{flex:1,fontSize:13.5,color:"var(--ink-2)",opacity:data.done[code]?.55:1,textDecoration:data.done[code]?"line-through":"none"}}>{title}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProgressView({data, A}){
+  const allCodes=CURRICULUM.flatMap(f=>f.topics.map(t=>t[0]));
+  const total=allCodes.length, done=allCodes.filter(c=>data.done[c]).length, pct=Math.round(done/total*100);
+  return (
+    <div>
+      <div className="eyebrow" style={{marginTop:18}}>your physiology coverage</div>
+      <h1 style={{fontSize:28,margin:"2px 0 14px"}}>Progress</h1>
+      <div style={{background:"var(--card)",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",padding:"16px"}}>
+        <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:10}}>
+          <span style={{fontSize:14,color:"var(--ink)"}}>{done} of {total} topics done</span>
+          <span className="num" style={{fontFamily:"var(--serif)",fontSize:26,color:SUBJ.physio}}>{pct}%</span>
+        </div>
+        <ProgressBar pct={pct} color={SUBJ.physio} h={8}/>
+      </div>
+      <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"12px 0 16px"}}>Tick everything you’ve covered. Anything marked done disappears from Today and the Plan. Use “all done” to mark a whole finished field in one tap.</p>
+      {CURRICULUM.map(f=><FieldBlock key={f.key} field={f} data={data} A={A}/>)}
+    </div>
+  );
+}
+
+/* ── root ───────────────────────────────────────────────────────── */
+const TABS = [["today","Today"],["plan","Plan"],["progress","Progress"],["goals","Goals"],["timeline","Timeline"]];
+
+function App(){
+  const [tab,setTab]=useState("today");
+  const [data,setData]=useState(loadData);
+  const [gcalStatus,setGcalStatus]=useState("off");   // off | on | reconnect
+  const [gcalBusy,setGcalBusy]=useState(false);
+  const [syncState,setSyncState]=useState("idle");    // idle | syncing | synced | error
+  const fileRef=useRef(null);
+  const dataRef=useRef(data);
+  const first=useRef(true);
+  const skipPush=useRef(false);
+  const pushTimer=useRef(null);
+
+  useEffect(()=>{ dataRef.current=data; },[data]);
+
+  // save locally on every change; push to Drive (debounced) for real edits
+  useEffect(()=>{
+    if(first.current){ first.current=false; return; }
+    saveData(data);
+    if(skipPush.current){ skipPush.current=false; return; }
+    if(data.gcalEnabled){ if(tokenValid()){ schedulePush(); } else { setGcalStatus(s=>s==="on"?"reconnect":s); } }
+  },[data]);
+
+  // a change the user made → bump the timestamp so it wins on other devices and gets pushed
+  const mutate = (updater)=> setData(d=>{ const nd=updater(d); return {...nd, updatedAt:Date.now()}; });
+  // adopt the Drive copy without pushing it back; the connection flag stays device-local
+  const adopt = (remote)=>{ skipPush.current=true; const m=migrate(remote); m.gcalEnabled=dataRef.current.gcalEnabled; setData(m); saveData(m); };
+
+  // on load: restore connected state only — no sign-in popup here (browsers block popups without a click)
+  useEffect(()=>{ if(dataRef.current.gcalEnabled){ setGcalStatus("on"); } },[]);
+
+  // pull the latest from Drive when the app regains focus (only if a token is already held)
+  useEffect(()=>{
+    const onVis=()=>{ if(document.visibilityState==="visible" && dataRef.current.gcalEnabled && tokenValid()){ pullLatest(); } };
+    document.addEventListener("visibilitychange",onVis);
+    window.addEventListener("focus",onVis);
+    return ()=>{ document.removeEventListener("visibilitychange",onVis); window.removeEventListener("focus",onVis); };
+  },[]);
+
+  // ── Drive sync orchestration ──
+  const schedulePush=()=>{ if(pushTimer.current) clearTimeout(pushTimer.current); pushTimer.current=setTimeout(doPush,1500); };
+  const doPush=async ()=>{
+    if(!dataRef.current.gcalEnabled) return;
+    try{
+      setSyncState("syncing");
+      if(!_driveFileId){ const f=await driveFind(); if(f) _driveFileId=f.id; }
+      if(_driveFileId){ await driveUpdate(_driveFileId, dataRef.current); }
+      else { _driveFileId=await driveCreate(dataRef.current); }
+      setSyncState("synced");
+    }catch(e){ setSyncState("error"); }
+  };
+  const pullLatest=async ()=>{
+    try{
+      if(!_driveFileId){ const f=await driveFind(); if(!f) return; _driveFileId=f.id; }
+      const remote=await driveRead(_driveFileId);
+      if((remote.updatedAt||0) > (dataRef.current.updatedAt||0)){ adopt(remote); setSyncState("synced"); }
+    }catch(e){}
+  };
+  const initialSync=async ()=>{
+    try{
+      setSyncState("syncing");
+      const f=await driveFind();
+      if(f){ _driveFileId=f.id; const remote=await driveRead(f.id); adopt(remote); }
+      else { _driveFileId=await driveCreate(dataRef.current); }
+      setSyncState("synced");
+    }catch(e){ setSyncState("error"); }
+  };
+
+  // calendar sync helpers
+  const syncCreate = (task)=>{
+    if(!dataRef.current.gcalEnabled || !task.time) return;
+    gcalCreate(task).then(ev=>{ mutate(d=>({...d,tasks:d.tasks.map(t=>t.id===task.id?{...t,gcalId:ev.id,gcalError:false}:t)})); })
+    .catch(()=>{ setData(d=>({...d,tasks:d.tasks.map(t=>t.id===task.id?{...t,gcalError:true}:t)})); setGcalStatus(s=>s==="on"?"reconnect":s); });
+  };
+  const syncUpdate = (task)=>{
+    if(!dataRef.current.gcalEnabled) return;
+    if(task.gcalId){
+      gcalUpdate(task.gcalId,task).then(()=>{ setData(d=>({...d,tasks:d.tasks.map(t=>t.id===task.id?{...t,gcalError:false}:t)})); })
+      .catch(()=>{ setData(d=>({...d,tasks:d.tasks.map(t=>t.id===task.id?{...t,gcalError:true}:t)})); setGcalStatus(s=>s==="on"?"reconnect":s); });
+    } else if(task.time){ syncCreate(task); }
+  };
+
+  const A = {
+    go:setTab,
+    gcalBusy, syncState,
+    toggleDone:(c)=>mutate(d=>({...d,done:{...d.done,[c]:!d.done[c]}})),
+    setMany:(codes,val)=>mutate(d=>{ const nd={...d,done:{...d.done}}; codes.forEach(function(c){ nd.done[c]=val; }); return nd; }),
+
+    addTask:(f)=>{ const task={id:uid(),text:f.text,date:f.date,time:f.time,important:!!f.important,done:false,gcalId:null};
+      mutate(d=>({...d,tasks:[...d.tasks,task]})); syncCreate(task); },
+    updateTask:(id,patch)=>{
+      const cur=dataRef.current.tasks.find(t=>t.id===id)||{};
+      const wasGId=cur.gcalId;
+      const updated={...cur,...patch};
+      mutate(d=>({...d,tasks:d.tasks.map(t=>t.id===id?{...t,...patch}:t)}));
+      if(!dataRef.current.gcalEnabled) return;
+      if(wasGId && !updated.time){ gcalDelete(wasGId).catch(()=>{}); mutate(d=>({...d,tasks:d.tasks.map(t=>t.id===id?{...t,gcalId:null}:t)})); return; }
+      syncUpdate(updated);
+    },
+    toggleTask:(id)=>mutate(d=>({...d,tasks:d.tasks.map(t=>t.id===id?{...t,done:!t.done}:t)})),
+    deleteTask:(id)=>{ const t=dataRef.current.tasks.find(x=>x.id===id); if(t && t.gcalId && dataRef.current.gcalEnabled){ gcalDelete(t.gcalId).catch(()=>{}); } mutate(d=>({...d,tasks:d.tasks.filter(x=>x.id!==id)})); },
+    retryTask:(id)=>{ const t=dataRef.current.tasks.find(x=>x.id===id); if(t) syncUpdate(t); },
+
+    connectGcal:async ()=>{
+      if(IS_FILE){ alert("This is the offline copy sitting on your computer (file://).\n\nGoogle sign-in, reminders and sync only work on the live site. Open this instead:\n\n"+LIVE_URL); return; }
+      setGcalBusy(true);
+      try{
+        await getToken();
+        setData(d=>({...d,gcalEnabled:true}));
+        setGcalStatus("on");
+        await initialSync();
+        const pending=dataRef.current.tasks.filter(t=>t.time && !t.gcalId && !t.done);
+        for(const t of pending){ try{ const ev=await gcalCreate(t); mutate(d=>({...d,tasks:d.tasks.map(x=>x.id===t.id?{...x,gcalId:ev.id,gcalError:false}:x)})); }catch(e){} }
+      }catch(e){ alert("Couldn't connect to Google.\n\n"+(e && e.message?e.message:"Please try again.")); setGcalStatus(s=>s==="on"?"on":"off"); }
+      setGcalBusy(false);
+    },
+    disconnectGcal:()=>{ gcalForget(); _driveFileId=null; setData(d=>({...d,gcalEnabled:false})); setGcalStatus("off"); setSyncState("idle"); },
+    syncNow:()=>{ if(dataRef.current.gcalEnabled){ if(tokenValid()){ initialSync(); } else { setGcalStatus("reconnect"); } } },
+
+    addGoal:(title)=>mutate(d=>({...d,goals:[...d.goals,{id:uid(),title,date:"",steps:[]}]})),
+    updateGoal:(id,patch)=>mutate(d=>({...d,goals:d.goals.map(g=>g.id===id?{...g,...patch}:g)})),
+    delGoal:(id)=>mutate(d=>({...d,goals:d.goals.filter(g=>g.id!==id)})),
+    addStep:(gid,text)=>mutate(d=>({...d,goals:d.goals.map(g=>g.id===gid?{...g,steps:[...g.steps,{id:uid(),text,done:false}]}:g)})),
+    toggleStep:(gid,sid)=>mutate(d=>({...d,goals:d.goals.map(g=>g.id===gid?{...g,steps:g.steps.map(s=>s.id===sid?{...s,done:!s.done}:s)}:g)})),
+    delStep:(gid,sid)=>mutate(d=>({...d,goals:d.goals.map(g=>g.id===gid?{...g,steps:g.steps.filter(s=>s.id!==sid)}:g)})),
+
+    exportData:()=>{ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="planner-backup-"+todayStr()+".json"; a.click(); URL.revokeObjectURL(url); },
+    importData:()=>{ if(fileRef.current) fileRef.current.click(); },
+  };
+
+  const onFile=(e)=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result); if(confirm("Replace your current planner data with this backup?")){ const m=migrate(d); setData(m); saveData(m); } }catch(err){ alert("That file isn't a valid planner backup."); } }; r.readAsText(f); e.target.value=""; };
+
+  return (
+    <div>
+      <header style={{position:"sticky",top:0,zIndex:5,background:"var(--paper)",borderBottom:"0.5px solid var(--line)",padding:"15px 0 0"}}>
+        <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",gap:10}}><div style={{fontFamily:"var(--serif)",fontSize:18,color:"var(--ink)"}}>Study planner</div><div style={{fontSize:12,color:"var(--ink-3)"}}>2nd-year medicine · Plzeň</div></div>
+        <nav style={{display:"flex",gap:18,marginTop:6,overflowX:"auto"}}>{TABS.map(([id,label])=>(<button key={id} className="navbtn" aria-current={tab===id} onClick={()=>setTab(id)} style={{whiteSpace:"nowrap"}}>{label}</button>))}</nav>
+      </header>
+
+      {IS_FILE && (
+        <div style={{background:"#FBEAE5",border:"0.5px solid #E7B7A8",color:"#7A2E12",borderRadius:"var(--r-lg)",padding:"12px 14px",marginTop:14,fontSize:13.5,lineHeight:1.5}}>
+          <strong>You’ve opened the offline file.</strong> Sign-in, reminders and sync don’t work here. Open the live app instead:<br/>
+          <a href={LIVE_URL} style={{color:"#7A2E12",fontWeight:600,wordBreak:"break-all"}}>{LIVE_URL}</a>
+        </div>
+      )}
+
+      {tab==="today" && <TodayView data={data} A={A} gcalStatus={gcalStatus}/>}
+      {tab==="plan" && <PlanView data={data} A={A}/>}
+      {tab==="progress" && <ProgressView data={data} A={A}/>}
+      {tab==="goals" && <GoalsView data={data} A={A}/>}
+      {tab==="timeline" && <TimelineView/>}
+
+      <input ref={fileRef} type="file" accept="application/json,.json" onChange={onFile} style={{display:"none"}}/>
+
+      <footer style={{marginTop:30}}>
+        <hr className="rule"/>
+        <p style={{fontSize:11.5,color:"var(--ink-3)",lineHeight:1.6,marginTop:12}}>Everything you tick, add or edit saves automatically. Tasks with a time sync to Google Calendar once reminders are on. Keep <span style={{fontFamily:"var(--mono)"}}>physio_flashcards.html</span> at the same address so the flashcard links open.</p>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

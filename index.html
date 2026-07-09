@@ -215,19 +215,21 @@ async function gcalDelete(id){
   const r=await fetch(GCAL_BASE+"/"+encodeURIComponent(id),{method:"DELETE",headers:{Authorization:"Bearer "+tok}});
   if(!r.ok && r.status!==404 && r.status!==410) throw new Error("delete "+r.status); return true;
 }
-// read upcoming events (next 3 weeks) so the planner can show what /insta-checkup put on the calendar
+// read upcoming events (today → +14 days) so the planner can show the daily briefing + what /insta-checkup put on the calendar
 async function gcalListEvents(){
   const tok=await getToken();
   const now=new Date();
-  const qs=new URLSearchParams({ timeMin:now.toISOString(), timeMax:new Date(now.getTime()+21*86400000).toISOString(), singleEvents:"true", orderBy:"startTime", maxResults:"25", timeZone:"Europe/Prague" });
+  const qs=new URLSearchParams({ timeMin:now.toISOString(), timeMax:new Date(now.getTime()+14*86400000).toISOString(), singleEvents:"true", orderBy:"startTime", maxResults:"50", timeZone:"Europe/Prague" });
   const r=await fetch(GCAL_BASE+"?"+qs.toString(),{headers:{Authorization:"Bearer "+tok}});
   if(!r.ok) throw new Error("Calendar read failed ("+r.status+")");
   const j=await r.json();
   return (j.items||[]).map(function(it){
     const start=(it.start&&(it.start.dateTime||it.start.date))||null;
     const allDay=!!(it.start&&it.start.date&&!it.start.dateTime);
-    const m=(it.description||"").match(/Source:\s*(@[\w.]+)/i);
-    return { id:it.id, title:it.summary||"(untitled)", start:start, allDay:allDay, location:it.location||"", colorId:it.colorId||"", source:m?m[1]:"", htmlLink:it.htmlLink||"" };
+    const desc=it.description||"";                              // full description (briefing summary lives here)
+    const sm=desc.match(/Source:\s*(@[\w.]+)/i);                // Instagram handle, unchanged
+    const um=desc.match(/https?:\/\/[^\s)<>"']+/i);             // first URL, e.g. the Instagram post link
+    return { id:it.id, title:it.summary||"(untitled)", start:start, allDay:allDay, location:it.location||"", colorId:it.colorId||"", description:desc, source:sm?sm[1]:"", postUrl:um?um[0]:"", htmlLink:it.htmlLink||"" };
   }).filter(function(e){ return e.start; });
 }
 
@@ -708,22 +710,43 @@ function CalendarBar({status, onConnect, onDisconnect, busy, sync, onSync, onRec
   );
 }
 
-/* ── school Instagram events — reads what /insta-checkup wrote to your calendar ── */
-function fmtEventWhen(e){
-  let dt;
-  if(e.allDay){ const p=e.start.split("-"); dt=new Date(+p[0],+p[1]-1,+p[2]); return dt.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"}); }
-  dt=new Date(e.start);
-  const day=dt.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
-  const tm=dt.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-  return day+" · "+tm;
+/* ── Today dashboard — daily briefing card + upcoming events, read back from your calendar ── */
+function eventDateKey(e){
+  if(e.allDay) return e.start;                                  // all-day start is already YYYY-MM-DD
+  const d=new Date(e.start);
+  return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
 }
-function SchoolEvents({gcalOn}){
+function fmtEventTime(e){
+  if(e.allDay) return "All day";
+  return new Date(e.start).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+}
+function dayHeaderLabel(key){
+  const ts=todayStr();
+  const tm=new Date(); tm.setDate(tm.getDate()+1);
+  const tmStr=tm.getFullYear()+"-"+pad(tm.getMonth()+1)+"-"+pad(tm.getDate());
+  if(key===ts) return "Today";
+  if(key===tmStr) return "Tomorrow";
+  return fmtDay(key);
+}
+// The daily-briefing routine writes ONE all-day event titled "📋 Daily Briefing — YYYY-MM-DD"; it's the card, never a row.
+function isBriefing(e){ return !!e.allDay && typeof e.title==="string" && e.title.trim().indexOf("📋 Daily Briefing")===0; }
+function groupByDay(events){
+  const groups=[], idx={};
+  events.forEach(function(e){
+    const k=eventDateKey(e);
+    if(!(k in idx)){ idx[k]=groups.length; groups.push([k,[]]); }
+    groups[idx[k]][1].push(e);
+  });
+  return groups;
+}
+
+// one shared calendar read, lifted so the top-of-Today briefing card and the Upcoming list share a single fetch
+function useCalendarFeed(gcalOn){
   const [events,setEvents]=useState(null);
   const [err,setErr]=useState("");
-  const [schoolOnly,setSchoolOnly]=useState(true);
   const [refreshedAt,setRefreshedAt]=useState(0);
-  const [tick,setTick]=useState(0);
   const [loading,setLoading]=useState(false);
+  const [tick,setTick]=useState(0);
   useEffect(function(){
     if(!gcalOn || !tokenValid()) return;
     let live=true; setLoading(true);
@@ -733,46 +756,92 @@ function SchoolEvents({gcalOn}){
     window.addEventListener("focus",onF);
     return function(){ live=false; window.removeEventListener("focus",onF); };
   },[gcalOn,tick]);
-  const shown=(events||[]).filter(function(e){ return schoolOnly ? !!e.source : true; });
-  const ago = refreshedAt ? Math.round((Date.now()-refreshedAt)/60000) : null;
-  return (
-    <div style={{background:"var(--card)",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",padding:"14px",marginBottom:14}}>
-      <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:10}}>
-        <i className="fa-brands fa-instagram" style={{color:"#C13584"}} aria-hidden="true"/>
-        <span style={{fontSize:14.5,color:"var(--ink)",flex:1}}>School events</span>
-        {gcalOn && <button className="iconbtn" style={{fontSize:11,color:"var(--ink-3)"}} onClick={function(){ setTick(function(t){return t+1;}); }} title="Refresh from calendar"><i className={"fa-solid fa-rotate"+(loading?" fa-spin":"")} aria-hidden="true"/></button>}
+  return { events:events, err:err, loading:loading, refreshedAt:refreshedAt, refresh:function(){ setTick(function(t){return t+1;}); } };
+}
+
+// a) Briefing card — sits at the very top of Today; prominent when today's briefing exists, quiet placeholder otherwise
+function BriefingCard({gcalOn, events}){
+  if(!gcalOn || events===null) return null;
+  const ts=todayStr();
+  const briefing=events.find(function(e){ return isBriefing(e) && e.start===ts; });
+  if(briefing) return (
+    <div style={{background:SUBJ.physio+"0a",border:"0.5px solid "+SUBJ.physio+"33",borderRadius:"var(--r-lg)",padding:"14px 16px",marginBottom:16}}>
+      <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:8}}>
+        <span aria-hidden="true" style={{fontSize:16,lineHeight:1}}>📋</span>
+        <span style={{fontFamily:"var(--serif)",fontSize:16,color:"var(--ink)",flex:1}}>Daily briefing</span>
+        <span style={{fontSize:11.5,color:"var(--ink-3)"}}>{fmtLong(ts)}</span>
       </div>
-      <a className="ln-btn" href={INSTA_DEEPLINK} onClick={openInstaCheck} style={{marginBottom:10}}>
-        <i className="fa-solid fa-bolt" aria-hidden="true"/> Run Instagram check <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/>
-      </a>
-      <p style={{fontSize:11.5,color:"var(--ink-3)",margin:"0 0 10px"}}>Opens the Claude app with <span style={{fontFamily:"var(--mono)"}}>/insta-checkup</span> already typed — just hit send. It scans the 9 school accounts, adds new events to your Google Calendar with fitting reminders, and they appear below. Zero-tap option: schedule your saved shortcut in the Chrome extension (clock icon).</p>
-      {!gcalOn && <p style={{fontSize:12,color:"var(--ink-3)",margin:0}}>Turn on reminders + sync above to see upcoming events here.</p>}
-      {gcalOn && err && <p style={{fontSize:12,color:"var(--warn)",margin:0}}>⚠ {err}</p>}
-      {gcalOn && !err && (
-        <>
-          <div style={{display:"flex",alignItems:"center",gap:8,margin:"2px 0 6px"}}>
-            <button className="iconbtn" style={{fontSize:11,color:schoolOnly?SUBJ.physio:"var(--ink-3)"}} onClick={function(){ setSchoolOnly(true); }}>School only</button>
-            <span style={{color:"var(--line-2)"}}>·</span>
-            <button className="iconbtn" style={{fontSize:11,color:!schoolOnly?SUBJ.physio:"var(--ink-3)"}} onClick={function(){ setSchoolOnly(false); }}>All</button>
-            {ago!==null && <span style={{marginLeft:"auto",fontSize:10.5,color:"var(--ink-3)"}}>{ago<1?"just now":("checked "+ago+"m ago")}</span>}
-          </div>
-          {events===null && <p style={{fontSize:12,color:"var(--ink-3)",margin:0}}>Loading…</p>}
-          {events!==null && shown.length===0 && <p style={{fontSize:12,color:"var(--ink-3)",margin:0}}>{schoolOnly?"No school events on your calendar yet — run a check.":"Nothing upcoming in the next 3 weeks."}</p>}
-          {shown.map(function(e){
-            const col=GCAL_COLORS[e.colorId]||SUBJ.physio;
-            return (
-              <a key={e.id} href={e.htmlLink||"#"} target="_blank" rel="noopener noreferrer" style={{display:"flex",gap:10,alignItems:"flex-start",padding:"8px 0",borderTop:"0.5px solid var(--line)",textDecoration:"none"}}>
-                <span style={{width:8,height:8,borderRadius:"50%",background:col,flex:"none",marginTop:5}}/>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:13.5,color:"var(--ink)"}}>{e.title}</div>
-                  <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2}}>{fmtEventWhen(e)}{e.location?" · "+e.location:""}{e.source?" · "+e.source:""}</div>
-                </div>
-              </a>
-            );
-          })}
-        </>
-      )}
+      {briefing.description
+        ? <div style={{fontSize:14,color:"var(--ink-2)",lineHeight:1.6,whiteSpace:"pre-wrap",wordBreak:"break-word"}}>{briefing.description}</div>
+        : <p style={{fontSize:13,color:"var(--ink-3)",margin:0,fontStyle:"italic"}}>Today’s briefing has no summary yet.</p>}
     </div>
+  );
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:9,border:"0.5px dashed var(--line-2)",borderRadius:"var(--r-lg)",padding:"12px 14px",marginBottom:16}}>
+      <span aria-hidden="true" style={{fontSize:14,opacity:.55}}>📋</span>
+      <span style={{fontSize:12.5,color:"var(--ink-3)"}}>No briefing yet today — your morning routine will drop it here.</span>
+    </div>
+  );
+}
+
+// b) Upcoming list — windowed events grouped by day, color-tagged by colorId; excludes the briefing and your own app-created tasks
+function UpcomingEvents({gcalOn, feed}){
+  const [schoolOnly,setSchoolOnly]=useState(false);            // default: all upcoming; "School only" filters to Instagram items
+  const events=feed.events, err=feed.err, loading=feed.loading;
+  const upcoming=(events||[])
+    .filter(function(e){ return !isBriefing(e); })                                          // the briefing is the card, not a row
+    .filter(function(e){ return (e.description||"").trim()!=="Added from Study planner"; })  // your own tasks already list below — skip duplicate rows
+    .filter(function(e){ return schoolOnly ? !!e.source : true; });
+  const groups=groupByDay(upcoming);
+  const ago = feed.refreshedAt ? Math.round((Date.now()-feed.refreshedAt)/60000) : null;
+  return (
+      <div style={{background:"var(--card)",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",padding:"14px",marginBottom:14}}>
+        <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:10}}>
+          <i className="fa-regular fa-calendar" style={{color:SUBJ.physio}} aria-hidden="true"/>
+          <span style={{fontSize:14.5,color:"var(--ink)",flex:1}}>Upcoming</span>
+          {gcalOn && <button className="iconbtn" style={{fontSize:11,color:"var(--ink-3)"}} onClick={feed.refresh} title="Refresh from calendar"><i className={"fa-solid fa-rotate"+(loading?" fa-spin":"")} aria-hidden="true"/></button>}
+        </div>
+        <a className="ln-btn" href={INSTA_DEEPLINK} onClick={openInstaCheck} style={{marginBottom:10}}>
+          <i className="fa-solid fa-bolt" aria-hidden="true"/> Run Instagram check <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/>
+        </a>
+        <p style={{fontSize:11.5,color:"var(--ink-3)",margin:"0 0 10px"}}>Opens the Claude app with <span style={{fontFamily:"var(--mono)"}}>/insta-checkup</span> already typed — just hit send. It scans the 9 school accounts, adds new events to your Google Calendar with fitting reminders, and they appear below. Zero-tap option: schedule your saved shortcut in the Chrome extension (clock icon).</p>
+        {!gcalOn && <p style={{fontSize:12,color:"var(--ink-3)",margin:0}}>Turn on reminders + sync above to see your briefing and upcoming events here.</p>}
+        {gcalOn && err && <p style={{fontSize:12,color:"var(--warn)",margin:0}}>⚠ {err}</p>}
+        {gcalOn && !err && (
+          <>
+            <div style={{display:"flex",alignItems:"center",gap:8,margin:"2px 0 6px"}}>
+              <button className="iconbtn" style={{fontSize:11,color:!schoolOnly?SUBJ.physio:"var(--ink-3)"}} onClick={function(){ setSchoolOnly(false); }}>All</button>
+              <span style={{color:"var(--line-2)"}}>·</span>
+              <button className="iconbtn" style={{fontSize:11,color:schoolOnly?SUBJ.physio:"var(--ink-3)"}} onClick={function(){ setSchoolOnly(true); }}>School only</button>
+              {ago!==null && <span style={{marginLeft:"auto",fontSize:10.5,color:"var(--ink-3)"}}>{ago<1?"just now":("checked "+ago+"m ago")}</span>}
+            </div>
+            {events===null && <p style={{fontSize:12,color:"var(--ink-3)",margin:0}}>Loading…</p>}
+            {events!==null && groups.length===0 && <p style={{fontSize:12,color:"var(--ink-3)",margin:0}}>{schoolOnly?"No school events on your calendar yet — run a check.":"Nothing upcoming in the next 14 days."}</p>}
+            {groups.map(function(g){
+              const key=g[0], evs=g[1];
+              return (
+                <div key={key} style={{marginTop:10}}>
+                  <div style={{fontSize:11,fontWeight:600,letterSpacing:".03em",textTransform:"uppercase",color:"var(--ink-3)",margin:"0 0 2px"}}>{dayHeaderLabel(key)}</div>
+                  {evs.map(function(e){
+                    const col=GCAL_COLORS[e.colorId]||"var(--ink-3)";   // default = neutral
+                    return (
+                      <div key={e.id} style={{display:"flex",gap:11,alignItems:"stretch",padding:"8px 0",borderTop:"0.5px solid var(--line)"}}>
+                        <span style={{width:3,borderRadius:3,background:col,flex:"none",alignSelf:"stretch"}}/>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontSize:13.5,color:"var(--ink)"}}>{e.title}</div>
+                          <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2}}>{fmtEventTime(e)}{e.location?" · "+e.location:""}{e.source?" · "+e.source:""}</div>
+                          {e.postUrl && <a href={e.postUrl} target="_blank" rel="noopener noreferrer" className="chip" style={{marginTop:6,fontSize:11,padding:"3px 9px"}}><i className="fa-brands fa-instagram" style={{color:"#C13584"}} aria-hidden="true"/> Open post <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:9,opacity:.6}} aria-hidden="true"/></a>}
+                        </div>
+                        <a href={e.htmlLink||"#"} target="_blank" rel="noopener noreferrer" className="iconbtn" style={{alignSelf:"flex-start",fontSize:12,color:"var(--ink-3)"}} title="Open in Google Calendar" aria-label="Open in Google Calendar"><i className="fa-regular fa-calendar" aria-hidden="true"/></a>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </>
+        )}
+      </div>
   );
 }
 
@@ -865,10 +934,12 @@ function TodayView({data, A, gcalStatus}){
   const catchUp=PLAN.filter(p=>p.date<ts && !p.exam).flatMap(p=>p.keystones).filter(c=>!data.done[c]);
   const topGoals=data.goals.slice(0,2);
   const gcalOn=gcalStatus==="on";
+  const cal=useCalendarFeed(gcalOn);
   return (
     <div>
       <div className="eyebrow" style={{marginTop:18}}>{fmtLong(ts)}</div>
       <h1 style={{fontSize:30,margin:"2px 0 16px"}}>Today</h1>
+      <BriefingCard gcalOn={gcalOn} events={cal.events}/>
       <Countdown/>
 
       {today ? (
@@ -893,7 +964,7 @@ function TodayView({data, A, gcalStatus}){
 
       <div className="seclabel">Today’s plan</div><hr className="rule" style={{marginBottom:10}}/>
       <CalendarBar status={gcalStatus} onConnect={A.connectGcal} onDisconnect={A.disconnectGcal} busy={A.gcalBusy} sync={A.syncState} onSync={A.syncNow} onReconnect={A.reconnect} email={A.syncEmail} err={A.syncErr} onSwitch={A.switchAccount}/>
-      <SchoolEvents gcalOn={gcalStatus==="on"}/>
+      <UpcomingEvents gcalOn={gcalOn} feed={cal}/>
       {overdue.length>0 && <div style={{fontSize:11.5,color:"var(--warn)",margin:"4px 0 2px",fontWeight:500}}>Overdue</div>}
       {overdue.map(t=><TaskItem key={t.id} task={t} A={A} gcalOn={gcalOn}/>)}
       {todays.length>0 && overdue.length>0 && <div style={{fontSize:11.5,color:"var(--ink-3)",margin:"10px 0 2px"}}>Today</div>}

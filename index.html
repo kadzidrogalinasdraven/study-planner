@@ -56,6 +56,18 @@
   .iconbtn{background:transparent;border:0;color:var(--ink-3);padding:6px;border-radius:6px;line-height:1;transition:color .15s,background .15s}
   .iconbtn:hover{color:var(--ink);background:var(--paper-2)}
   .copied{font-size:11px;color:var(--accent)}
+  /* health tracker — big touch targets, this gets used one-handed at night */
+  .hslider{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer;margin:2px 0}
+  .hslider::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:var(--line)}
+  .hslider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;margin-top:-10px;border-radius:50%;background:var(--card);border:1.5px solid var(--hc,var(--accent));box-shadow:0 1px 3px rgba(0,0,0,.16)}
+  .hslider::-moz-range-track{height:6px;border-radius:6px;background:var(--line)}
+  .hslider::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--card);border:1.5px solid var(--hc,var(--accent));box-shadow:0 1px 3px rgba(0,0,0,.16)}
+  .hslider.unset::-webkit-slider-thumb{border-color:var(--line-2);background:var(--paper-2);box-shadow:none}
+  .hslider.unset::-moz-range-thumb{border-color:var(--line-2);background:var(--paper-2);box-shadow:none}
+  .pick{flex:1;min-width:40px;padding:10px 0;font-size:14px;text-align:center;background:var(--card);border:0.5px solid var(--line-2);border-radius:var(--r-md);color:var(--ink-2);transition:background .15s,border-color .15s,color .15s}
+  .pick[aria-pressed="true"]{background:var(--hc,var(--accent));border-color:var(--hc,var(--accent));color:#fff}
+  .daychip{flex:none;min-width:46px;padding:7px 5px;border-radius:var(--r-md);border:0.5px solid var(--line-2);background:var(--card);text-align:center;line-height:1.25;transition:background .15s,border-color .15s}
+  .daychip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
   @keyframes cbpop{0%{transform:scale(1)}42%{transform:scale(1.18)}100%{transform:scale(1)}}
   @keyframes ckin{0%{transform:scale(0) rotate(-14deg);opacity:0}55%{transform:scale(1.28) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
   @keyframes ckring{0%{transform:scale(.6);opacity:.5}100%{transform:scale(2.4);opacity:0}}
@@ -76,7 +88,7 @@
 const { useState, useEffect, useRef } = React;
 
 /* ── identity & links ───────────────────────────────────────────── */
-const SUBJ = { physio:"#534AB7", micro:"#0F6E56", im:"#BE123C", czech:"#185FA5", italian:"#2F8F57" };
+const SUBJ = { physio:"#534AB7", micro:"#0F6E56", im:"#BE123C", czech:"#185FA5", italian:"#2F8F57", health:"#0E7490" };
 const PROJECT_PHYSIO = "https://claude.ai/project/019cc8a2-db77-7717-b48d-d8fff233e1c9";
 const CHAT_CZECH   = "https://claude.ai/chat/53820c71-73a6-4d0c-bd13-87f8136b833b";
 const CHAT_ITALIAN = "https://claude.ai/chat/a3aebc22-8fa1-41ec-8205-a05785d4ba0f";
@@ -520,6 +532,9 @@ const fmtDay = iso => parseISO(iso).toLocaleDateString("en-GB",{weekday:"short",
 const daysUntil = iso => { const t=parseISO(iso); const n=new Date(); const a=new Date(n.getFullYear(),n.getMonth(),n.getDate()); return Math.round((t-a)/86400000); };
 const countLabel = n => n<0 ? "passed" : n===0 ? "today" : n===1 ? "tomorrow" : n+" days";
 const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const addDays = (iso,n) => { const d=parseISO(iso); d.setDate(d.getDate()+n); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
+const dayDiff = (a,b) => Math.round((parseISO(b)-parseISO(a))/86400000);   // whole days from a → b
+const dateRange = (a,b) => { const out=[]; const n=dayDiff(a,b); for(let i=0;i<=n;i++) out.push(addDays(a,i)); return out; };
 
 function copyText(t){
   try{ if(navigator.clipboard && window.isSecureContext){ navigator.clipboard.writeText(t); return true; } }catch(e){}
@@ -546,10 +561,123 @@ function fmtTaskWhen(task){
   return task.time ? dayPart+" · "+task.time : dayPart;
 }
 
+/* ── health experiments — data layer ──────────────────────────────────
+   Every metric points the same way: 0 = no problem, 10 = worst. "Nasal patency" keeps the
+   name you use for it, but it is SCORED AS OBSTRUCTION so it runs with the others — 0 clear,
+   10 blocked. That means a falling number is always an improvement, on every metric, which is
+   what makes the first-half/second-half comparison readable at a glance.
+
+   VOID LOGIC — the point of the whole thing. A day is void when the dose was missed or was
+   never answered; void days are thrown out of the analysis. The TRIAL is only declared void
+   when the misses exceed what the adherence threshold allows across the FULL trial length —
+   i.e. when the target has become unreachable, not on a running percentage. One miss on day 2
+   is 50% but is not fatal, and the app must not pretend it is. */
+const METRICS = [
+  { key:"wakings",      label:"Night wakings", kind:"count", help:"How many times you woke in the night. 0 = slept through." },
+  { key:"nasalPatency", label:"Nasal patency", kind:"scale", help:"0 = clear, breathing freely · 10 = completely blocked" },
+  { key:"fatigue",      label:"Fatigue",       kind:"scale", help:"0 = no problem · 10 = worst" },
+  { key:"fog",          label:"Brain fog",     kind:"scale", help:"0 = no problem · 10 = worst" },
+];
+const METRIC_BY_KEY = {}; METRICS.forEach(m=>{ METRIC_BY_KEY[m.key]=m; });
+const FLAGS = [
+  { key:"neckSwelling", label:"Neck swelling" },
+  { key:"rescueMed",    label:"Rescue medication taken" },
+];
+const HEALTH_EDIT_DAYS = 7;   // how far back you can still fill in a missed evening
+
+function DEFAULT_HEALTH(){
+  const mome=uid(), deslo=uid();
+  return {
+    seeded:true,
+    interventions:[
+      { id:mome,  label:"Mometasone 50µg — 2 sprays per nostril, morning", active:true },
+      { id:deslo, label:"Desloratadine 5mg — evening", active:true },
+    ],
+    experiments:[{
+      id:uid(),
+      name:"Nasal corticosteroid trial (attempt 2)",
+      intervention:"Mometasone 50µg, 2 sprays per nostril, every morning",
+      startDate:"2026-08-02",
+      readoutDate:"2026-08-15",
+      primaryEndpoint:"nasalPatency",
+      minAdherencePct:80,
+      status:"active",
+      interventionIds:[mome,deslo],
+      notes:"Attempt 1 (27.07–29.07) aborted at day 2 — VOID, not negative. Full effect needs ~2 weeks. Do not judge before 15.08.",
+    }],
+    entries:{},
+  };
+}
+/* seeded flag, not an empty-array check: deleting the trial on purpose must not resurrect it */
+function migrateHealth(h){
+  if(!h || !h.seeded) return DEFAULT_HEALTH();
+  const out = Object.assign({ seeded:true, interventions:[], experiments:[], entries:{} }, h);
+  if(!Array.isArray(out.interventions)) out.interventions=[];
+  if(!Array.isArray(out.experiments)) out.experiments=[];
+  if(!out.entries || typeof out.entries!=="object") out.entries={};
+  return out;
+}
+
+const emptyEntry = date => ({ date, metrics:{}, flags:{}, doses:{}, notes:"", loggedAt:0 });
+
+/* "unknown" is deliberately distinct from "missed": an unanswered checkbox is not evidence
+   that you skipped the dose, but it is equally unusable, so both void the day. */
+function doseState(entry, ids){
+  if(!ids.length) return "none";
+  if(!entry || !entry.doses) return "unknown";
+  let missed=false, unknown=false;
+  ids.forEach(function(id){ const v=entry.doses[id]; if(v===false) missed=true; else if(v!==true) unknown=true; });
+  return missed ? "missed" : unknown ? "unknown" : "taken";
+}
+function entryComplete(entry, ids){
+  if(!entry) return false;
+  const scored = METRICS.every(m=>typeof entry.metrics[m.key]==="number");
+  return scored && doseState(entry,ids)!=="unknown";
+}
+function entryProgress(entry, ids){
+  const total = METRICS.length + ids.length;
+  if(!entry) return { done:0, total };
+  let done = METRICS.filter(m=>typeof entry.metrics[m.key]==="number").length;
+  ids.forEach(function(id){ if(typeof entry.doses[id]==="boolean") done++; });
+  return { done, total };
+}
+
+function expStats(exp, health, today){
+  const ids = (exp.interventionIds||[]).filter(id=>health.interventions.some(i=>i.id===id && i.active));
+  const trialDays = dayDiff(exp.startDate, exp.readoutDate) + 1;
+  const allowedMisses = Math.floor(trialDays * (100 - (exp.minAdherencePct||80)) / 100);
+  const started = today >= exp.startDate;
+  const lastDay = today < exp.readoutDate ? today : exp.readoutDate;
+  const days = (started ? dateRange(exp.startDate, lastDay) : []).map(function(d){
+    const e  = health.entries[d] || null;
+    const ds = doseState(e, ids);
+    // today is not a miss until the day is over — no nagging at breakfast
+    const pending = (d===today && ds!=="missed" && ds!=="taken");
+    return { date:d, entry:e, dose:ds, pending:pending, isVoid: !pending && ds!=="taken" };
+  });
+  const counted = days.filter(d=>!d.pending);
+  const missed  = counted.filter(d=>d.isVoid).length;
+  const pct     = counted.length ? Math.round((counted.length-missed)/counted.length*100) : 100;
+  let streak=0;
+  for(let i=days.length-1;i>=0;i--){
+    if(days[i].dose==="taken") streak++;
+    else if(days[i].pending) continue;      // an unlogged today doesn't break yesterday's streak
+    else break;
+  }
+  const blown = missed > allowedMisses;
+  return {
+    ids, trialDays, allowedMisses, missed, pct, streak, days, counted, blown, started,
+    remainingMisses: Math.max(0, allowedMisses - missed),
+    dayNo: started ? dayDiff(exp.startDate, lastDay) + 1 : 0,
+    daysToReadout: dayDiff(today, exp.readoutDate),
+    readoutReached: today >= exp.readoutDate,
+  };
+}
+
 /* ── persistence ──────────────────────────────────────────────────── */
 const KEY = "study_planner_v2";
 const DEFAULT_DATA = () => ({
-  done:{}, tasks:[], gcalEnabled:false, updatedAt:0,
+  done:{}, tasks:[], gcalEnabled:false, updatedAt:0, health:DEFAULT_HEALTH(),
   goals:[
     { id:uid(), title:"Pass the Physiology computer test", date:"2026-06-26",
       steps:[ {id:uid(),text:"One clean pass over every keystone",done:false}, {id:uid(),text:"≥95% on the Master Exam decks",done:false} ] },
@@ -566,6 +694,7 @@ function migrate(d){
     });
     out.tasks=flat;
   }
+  out.health = migrateHealth(out.health);
   return out;
 }
 const hasCloud = () => { try{ return window.storage && typeof window.storage.get==="function"; }catch(e){ return false; } };
@@ -1165,8 +1294,222 @@ function ProgressView({data, A}){
   );
 }
 
+/* ── health tracker — Today card ─────────────────────────────────── */
+function MetricSlider({m, value, onChange, primary}){
+  const set = typeof value==="number";
+  const col = primary ? SUBJ.health : "var(--ink-2)";
+  // a controlled range parked at 5 fires no change event when you tap dead-centre while unset,
+  // so commit the DOM value on pointer release as well
+  const commitIfUnset = e => { if(!set) onChange(Number(e.currentTarget.value)); };
+  return (
+    <div style={{padding:"10px 0",borderBottom:"0.5px solid var(--line)"}}>
+      <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+        <span style={{fontSize:14,color:"var(--ink)"}}>{m.label}</span>
+        {primary && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:SUBJ.health+"1c",color:SUBJ.health}}>primary</span>}
+        <span className="num" style={{marginLeft:"auto",fontFamily:"var(--serif)",fontSize:23,lineHeight:1,color:set?col:"var(--ink-3)"}}>{set?value:"–"}</span>
+      </div>
+      <input type="range" min="0" max="10" step="1" className={"hslider"+(set?"":" unset")} style={{"--hc":SUBJ.health}}
+        value={set?value:5} onChange={e=>onChange(Number(e.target.value))} onPointerUp={commitIfUnset} onKeyUp={commitIfUnset}
+        aria-label={m.label+" — "+m.help} aria-valuetext={set?String(value):"not scored yet"}/>
+      <div style={{fontSize:11.5,color:"var(--ink-3)"}}>{m.help}</div>
+    </div>
+  );
+}
+
+function WakingsPicker({m, value, onChange}){
+  const set = typeof value==="number";
+  return (
+    <div style={{padding:"10px 0",borderBottom:"0.5px solid var(--line)"}}>
+      <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:7}}>
+        <span style={{fontSize:14,color:"var(--ink)"}}>{m.label}</span>
+        <span className="num" style={{marginLeft:"auto",fontFamily:"var(--serif)",fontSize:23,lineHeight:1,color:set?"var(--ink-2)":"var(--ink-3)"}}>{set?value:"–"}</span>
+      </div>
+      <div style={{display:"flex",gap:6}}>
+        {[0,1,2,3,4,5].map(n=>{
+          const isPlus = n===5;
+          const on = isPlus ? (set && value>=5) : value===n;
+          // tapping 5+ again climbs past 5, so a bad night isn't capped
+          const next = isPlus ? (set && value>=5 ? value+1 : 5) : n;
+          return <button key={n} className="pick" style={{"--hc":SUBJ.health}} aria-pressed={on}
+            onClick={()=>{ haptic(); onChange(next); }}>{isPlus ? (on?value+"+":"5+") : n}</button>;
+        })}
+      </div>
+      <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:6}}>{m.help} Tap 5+ again to climb higher.</div>
+    </div>
+  );
+}
+
+function DoseRow({iv, value, onSet}){
+  const unanswered = typeof value!=="boolean";
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:"0.5px solid var(--line)",flexWrap:"wrap"}}>
+      <span style={{flex:1,minWidth:120,fontSize:13.5,color:unanswered?"var(--ink-2)":"var(--ink)"}}>{iv.label}</span>
+      <div style={{display:"flex",gap:6,flex:"none"}}>
+        <button className="pick" style={{"--hc":SUBJ.health,flex:"none",padding:"9px 15px"}} aria-pressed={value===true}  onClick={()=>{haptic();onSet(true);}}>Taken</button>
+        <button className="pick" style={{"--hc":"#B45309",flex:"none",padding:"9px 15px"}} aria-pressed={value===false} onClick={()=>{haptic();onSet(false);}}>Missed</button>
+      </div>
+    </div>
+  );
+}
+
+function DayPicker({sel, onSel, entries, ids}){
+  const t=todayStr();
+  const days=[]; for(let i=HEALTH_EDIT_DAYS-1;i>=0;i--) days.push(addDays(t,-i));
+  return (
+    <div style={{display:"flex",gap:6,overflowX:"auto",padding:"0 0 4px",marginBottom:12}}>
+      {days.map(function(d){
+        const done=entryComplete(entries[d],ids);
+        const isToday=d===t;
+        return (
+          <button key={d} className="daychip" aria-pressed={d===sel} onClick={()=>onSel(d)}
+            aria-label={fmtLong(d)+(done?" — logged":" — not logged")}>
+            <div style={{fontSize:10,color:"var(--ink-3)"}}>{isToday?"today":parseISO(d).toLocaleDateString("en-GB",{weekday:"short"})}</div>
+            <div className="num" style={{fontSize:15,color:"var(--ink)"}}>{parseISO(d).getDate()}</div>
+            <div style={{display:"flex",justifyContent:"center",marginTop:3,height:5}}><Dot size={5} color={done?SUBJ.health:"var(--line-2)"}/></div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* The one screen that has to work: a void trial is stated plainly and is never dressed up
+   as a negative finding. */
+function TrialStrip({exp, st}){
+  if(!exp || !st) return null;
+  if(exp.status==="void" || st.blown){
+    return (
+      <div style={{border:"1px solid #B45309",borderRadius:"var(--r-lg)",background:"#B453090f",padding:"14px 16px",marginBottom:14}}>
+        <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:7}}>
+          <i className="fa-solid fa-triangle-exclamation" style={{color:"var(--warn)"}} aria-hidden="true"/>
+          <span style={{fontFamily:"var(--serif)",fontSize:17,color:"#7A2E12"}}>This trial is void — restart it</span>
+        </div>
+        <p style={{fontSize:13.5,color:"#7A2E12",lineHeight:1.55,margin:0}}>
+          You missed <strong>{st.missed}</strong> {st.missed===1?"day":"days"}; this trial allowed {st.allowedMisses}. Even a perfect run from
+          here can no longer reach {exp.minAdherencePct}% adherence, so whatever the numbers do next, they can’t be read.
+          <br/><strong>This is not a negative result — it is no result.</strong> Start a fresh trial with a new start date.
+        </p>
+      </div>
+    );
+  }
+  if(!st.started){
+    return (
+      <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"12px 15px",marginBottom:14,fontSize:13,color:"var(--ink-2)"}}>
+        <strong style={{color:"var(--ink)"}}>{exp.name}</strong> starts {fmtLong(exp.startDate)}.
+      </div>
+    );
+  }
+  return (
+    <div style={{border:`0.5px solid ${SUBJ.health}33`,borderRadius:"var(--r-lg)",background:SUBJ.health+"0a",padding:"12px 15px",marginBottom:14}}>
+      <div style={{fontSize:14,color:"var(--ink)",marginBottom:3}}>{exp.name}</div>
+      <div style={{display:"flex",flexWrap:"wrap",gap:"2px 14px",fontSize:12.5,color:"var(--ink-2)"}}>
+        <span>Day <span className="num" style={{color:SUBJ.health}}>{st.dayNo}</span> of {st.trialDays}</span>
+        <span>{st.streak} day{st.streak===1?"":"s"} in a row</span>
+        <span style={{color:st.remainingMisses===0?"var(--warn)":"var(--ink-2)"}}>
+          {st.missed} of {st.allowedMisses} missed {st.allowedMisses===1?"day":"days"} used
+        </span>
+      </div>
+      <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:6,display:"flex",alignItems:"center",gap:6}}>
+        <i className="fa-solid fa-lock" style={{fontSize:10}} aria-hidden="true"/>
+        {st.readoutReached
+          ? <span>Readout reached — the comparison is unlocked.</span>
+          : <span>No verdict until {fmtShort(exp.readoutDate)} · {st.daysToReadout} day{st.daysToReadout===1?"":"s"} to go. Keep logging.</span>}
+      </div>
+    </div>
+  );
+}
+
+function HealthView({data, A}){
+  const h=data.health, t=todayStr();
+  const [sel,setSel]=useState(t);
+  const exp = h.experiments.find(e=>e.status==="active") || h.experiments[0] || null;
+  const st  = exp ? expStats(exp,h,t) : null;
+  const ids = st ? st.ids : [];
+  const ivs = h.interventions.filter(i=>ids.indexOf(i.id)>=0);
+  const entry = h.entries[sel] || null;
+  const done = entryComplete(entry,ids);
+  const prog = entryProgress(entry,ids);
+  const isToday = sel===t;
+
+  // once the miss ceiling is breached the verdict is settled — write it down so it survives a reload
+  useEffect(function(){
+    if(exp && st && st.blown && exp.status!=="void") A.voidExperiment(exp.id);
+  },[exp && exp.id, st && st.blown, exp && exp.status]);
+
+  const M = (key,val)=>A.setMetric(sel,key,val);
+
+  return (
+    <div>
+      <div className="eyebrow" style={{marginTop:18}}>n-of-1 self-experiment</div>
+      <h1 style={{fontSize:30,margin:"2px 0 16px"}}>Health</h1>
+
+      <TrialStrip exp={exp} st={st}/>
+
+      <DayPicker sel={sel} onSel={setSel} entries={h.entries} ids={ids}/>
+
+      <div style={{background:"var(--card)",border:`0.5px solid ${done?SUBJ.health+"66":"var(--line)"}`,borderRadius:"var(--r-lg)",overflow:"hidden"}}>
+        <div style={{display:"flex",alignItems:"center",gap:11,padding:"13px 16px",background:done?SUBJ.health+"12":"var(--paper-2)"}}>
+          <span style={{width:32,height:32,borderRadius:"50%",flex:"none",display:"flex",alignItems:"center",justifyContent:"center",background:done?SUBJ.health:"transparent",border:done?"none":"1.5px dashed var(--line-2)",color:done?"#fff":"var(--ink-3)"}}>
+            <i className={done?"fa-solid fa-check":"fa-regular fa-pen-to-square"} style={{fontSize:13}} aria-hidden="true"/>
+          </span>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontFamily:"var(--serif)",fontSize:17,color:done?SUBJ.health:"var(--ink)",lineHeight:1.25}}>{done?"Logged":"Not logged yet"}</div>
+            <div style={{fontSize:12,color:"var(--ink-3)"}}>
+              {isToday?"Today":fmtLong(sel)} · {done ? "everything scored — saved automatically" : prog.done+" of "+prog.total+" fields"}
+            </div>
+          </div>
+          {!isToday && <span style={{fontSize:10.5,padding:"3px 9px",borderRadius:10,background:"var(--accent-soft)",color:"var(--accent)",flex:"none"}}>catching up</span>}
+        </div>
+
+        <div style={{padding:"2px 16px 16px"}}>
+          {/* doses first: if you bail halfway down the card, adherence is the thing that must survive */}
+          {ivs.length>0 && (
+            <>
+              <div style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em",margin:"12px 0 2px"}}>Doses</div>
+              {ivs.map(iv=><DoseRow key={iv.id} iv={iv} value={entry?entry.doses[iv.id]:undefined} onSet={v=>A.setDose(sel,iv.id,v)}/>)}
+            </>
+          )}
+
+          <div style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em",margin:"16px 0 2px"}}>
+            Symptoms <span style={{textTransform:"none",letterSpacing:0}}>· 0 = no problem, 10 = worst</span>
+          </div>
+          {METRICS.map(m=> m.kind==="count"
+            ? <WakingsPicker key={m.key} m={m} value={entry?entry.metrics[m.key]:undefined} onChange={v=>M(m.key,v)}/>
+            : <MetricSlider  key={m.key} m={m} value={entry?entry.metrics[m.key]:undefined} onChange={v=>M(m.key,v)} primary={exp && exp.primaryEndpoint===m.key}/>
+          )}
+
+          <div style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em",margin:"16px 0 2px"}}>Flags</div>
+          {FLAGS.map(f=>(
+            <label key={f.key} style={{display:"flex",alignItems:"center",gap:11,padding:"10px 0",borderBottom:"0.5px solid var(--line)",cursor:"pointer"}}>
+              <input type="checkbox" className="cb" style={{"--ck":SUBJ.health}} checked={!!(entry&&entry.flags[f.key])} onChange={e=>{haptic();A.setFlag(sel,f.key,e.target.checked);}}/>
+              <span style={{fontSize:13.5,color:"var(--ink)"}}>{f.label}</span>
+            </label>
+          ))}
+
+          <div style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em",margin:"16px 0 6px"}}>Notes <span style={{textTransform:"none",letterSpacing:0}}>· optional</span></div>
+          <textarea className="txtin" rows="2" placeholder="Anything worth remembering about today…"
+            value={entry?entry.notes:""} onChange={e=>A.setEntryNotes(sel,e.target.value)} style={{resize:"vertical"}}/>
+        </div>
+      </div>
+
+      {exp && exp.notes && (
+        <div style={{marginTop:14,padding:"12px 15px",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)"}}>
+          <div style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em",marginBottom:4}}>Why this trial exists</div>
+          <p style={{fontSize:13,color:"var(--ink-2)",lineHeight:1.55,fontStyle:"italic",margin:0}}>{exp.notes}</p>
+          <p style={{fontSize:12.5,color:"var(--ink-3)",lineHeight:1.5,margin:"8px 0 0"}}>{exp.intervention}</p>
+        </div>
+      )}
+
+      <p style={{fontSize:11.5,color:"var(--ink-3)",lineHeight:1.6,marginTop:18}}>
+        A day counts only if every dose is answered. Missed or unanswered days are marked void and dropped from the
+        analysis — that is what keeps the final comparison honest. You can fill in the last {HEALTH_EDIT_DAYS} days from the row above.
+      </p>
+    </div>
+  );
+}
+
 /* ── root ───────────────────────────────────────────────────────── */
-const TABS = [["today","Today"],["plan","Plan"],["progress","Progress"],["goals","Goals"],["timeline","Timeline"]];
+const TABS = [["today","Today"],["plan","Plan"],["progress","Progress"],["goals","Goals"],["health","Health"],["timeline","Timeline"]];
 
 function App(){
   const [tab,setTab]=useState("today");
@@ -1278,8 +1621,22 @@ function App(){
     } else if(task.time){ syncCreate(task); }
   };
 
+  // health entries save on change, exactly like every tick in the planner
+  const patchEntry = (date,fn)=>mutate(d=>{
+    const cur  = d.health.entries[date] || emptyEntry(date);
+    const next = Object.assign({}, fn(cur), { loggedAt:Date.now() });
+    return {...d, health:{...d.health, entries:{...d.health.entries, [date]:next}}};
+  });
+
   const A = {
     go:setTab,
+
+    setMetric:(date,key,val)=>patchEntry(date,e=>({...e,metrics:{...e.metrics,[key]:val}})),
+    setFlag:(date,key,val)=>patchEntry(date,e=>({...e,flags:{...e.flags,[key]:val}})),
+    setDose:(date,id,val)=>patchEntry(date,e=>({...e,doses:{...e.doses,[id]:val}})),
+    setEntryNotes:(date,v)=>patchEntry(date,e=>({...e,notes:v})),
+    voidExperiment:(id)=>mutate(d=>({...d,health:{...d.health,experiments:d.health.experiments.map(x=>x.id===id?{...x,status:"void"}:x)}})),
+
     gcalBusy, syncState, syncEmail, syncErr,
     toggleDone:(c)=>{ haptic(); mutate(d=>({...d,done:{...d.done,[c]:!d.done[c]}})); },
     setMany:(codes,val)=>mutate(d=>{ const nd={...d,done:{...d.done}}; codes.forEach(function(c){ nd.done[c]=val; }); return nd; }),
@@ -1376,6 +1733,7 @@ function App(){
       {tab==="plan" && <PlanView data={data} A={A}/>}
       {tab==="progress" && <ProgressView data={data} A={A}/>}
       {tab==="goals" && <GoalsView data={data} A={A}/>}
+      {tab==="health" && <HealthView data={data} A={A}/>}
       {tab==="timeline" && <TimelineView/>}
 
       <input ref={fileRef} type="file" accept="application/json,.json" onChange={onFile} style={{display:"none"}}/>

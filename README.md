@@ -1,0 +1,99 @@
+# Study planner
+
+A single-file app. Everything lives in `index.html` — React and Babel are pulled from a CDN and
+the JSX is compiled in the browser, so there is no build step and nothing to install. Open the
+file, or push to `main` and Netlify serves it at
+[peppy-lokum-2c5109.netlify.app](https://peppy-lokum-2c5109.netlify.app/).
+
+`physio_flashcards.html` is a separate standalone page that the planner links to. Keep it at the
+same address or the flashcard links break.
+
+Data is saved to the browser's `localStorage` under one key, `study_planner_v2`, on every change.
+When Google reminders are switched on, that same blob is also mirrored to a hidden app-data folder
+in your Google Drive so your phone and Mac stay in step. Whichever device edited most recently
+wins — the merge is by timestamp on the whole blob, not per field.
+
+---
+
+## Health tracker
+
+A tab for running structured n-of-1 self-experiments: take something daily, score your symptoms
+daily, and don't look at the answer until the date you set in advance.
+
+It shares the planner's storage, so health entries sync between phone and Mac the same way, and
+are covered by the same Export backup.
+
+### The metrics
+
+Every metric points the same way — **0 = no problem, 10 = worst** — so a falling number is always
+an improvement, on every line. That is what makes the first-half/second-half comparison readable
+at a glance.
+
+| Metric | Scale | Meaning |
+|---|---|---|
+| **Night wakings** | count | How many times you woke in the night. 0 = slept through. |
+| **Nasal patency** | 0–10 | 0 = clear, breathing freely · 10 = completely blocked. |
+| **Fatigue** | 0–10 | 0 = no problem · 10 = worst. |
+| **Brain fog** | 0–10 | 0 = no problem · 10 = worst. |
+
+Note the direction on **nasal patency**: it keeps that name, but it is *scored as obstruction* so
+it runs with the others. Higher is worse, as everywhere else.
+
+Two flags are recorded alongside them — neck swelling and rescue medication — plus free-text notes.
+
+Each experiment nominates one metric as its **primary endpoint** (the trial ships with nasal
+patency). That is the one the verdict hangs on. The others are context, and reading a result off
+a secondary metric after the fact is how you fool yourself.
+
+### Void days
+
+A day is **void** when the dose was missed, or when the dose checkbox was never answered at all.
+Unanswered is treated the same as missed — not because skipping is assumed, but because a day you
+can't vouch for is equally unusable as evidence.
+
+Void days are dropped from the analysis. They are not counted as bad days, or as good ones. They
+are counted as no data, and the `n` for each half of the trial is shown so you can see how much
+was thrown away.
+
+### When the whole trial is declared void
+
+This is the part the app exists for.
+
+The miss allowance is calculated against the **full length of the trial**, not against the days
+elapsed so far. A 14-day trial at 80% adherence allows 2 missed days. You spend them as you go and
+the app shows how many are left.
+
+The trial is only marked `void` when the misses **exceed** that allowance — the point where even a
+flawless run through the remaining days can no longer reach the threshold. At that moment the
+target is mathematically out of reach, and the app says so plainly and tells you to restart.
+
+It deliberately does **not** judge on a running percentage. One miss on day 2 of 14 is 50%
+adherence, which looks catastrophic and is not: it is one miss out of an allowance of two. An app
+that voided the trial there would be manufacturing exactly the premature-abandonment result this
+is meant to prevent.
+
+The distinction that matters, and the one the void banner states outright:
+
+> **A void trial is not a negative result. It is no result.**
+
+An aborted trial tells you nothing about whether the intervention works. It has to be run again
+from a fresh start date.
+
+### The readout lock
+
+No verdict is shown before the experiment's `readoutDate`. Until then the app will only tell you
+how many days remain and how your adherence is doing — no trend line, no means, no comparison,
+nothing that can be squinted at and read as an early answer.
+
+On or after the readout date the period is split in half and each metric is compared, first half
+against second, with mean ± SD, absolute and percentage change, and the number of valid days
+behind each figure.
+
+That comparison is an uncontrolled, unblinded n-of-1 observation. Symptoms drift on their own,
+seasons change, and you know what you are taking. It can tell you that something changed over
+those two weeks. It cannot tell you that the intervention caused it.
+
+### Privacy
+
+Health entries stay in your browser and in your own private Google Drive app-data folder. They are
+not sent anywhere else, there is no backend, no account, and no analytics anywhere in this app.

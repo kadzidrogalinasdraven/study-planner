@@ -173,14 +173,25 @@ function getToken(opts){
 /* Proactively refresh the token ~5 min before it expires so the session never visibly lapses.
    Silent (prompt:"") needs the browser's Google session; if Safari/iOS ITP has dropped it, the
    refresh fails quietly and the app falls back to a one-tap Reconnect when a real call next fails. */
+/* Never ask Google for a token while you're working somewhere else. requestAccessToken opens a
+   popup, and a popup drags the whole browser to the front — that's what yanks you into Chrome
+   mid-sentence. visibilityState is NOT enough: a Chrome tab stays "visible" while another app
+   covers it, so the only reliable "you're actually here" test is document.hasFocus(). */
+function appIsInFront(){ try{ return document.visibilityState!=="hidden" && document.hasFocus(); }catch(e){ return true; } }
 function scheduleRefresh(){
   try{ clearTimeout(_refreshTimer); }catch(e){}
   if(!_accessToken) return;
   const lead=5*60*1000;
   const dueIn=Math.max(15000, _tokenExpiry - Date.now() - lead);
-  _refreshTimer=setTimeout(function(){ getToken({force:true, prompt:""}).catch(function(){}); }, dueIn);
+  const attempt=function(){
+    // not in front → don't touch it. Come back later; focus/visibilitychange also call
+    // refreshIfStale(), so returning to the tab refreshes immediately either way.
+    if(!appIsInFront()){ _refreshTimer=setTimeout(attempt, 60000); return; }
+    getToken({force:true, prompt:""}).catch(function(){});
+  };
+  _refreshTimer=setTimeout(attempt, dueIn);
 }
-function refreshIfStale(){ if(_accessToken && Date.now() > _tokenExpiry - 5*60*1000){ getToken({force:true, prompt:""}).catch(function(){}); } }
+function refreshIfStale(){ if(_accessToken && appIsInFront() && Date.now() > _tokenExpiry - 5*60*1000){ getToken({force:true, prompt:""}).catch(function(){}); } }
 async function acquireToken(){
   // Returning users: silent token for the saved account (no picker). First connect, or a dropped
   // session, falls back to the account chooser once.
@@ -1352,9 +1363,13 @@ function DoseRow({iv, value, onSet}){
   );
 }
 
-function DayPicker({sel, onSel, entries, ids}){
+function DayPicker({sel, onSel, entries, ids, minDate}){
   const t=todayStr();
-  const days=[]; for(let i=HEALTH_EDIT_DAYS-1;i>=0;i--) days.push(addDays(t,-i));
+  const back=[]; for(let i=HEALTH_EDIT_DAYS-1;i>=0;i--) back.push(addDays(t,-i));
+  // never offer days before the trial opened — there is nothing to log there, and an empty
+  // pre-start day must not be mistaken for a missed one
+  const inTrial=back.filter(d=>!minDate || d>=minDate);
+  const days=inTrial.length?inTrial:[t];
   return (
     <div style={{display:"flex",gap:6,overflowX:"auto",padding:"0 0 4px",marginBottom:12}}>
       {days.map(function(d){
@@ -1445,7 +1460,7 @@ function HealthView({data, A}){
 
       <TrialStrip exp={exp} st={st}/>
 
-      <DayPicker sel={sel} onSel={setSel} entries={h.entries} ids={ids}/>
+      <DayPicker sel={sel} onSel={setSel} entries={h.entries} ids={ids} minDate={exp?exp.startDate:null}/>
 
       <div style={{background:"var(--card)",border:`0.5px solid ${done?SUBJ.health+"66":"var(--line)"}`,borderRadius:"var(--r-lg)",overflow:"hidden"}}>
         <div style={{display:"flex",alignItems:"center",gap:11,padding:"13px 16px",background:done?SUBJ.health+"12":"var(--paper-2)"}}>

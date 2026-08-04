@@ -110,6 +110,30 @@ The working recipe, per topic:
 
 Batch files go in the scratchpad, not the repo.
 
+**There is a reusable workflow for this.** It is generic over topic — pass
+`{dir, topic, label, batches}` and it runs the whole write → double-verify → repair pipeline:
+
+```text
+~/.claude/projects/-Users-linas-Projects-study-planner/workflows/scripts/topic-explanations-*.js
+```
+
+Invoke it with `Workflow({scriptPath: "<that file>", args: {...}})`. Prepare the batch files first:
+
+```python
+# split one topic into batches of 26 under <scratchpad>/<topic>/bNN.json
+import json, os, re
+s = open('physio_flashcards.html', encoding='utf-8').read()
+d = re.search(r'id="deck-data">(.*?)</script>', s, re.S).group(1).replace('<\\/script>', '</script>')
+t = [x for x in json.loads(d) if x['id'] == TOPIC][0]
+qs, B = t['questions'], 26
+for b in range((len(qs) + B - 1) // B):
+    chunk = [{"i": i, "q": qs[i]['q'], "a": qs[i]['a']} for i in range(b*B, min((b+1)*B, len(qs)))]
+    json.dump({"topic": TOPIC, "batch": b, "questions": chunk}, open(f"{DIR}/{TOPIC}/b{b:02d}.json", "w"), indent=1)
+```
+
+Two topics can run at once — the agents are network-bound, not CPU-bound, and each workflow gets its
+own concurrency cap. Beyond two, they start queueing behind each other for no gain.
+
 ### Coverage
 
 | Topic | Cards | Explanations |

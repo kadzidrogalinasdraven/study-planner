@@ -685,10 +685,104 @@ function expStats(exp, health, today){
   };
 }
 
+/* ── productivity — data layer ────────────────────────────────────────
+   Everything here is date-keyed. A bare boolean cannot answer "what did I do THIS week",
+   which is the only question this tab asks.
+
+   Weeks run Monday–Sunday, local time. Every log entry carries tickedAt — when the box was
+   ticked, as opposed to the day it is ticked FOR. Back-filling four days on Sunday is a
+   different fact from doing them daily, and without that field the two are indistinguishable. */
+const weekStartOf = iso => addDays(iso, -(((parseISO(iso).getDay()+6)%7)));   // Mon = 0
+const weekDaysOf  = iso => { const s=weekStartOf(iso); return dateRange(s, addDays(s,6)); };
+const nowISO      = () => new Date().toISOString();
+/* a tick landing more than a day after the day it is for was back-filled */
+const loggedLate  = (date, tickedAt) => !!tickedAt && dayDiff(date, String(tickedAt).slice(0,10)) > 1;
+
+function DEFAULT_PROD(){
+  return {
+    gym:      { targetPerWeek:3, log:{} },
+    lang:     { log:{} },
+    projects: { targetPerWeek:3, log:{}, defs:[
+      { id:"flashcards", name:"Flashcard decks", color:SUBJ.physio },
+      { id:"planner",    name:"Study planner",   color:"#5E7155"  },
+      { id:"pflege",     name:"Pflegepraktikum", color:SUBJ.micro },
+    ]},
+    physio:   { weeklyTarget:null },   // null = derive from the pace needed to finish
+  };
+}
+function migrateProd(p){
+  const d=DEFAULT_PROD();
+  if(!p || typeof p!=="object") return d;
+  const out={
+    gym:      Object.assign({}, d.gym,      p.gym||{}),
+    lang:     Object.assign({}, d.lang,     p.lang||{}),
+    projects: Object.assign({}, d.projects, p.projects||{}),
+    physio:   Object.assign({}, d.physio,   p.physio||{}),
+  };
+  ["gym","lang","projects"].forEach(function(k){ if(!out[k].log || typeof out[k].log!=="object") out[k].log={}; });
+  if(!Array.isArray(out.projects.defs)) out.projects.defs=d.projects.defs;
+  return out;
+}
+
+/* How fast you have to move to finish the curriculum before the next exam. The deadline is the
+   day BEFORE the exam — the computer test starts at 08:00, so exam day is not a study day. */
+function physioPace(data, today){
+  const allCodes = CURRICULUM.flatMap(f=>f.topics.map(t=>t[0]));
+  const total    = allCodes.length;
+  const doneCount= allCodes.filter(c=>data.done[c]).length;
+  const remaining= Math.max(0, total-doneCount);
+  // strictly after `today`, not daysUntil(): on exam morning the test is already happening, so
+  // it stops being the thing you're pacing towards and the next exam takes over
+  const nextExam = EXAMS.find(e=>e.iso>today) || null;
+  const deadline = nextExam ? addDays(nextExam.iso,-1) : addDays(today,13);
+  const daysLeft = Math.max(1, dayDiff(today, deadline)+1);
+  const weeksLeft= Math.max(0.5, daysLeft/7);              // never divide by zero once the exam lands
+  return { total, doneCount, remaining, nextExam, deadline, daysLeft,
+           perDay:   remaining>0 ? Math.ceil(remaining/daysLeft)  : 0,
+           needWeek: remaining>0 ? Math.ceil(remaining/weeksLeft) : 0 };
+}
+
+/* A category counts toward the combined score when it is CONFIGURED, not when it happens to have
+   activity this week. Dropping out on a quiet week would make Monday read 100% off one gym
+   session and then ratchet downwards as the week fills in. */
+function prodStats(data, today){
+  const week = weekDaysOf(today);
+  const p    = data.prod;
+  const pace = physioPace(data, today);
+  const target = (p.physio.weeklyTarget!=null && p.physio.weeklyTarget>0) ? p.physio.weeklyTarget : pace.needWeek;
+  const doneAt = data.doneAt||{};
+
+  // still ticked AND ticked within this week — unticking removes the doneAt entry entirely
+  const physioN = Object.keys(doneAt).filter(c=>data.done[c] && week.indexOf(doneAt[c])>=0).length;
+  const gymN    = week.filter(d=>p.gym.log[d]).length;
+  const langDays= week.filter(d=>langForDate(d));
+  const langN   = week.filter(d=>p.lang.log[d]).length;
+  const projN   = week.filter(d=>{ const e=p.projects.log[d]; return !!(e && e.ids && e.ids.length); }).length;
+
+  const split={ czech:0, italian:0 };
+  week.forEach(function(d){ const e=p.lang.log[d]; if(e){ const l=e.lang||langForDate(d)||"czech"; split[l]=(split[l]||0)+1; } });
+
+  const cats=[
+    { key:"physio",   label:"Physiology", color:SUBJ.physio, weight:2,   n:physioN, d:target,                       configured:target>0 },
+    { key:"gym",      label:"Gym",        color:SUBJ.im,     weight:1,   n:gymN,    d:p.gym.targetPerWeek||0,       configured:(p.gym.targetPerWeek||0)>0 },
+    { key:"lang",     label:"Languages",  color:SUBJ.czech,  weight:1,   n:langN,   d:langDays.length,              configured:langDays.length>0, split:split },
+    { key:"projects", label:"Projects",   color:"#5E7155",   weight:0.5, n:projN,   d:p.projects.targetPerWeek||0,  configured:(p.projects.defs||[]).length>0 && (p.projects.targetPerWeek||0)>0 },
+  ].map(function(c){
+    const raw = c.d>0 ? c.n/c.d : 0;
+    return Object.assign(c, { raw:raw, pct: Math.min(100, Math.round(raw*100)) });
+  });
+
+  const inScore = cats.filter(c=>c.configured);
+  const wsum    = inScore.reduce((a,c)=>a+c.weight, 0);
+  // clamp each contribution at 1 so an over-target week can't inflate the headline past 100
+  const combined= wsum>0 ? Math.round(inScore.reduce((a,c)=>a + c.weight*Math.min(1,c.raw), 0)/wsum*100) : 0;
+  return { week, cats, combined, pace, target, counted:inScore.length };
+}
+
 /* ── persistence ──────────────────────────────────────────────────── */
 const KEY = "study_planner_v2";
 const DEFAULT_DATA = () => ({
-  done:{}, tasks:[], gcalEnabled:false, updatedAt:0, health:DEFAULT_HEALTH(),
+  done:{}, doneAt:{}, tasks:[], gcalEnabled:false, updatedAt:0, health:DEFAULT_HEALTH(), prod:DEFAULT_PROD(),
   goals:[
     { id:uid(), title:"Pass the Physiology computer test", date:"2026-06-26",
       steps:[ {id:uid(),text:"One clean pass over every keystone",done:false}, {id:uid(),text:"≥95% on the Master Exam decks",done:false} ] },
@@ -706,6 +800,10 @@ function migrate(d){
     out.tasks=flat;
   }
   out.health = migrateHealth(out.health);
+  out.prod   = migrateProd(out.prod);
+  // the 85 topics ticked before doneAt existed get no entry, so they count toward no week —
+  // correct, because we genuinely don't know when they were done
+  if(!out.doneAt || typeof out.doneAt!=="object" || Array.isArray(out.doneAt)) out.doneAt={};
   return out;
 }
 const hasCloud = () => { try{ return window.storage && typeof window.storage.get==="function"; }catch(e){ return false; } };
@@ -1081,6 +1179,7 @@ function TodayView({data, A, gcalStatus}){
       <h1 style={{fontSize:30,margin:"2px 0 16px"}}>Today</h1>
       <BriefingCard gcalOn={gcalOn} events={cal.events}/>
       <Countdown/>
+      <ProdTodayStrip data={data} A={A}/>
 
       {today ? (
         <>
@@ -1523,8 +1622,262 @@ function HealthView({data, A}){
   );
 }
 
+/* ── productivity — rings ─────────────────────────────────────────────
+   Arcs animate via a CSS transition on stroke-dashoffset, deliberately NOT rAF: the blanket
+   prefers-reduced-motion rule already forces transition:none !important, so reduced motion lands
+   instantly for free, with no separate code path to get wrong. The stagger timers are the one
+   thing CSS can't cover, so those are skipped explicitly when reduced motion is on.
+
+   Replay on every tab entry needs no machinery: views are conditionally rendered, so leaving the
+   tab unmounts this and coming back remounts it. Mount-time animation replays by construction. */
+const RING_EASE = "cubic-bezier(.215,.61,.355,1)";   // the curve form of AnimatedNumber's 1-(1-p)³
+const RING_MS   = 800;
+
+function useRingArm(delay){
+  const [on,setOn]=useState(prefersReduced());
+  useEffect(function(){
+    if(prefersReduced()) return;                  // already true; nothing to schedule
+    // useEffect runs after the commit has painted, and the timeout puts another frame between
+    // the empty state and the target — enough for the transition to have something to run from
+    const t=setTimeout(function(){ setOn(true); }, Math.max(30, delay||0));
+    return function(){ clearTimeout(t); };
+  },[]);
+  return on;
+}
+
+function Ring({size, stroke, pct, color, delay, segments, children}){
+  const r=(size-stroke)/2, C=2*Math.PI*r, cx=size/2;
+  const on=useRingArm(delay);
+  const tr={ transition:"stroke-dashoffset "+RING_MS+"ms "+RING_EASE };
+  return (
+    <div style={{position:"relative",width:size,height:size,flex:"none"}}>
+      <svg width={size} height={size} viewBox={"0 0 "+size+" "+size} style={{transform:"rotate(-90deg)",display:"block"}} aria-hidden="true">
+        <circle cx={cx} cy={cx} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke}/>
+        {/* dashoffset goes in style, not as a presentation attribute: transitions on attributes
+            are spec-legal but inconsistently honoured, and style leaves nothing to chance */}
+        {segments && segments.length
+          ? segments.map(function(s,i){
+              const startFrac=segments.slice(0,i).reduce(function(a,x){ return a+x.frac; },0);
+              const len=C*s.frac;
+              return <circle key={i} cx={cx} cy={cx} r={r} fill="none" stroke={s.color} strokeWidth={stroke}
+                strokeDasharray={len+" "+C} style={Object.assign({strokeDashoffset:(on?0:len)+"px"},tr)}
+                transform={"rotate("+(startFrac*360)+" "+cx+" "+cx+")"}/>;
+            })
+          : <circle cx={cx} cy={cx} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round"
+              strokeDasharray={C} style={Object.assign({strokeDashoffset:(on ? C*(1-Math.min(100,pct)/100) : C)+"px"},tr)}/>}
+      </svg>
+      <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",lineHeight:1.15}}>{children}</div>
+    </div>
+  );
+}
+
+/* value is held at 0 until the arc starts, so the numeral counts up in step with its own ring */
+function useStaggeredValue(value, delay){
+  const [v,setV]=useState(prefersReduced()?value:0);
+  useEffect(function(){
+    if(prefersReduced()){ setV(value); return; }
+    const t=setTimeout(function(){ setV(value); }, Math.max(20, delay||0));
+    return function(){ clearTimeout(t); };
+  },[value,delay]);
+  return v;
+}
+
+function CategoryRing({c, delay, note, noteWarn}){
+  const shown=useStaggeredValue(c.pct, delay);
+  // extra credit (logging a non-scheduled day) can push the two arcs past a full circle, which
+  // would wrap the second segment over the first — normalise so they always sum to ≤ 1
+  let segs=null;
+  if(c.key==="lang" && c.d>0 && (c.split.czech+c.split.italian)>0){
+    let cz=c.split.czech/c.d, it=c.split.italian/c.d;
+    const sum=cz+it;
+    if(sum>1){ cz/=sum; it/=sum; }
+    segs=[{frac:cz,color:SUBJ.czech},{frac:it,color:SUBJ.italian}];
+  }
+  return (
+    <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"14px 10px",display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+      <Ring size={92} stroke={7} pct={c.pct} color={c.color} delay={delay} segments={segs}>
+        <AnimatedNumber value={shown} suffix="%" dur={RING_MS} className="num" style={{fontFamily:"var(--serif)",fontSize:19,color:c.configured?c.color:"var(--ink-3)"}}/>
+        <span style={{fontSize:10.5,color:"var(--ink-3)",marginTop:1}}>{c.n} / {c.d||"–"}</span>
+      </Ring>
+      <div style={{fontSize:13,color:"var(--ink)"}}>{c.label}</div>
+      {c.key==="lang" && (
+        <div style={{display:"flex",gap:9,fontSize:10.5,color:"var(--ink-3)"}}>
+          <span style={{display:"inline-flex",alignItems:"center",gap:4}}><Dot size={6} color={SUBJ.czech}/>cz {c.split.czech}</span>
+          <span style={{display:"inline-flex",alignItems:"center",gap:4}}><Dot size={6} color={SUBJ.italian}/>it {c.split.italian}</span>
+        </div>
+      )}
+      {note && <div style={{fontSize:11,color:noteWarn?"var(--warn)":"var(--ink-3)",textAlign:"center",lineHeight:1.35}}>{note}</div>}
+      {!c.configured && <div style={{fontSize:10.5,color:"var(--ink-3)",fontStyle:"italic"}}>not counted yet</div>}
+    </div>
+  );
+}
+
+function TickCell({on, color, late, onClick, label, disabled}){
+  if(disabled) return <div style={{flex:1,textAlign:"center",fontSize:12,color:"var(--line-2)"}} aria-hidden="true">·</div>;
+  return (
+    <button onClick={onClick} aria-pressed={on} aria-label={label}
+      style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:0,padding:"5px 0"}}>
+      <span style={{width:19,height:19,borderRadius:6,border:"1.5px solid "+(on?color:"var(--line-2)"),background:on?color:"var(--card)",display:"flex",alignItems:"center",justifyContent:"center",transition:"background .18s,border-color .18s"}}>
+        {on && <i className="fa-solid fa-check" style={{fontSize:9,color:"#fff"}} aria-hidden="true"/>}
+      </span>
+      <span style={{fontSize:8,color:"var(--ink-3)",height:8,lineHeight:1}}>{late?"late":""}</span>
+    </button>
+  );
+}
+
+function WeekGrid({data, A, week}){
+  const p=data.prod, t=todayStr();
+  const rows=[
+    { key:"gym", label:"Gym", color:SUBJ.im,
+      on:d=>!!p.gym.log[d], late:d=>p.gym.log[d]&&loggedLate(d,p.gym.log[d].tickedAt),
+      click:d=>A.tickGym(d, !p.gym.log[d]) },
+    { key:"lang", label:"Languages", color:SUBJ.czech,
+      on:d=>!!p.lang.log[d], late:d=>p.lang.log[d]&&loggedLate(d,p.lang.log[d].tickedAt),
+      off:d=>!langForDate(d) && !p.lang.log[d],
+      click:d=>A.tickLang(d, !p.lang.log[d]) },
+  ].concat((p.projects.defs||[]).map(function(pr){
+    return { key:"pr_"+pr.id, label:pr.name, color:pr.color||"#5E7155",
+      on:d=>{ const e=p.projects.log[d]; return !!(e&&e.ids&&e.ids.indexOf(pr.id)>=0); },
+      late:d=>{ const e=p.projects.log[d]; return !!(e&&loggedLate(d,e.tickedAt)); },
+      click:d=>A.toggleProject(d,pr.id) };
+  }));
+  return (
+    <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"12px 12px 6px",marginTop:16}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+        <span style={{width:92,flex:"none",fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>this week</span>
+        {week.map(function(d){
+          const isT=d===t;
+          return <span key={d} style={{flex:1,textAlign:"center",fontSize:10.5,color:isT?"var(--ink)":"var(--ink-3)",fontWeight:isT?600:400}}>
+            {parseISO(d).toLocaleDateString("en-GB",{weekday:"narrow"})}
+          </span>;
+        })}
+      </div>
+      {rows.map(function(r){
+        return (
+          <div key={r.key} style={{display:"flex",alignItems:"center",gap:8,borderTop:"0.5px solid var(--line)"}}>
+            <span style={{width:92,flex:"none",fontSize:12.5,color:"var(--ink-2)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.label}</span>
+            {week.map(function(d){
+              return <TickCell key={d} on={r.on(d)} color={r.color} late={r.late?r.late(d):false}
+                disabled={r.off?r.off(d):false} onClick={()=>{haptic();r.click(d);}}
+                label={r.label+" on "+fmtShort(d)}/>;
+            })}
+          </div>
+        );
+      })}
+      <div style={{fontSize:10.5,color:"var(--ink-3)",marginTop:8,paddingTop:6,borderTop:"0.5px solid var(--line)"}}>
+        Physiology counts itself — ticking a topic anywhere in the app feeds its ring. “late” marks a day filled in more than a day afterwards.
+      </div>
+    </div>
+  );
+}
+
+function ProductivityView({data, A}){
+  const t=todayStr();
+  const S=prodStats(data,t);
+  const reduced=prefersReduced();
+  const delayFor=i=>reduced?0:180+i*80;
+  const combinedShown=useStaggeredValue(S.combined,0);
+  const pace=S.pace;
+  const physio=S.cats[0];
+  const behind=physio.n < Math.min(S.target, pace.needWeek);
+  const [editing,setEditing]=useState(false);
+  const [draft,setDraft]=useState(String(S.target));
+
+  return (
+    <div>
+      <div className="eyebrow" style={{marginTop:18}}>this week · {fmtShort(S.week[0])} – {fmtShort(S.week[6])}</div>
+      <h1 style={{fontSize:30,margin:"2px 0 14px"}}>Productivity</h1>
+
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,marginBottom:6}}>
+        {/* neutral ink, not a category hue: the headline is an aggregate, and reusing the
+            Projects olive here made the two read as the same thing */}
+        <Ring size={168} stroke={10} pct={S.combined} color="var(--ink-2)" delay={0}>
+          <AnimatedNumber value={combinedShown} suffix="%" dur={RING_MS} className="num" style={{fontFamily:"var(--serif)",fontSize:38,color:"var(--ink)"}}/>
+          <span style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2}}>combined</span>
+        </Ring>
+        <div style={{fontSize:11.5,color:"var(--ink-3)",textAlign:"center"}}>
+          physiology counts double · {S.counted} of 4 categories tracked
+        </div>
+      </div>
+
+      {pace.remaining>0 && pace.nextExam && (
+        <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"12px 15px",margin:"12px 0 4px"}}>
+          <div style={{fontSize:14,color:"var(--ink)"}}>
+            <span className="num" style={{fontFamily:"var(--serif)",fontSize:22,color:SUBJ.physio}}>{pace.perDay}</span> topics a day to finish by {fmtShort(pace.deadline)}
+          </div>
+          <div style={{fontSize:12,color:"var(--ink-2)",marginTop:3}}>
+            {pace.remaining} left of {pace.total} · {pace.daysLeft} study {pace.daysLeft===1?"day":"days"} before {pace.nextExam.label.replace(/^Physiology · /,"")} on {fmtShort(pace.nextExam.iso)}
+          </div>
+        </div>
+      )}
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:10,marginTop:12}}>
+        {S.cats.map(function(c,i){
+          const note = c.key==="physio" && pace.remaining>0
+            ? pace.needWeek+"/wk needed · target "+S.target
+            : null;
+          return <CategoryRing key={c.key} c={c} delay={delayFor(i)} note={note} noteWarn={c.key==="physio"&&behind}/>;
+        })}
+      </div>
+
+      <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",marginTop:12}}>
+        {editing ? (
+          <>
+            <span style={{fontSize:12.5,color:"var(--ink-2)"}}>Physiology target / week</span>
+            <input className="sm" type="number" min="1" max="60" value={draft} onChange={e=>setDraft(e.target.value)} style={{width:70}} aria-label="Weekly physiology target"/>
+            <button className="ln-btn" onClick={()=>{ const v=parseInt(draft,10); A.setPhysioTarget(isNaN(v)||v<1?null:v); setEditing(false); }}>Save</button>
+            <button className="iconbtn" style={{fontSize:12}} onClick={()=>{ A.setPhysioTarget(null); setDraft(String(pace.needWeek)); setEditing(false); }}>Reset to pace</button>
+          </>
+        ) : (
+          <button className="ln-btn" onClick={()=>{ setDraft(String(S.target)); setEditing(true); }}>
+            <i className="fa-regular fa-pen-to-square" aria-hidden="true"/> Weekly physiology target · {S.target}
+          </button>
+        )}
+      </div>
+
+      <WeekGrid data={data} A={A} week={S.week}/>
+
+      <p style={{fontSize:11.5,color:"var(--ink-3)",lineHeight:1.6,marginTop:14}}>
+        Combined = weighted mean over the categories you actually track (physiology ×2, gym ×1,
+        languages ×1, projects ×0.5). A category you haven’t set up is left out of the average
+        entirely rather than counted as zero. Language days follow the existing Czech / Italian
+        cadence — {S.cats[2].d} scheduled this week.
+      </p>
+    </div>
+  );
+}
+
+/* the 3-second daily surface: logging that isn't on the default screen doesn't happen */
+function ProdTodayStrip({data, A}){
+  const t=todayStr(), p=data.prod;
+  const lang=langForDate(t);
+  const items=[
+    { key:"gym", label:"Gym", color:SUBJ.im, on:!!p.gym.log[t], click:()=>A.tickGym(t,!p.gym.log[t]) },
+  ];
+  if(lang) items.push({ key:"lang", label:lang==="czech"?"Czech":"Italian", color:lang==="czech"?SUBJ.czech:SUBJ.italian,
+                        on:!!p.lang.log[t], click:()=>A.tickLang(t,!p.lang.log[t]) });
+  (p.projects.defs||[]).forEach(function(pr){
+    const e=p.projects.log[t];
+    items.push({ key:"pr_"+pr.id, label:pr.name, color:pr.color||"#5E7155",
+                 on:!!(e&&e.ids&&e.ids.indexOf(pr.id)>=0), click:()=>A.toggleProject(t,pr.id) });
+  });
+  if(!items.length) return null;
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap",marginTop:10}}>
+      {items.map(function(it){
+        return (
+          <button key={it.key} className="chip" aria-pressed={it.on} onClick={()=>{haptic();it.click();}}
+            style={{border:"0.5px solid "+(it.on?it.color:"var(--line-2)"),background:it.on?it.color+"14":"var(--card)",color:it.on?it.color:"var(--ink-2)"}}>
+            <i className={it.on?"fa-solid fa-circle-check":"fa-regular fa-circle"} style={{fontSize:11}} aria-hidden="true"/>{it.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ── root ───────────────────────────────────────────────────────── */
-const TABS = [["today","Today"],["plan","Plan"],["progress","Progress"],["goals","Goals"],["health","Health"],["timeline","Timeline"]];
+const TABS = [["today","Today"],["plan","Plan"],["progress","Progress"],["goals","Goals"],["health","Health"],["timeline","Timeline"],["prod","Productivity"]];
 
 function App(){
   const [tab,setTab]=useState("today");
@@ -1653,8 +2006,39 @@ function App(){
     voidExperiment:(id)=>mutate(d=>({...d,health:{...d.health,experiments:d.health.experiments.map(x=>x.id===id?{...x,status:"void"}:x)}})),
 
     gcalBusy, syncState, syncEmail, syncErr,
-    toggleDone:(c)=>{ haptic(); mutate(d=>({...d,done:{...d.done,[c]:!d.done[c]}})); },
-    setMany:(codes,val)=>mutate(d=>{ const nd={...d,done:{...d.done}}; codes.forEach(function(c){ nd.done[c]=val; }); return nd; }),
+    // done keeps its exact shape; doneAt runs alongside it so "topics done THIS week" is answerable.
+    // Unticking deletes the stamp, otherwise it would leave phantom weekly credit behind.
+    toggleDone:(c)=>{ haptic(); mutate(d=>{
+      const on=!d.done[c], doneAt={...(d.doneAt||{})};
+      if(on) doneAt[c]=todayStr(); else delete doneAt[c];
+      return {...d, done:{...d.done,[c]:on}, doneAt};
+    }); },
+    setMany:(codes,val)=>mutate(d=>{
+      const done={...d.done}, doneAt={...(d.doneAt||{})};
+      codes.forEach(function(c){ done[c]=val; if(val) doneAt[c]=todayStr(); else delete doneAt[c]; });
+      return {...d, done, doneAt};
+    }),
+
+    tickGym:(date,on)=>mutate(d=>{
+      const log={...d.prod.gym.log};
+      if(on) log[date]={tickedAt:nowISO()}; else delete log[date];
+      return {...d, prod:{...d.prod, gym:{...d.prod.gym, log}}};
+    }),
+    tickLang:(date,on)=>mutate(d=>{
+      const log={...d.prod.lang.log};
+      if(on) log[date]={lang:langForDate(date)||"czech", tickedAt:nowISO()}; else delete log[date];
+      return {...d, prod:{...d.prod, lang:{...d.prod.lang, log}}};
+    }),
+    toggleProject:(date,id)=>mutate(d=>{
+      const log={...d.prod.projects.log};
+      const cur=(log[date]&&log[date].ids)?log[date].ids.slice():[];
+      const i=cur.indexOf(id);
+      if(i>=0) cur.splice(i,1); else cur.push(id);
+      if(cur.length) log[date]={ids:cur, tickedAt:(log[date]&&log[date].tickedAt)||nowISO()};
+      else delete log[date];
+      return {...d, prod:{...d.prod, projects:{...d.prod.projects, log}}};
+    }),
+    setPhysioTarget:(v)=>mutate(d=>({...d, prod:{...d.prod, physio:{...d.prod.physio, weeklyTarget:v}}})),
 
     addTask:(f)=>{ const task={id:uid(),text:f.text,date:f.date,time:f.time,important:!!f.important,done:false,gcalId:null};
       mutate(d=>({...d,tasks:[...d.tasks,task]})); syncCreate(task); },
@@ -1750,6 +2134,7 @@ function App(){
       {tab==="goals" && <GoalsView data={data} A={A}/>}
       {tab==="health" && <HealthView data={data} A={A}/>}
       {tab==="timeline" && <TimelineView/>}
+      {tab==="prod" && <ProductivityView data={data} A={A}/>}
 
       <input ref={fileRef} type="file" accept="application/json,.json" onChange={onFile} style={{display:"none"}}/>
 

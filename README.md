@@ -15,6 +15,50 @@ wins — the merge is by timestamp on the whole blob, not per field.
 
 ---
 
+## Productivity
+
+Four weekly rings plus a combined one. Weeks run **Monday–Sunday**, local time.
+
+| Ring | Weight | Score |
+| --- | --- | --- |
+| Physiology | 2× | topics ticked this week ÷ weekly target |
+| Gym | 1× | sessions this week ÷ 3 |
+| Languages | 1× | language days hit ÷ language days scheduled |
+| Projects | 0.5× | project-days logged ÷ 3 |
+
+**A category you haven't set up is left out of the average entirely, rather than counted as zero.**
+An unconfigured ring would otherwise drag the headline number down for no reason. "Set up" means
+*configured* — a target exists — not *active this week*: a category with a target but a quiet week
+still counts, at 0. If it dropped out on quiet weeks instead, Monday would read 100% off a single
+gym session and then fall as the week filled in.
+
+### Where the physiology number comes from
+
+Ticking a topic anywhere in the app feeds this ring — there is no separate control. Alongside the
+existing `done` map there is a parallel `doneAt` map recording *when* each topic was ticked, which
+is what makes "this week" answerable. Unticking deletes the stamp, so it can't leave phantom
+credit behind. The 85 topics ticked before `doneAt` existed carry no stamp and count toward no
+week, which is correct — we genuinely don't know when they were done.
+
+The pace is derived from the next exam in `EXAMS`, with the deadline set to the **day before** it
+(the computer test starts at 08:00, so exam day is not a study day). On exam morning it rolls on to
+the next exam, so the figure never divides by zero.
+
+The weekly target defaults to the pace needed to finish the curriculum and is editable. The daily
+figure — *"4 topics a day to finish by 13 Aug"* — is the one to read: the weekly equivalent is the
+same fact in a form that sounds impossible.
+
+### Logged late
+
+Gym, language and project entries store `tickedAt` — when the box was ticked — separately from the
+day it was ticked *for*. Filling in four days on Sunday is a different fact from doing them daily,
+and without that field the two would be indistinguishable. A day filled in more than a day
+afterwards is marked "late" in the week grid. Physiology has no late mark, and that's deliberate
+rather than an omission: a topic isn't done *for* a date the way a gym session is, so its stamp
+*is* its tick time.
+
+---
+
 ## Health tracker
 
 A tab for running structured n-of-1 self-experiments: take something daily, score your symptoms
@@ -30,7 +74,7 @@ an improvement, on every line. That is what makes the first-half/second-half com
 at a glance.
 
 | Metric | Scale | Meaning |
-|---|---|---|
+| --- | --- | --- |
 | **Night wakings** | count | How many times you woke in the night. 0 = slept through. |
 | **Nasal patency** | 0–10 | 0 = clear, breathing freely · 10 = completely blocked. |
 | **Fatigue** | 0–10 | 0 = no problem · 10 = worst. |

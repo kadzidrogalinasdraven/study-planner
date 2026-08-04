@@ -15,6 +15,54 @@ wins — the merge is by timestamp on the whole blob, not per field.
 
 ---
 
+## Flashcards
+
+`physio_flashcards.html` — 4,440 true/false statements across 9 topics.
+
+**The questions and answers are never edited.** These exact statements, with these exact answers,
+appear in the computer test. Where standard physiology disagrees with an answer, the card carries a
+visible warning and still tells you to answer as the deck says. Two endocrinology cards currently
+carry that warning (indices 8 and 32).
+
+### One tap
+
+Tapping TRUE or FALSE both answers and grades the card — right counts as *Good*, wrong as *Again*.
+There is no second tap. *Hard* and *Easy* appear after the reveal if you want finer control.
+
+### Study modes
+
+| Mode | Shows |
+| --- | --- |
+| **Smart** (default) | new cards plus anything due back — skips what you already got right |
+| **Unseen** | never answered |
+| **Review** | only what you got wrong |
+| **Known** | only what you got right |
+| **All** | every card |
+
+Scheduling is SM-2 lite: correct answers push a card out 1 day, then 3, then × its ease factor; a
+wrong answer brings it back in ten minutes and lowers the ease. **Intervals are capped at the day
+before the exam in `EXAM_ISO`**, so nothing is scheduled past the test — this is cramming, not
+lifelong retention.
+
+### Sync
+
+Progress syncs through the same hidden Google Drive folder as the planner, and shares its sign-in,
+so signing in once covers both apps.
+
+The merge is a **per-card union, never a subtraction**. Each device keeps progress the other lacks,
+so a card known on one and untouched on the other stays known. Conflicts prefer the newer timestamp;
+where neither side has one — which is all progress recorded before scheduling existed — **"review"
+wins**, because being shown a card you knew costs seconds and hiding one you didn't costs marks.
+The pre-migration blob is snapshotted to `physio_flashcards_v1_backup` on first load.
+
+### Why the deck is a `<script type="application/json">`
+
+Babel compiles this file in the browser on every cold load. With the 460 KB question bank inline it
+recompiled the whole thing each time the page opened. Parsed as JSON instead, Babel only ever sees
+the ~20 KB of app code.
+
+---
+
 ## Productivity
 
 Four weekly rings plus a combined one. Weeks run **Monday–Sunday**, local time.

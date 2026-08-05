@@ -3,6 +3,24 @@
 Read this before changing anything. It records decisions that are not recoverable from the code, and
 one rule that must never be broken.
 
+## Keep this file current — it is the whole point
+
+Sessions are expensive. A long chat re-reads its entire history every turn, so the cheap way to work
+is a **fresh session that starts already informed**. This file is what makes that possible, and it
+only works if it is maintained.
+
+**Update it in the same commit as the work**, whenever you:
+
+- finish or partly finish a topic (update the coverage table with real numbers)
+- discover a constraint, a gotcha, or a bug that could be reintroduced later
+- change a convention, a data shape, or a migration rule
+- learn something about cost, limits or what fails under load
+- make a decision whose *reasoning* would not survive in the diff
+
+Rule of thumb: if a future session would waste tokens rediscovering it, or could do damage without
+knowing it, it belongs here. `README.md` is for the user and documents features; **`CLAUDE.md` is for
+the next session** and documents rules, reasoning and state. Do not duplicate one into the other.
+
 ---
 
 ## The hard rule: never edit a flashcard answer

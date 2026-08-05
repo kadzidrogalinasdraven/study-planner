@@ -8,6 +8,11 @@ file, or push to `main` and Netlify serves it at
 `physio_flashcards.html` is a separate standalone page that the planner links to. Keep it at the
 same address or the flashcard links break.
 
+`CLAUDE.md` holds the working notes for AI sessions — the rules, the reasoning behind decisions, and
+what is done so far. **It is kept up to date as part of any change**, so a new session can pick the
+work up without re-reading a long conversation. If something new is built or learned here that the
+next session would need, it goes in that file at the same time as the code.
+
 Data is saved to the browser's `localStorage` under one key, `study_planner_v2`, on every change.
 When Google reminders are switched on, that same blob is also mirrored to a hidden app-data folder
 in your Google Drive so your phone and Mac stay in step. Whichever device edited most recently

@@ -698,15 +698,21 @@ const nowISO      = () => new Date().toISOString();
 /* a tick landing more than a day after the day it is for was back-filled */
 const loggedLate  = (date, tickedAt) => !!tickedAt && dayDiff(date, String(tickedAt).slice(0,10)) > 1;
 
+/* Bump PROJECT_DEFS_V whenever this list changes and migrateProd() will replace a user's saved
+   copy — otherwise Object.assign keeps the old seed forever and edits here never reach the app. */
+const PROJECT_DEFS_V = 2;
+const PROJECT_DEFS = () => [
+  { id:"sfs",        name:"Student for students",  color:SUBJ.czech },
+  { id:"vault",      name:"Linas Vault",           color:"#5E7155"  },
+  { id:"fc_torben",  name:"Flashcards · Torben",   color:SUBJ.physio, note:"summer PC-credit" },
+  { id:"fc_antonia", name:"Flashcards · Antonia",  color:SUBJ.micro,  note:"winter PC-credit" },
+];
+
 function DEFAULT_PROD(){
   return {
     gym:      { targetPerWeek:3, log:{} },
     lang:     { log:{} },
-    projects: { targetPerWeek:3, log:{}, defs:[
-      { id:"flashcards", name:"Flashcard decks", color:SUBJ.physio },
-      { id:"planner",    name:"Study planner",   color:"#5E7155"  },
-      { id:"pflege",     name:"Pflegepraktikum", color:SUBJ.micro },
-    ]},
+    projects: { targetPerWeek:3, log:{}, defsV:PROJECT_DEFS_V, defs:PROJECT_DEFS() },
     physio:   { weeklyTarget:null },   // null = derive from the pace needed to finish
   };
 }
@@ -721,6 +727,22 @@ function migrateProd(p){
   };
   ["gym","lang","projects"].forEach(function(k){ if(!out[k].log || typeof out[k].log!=="object") out[k].log={}; });
   if(!Array.isArray(out.projects.defs)) out.projects.defs=d.projects.defs;
+  // read the version off the SAVED copy, not the merged one: Object.assign leaves the default's
+  // defsV in place when the saved object has no such key, which would skip the migration forever
+  const savedV = (p.projects && p.projects.defsV) || 0;
+  if(savedV < PROJECT_DEFS_V){
+    out.projects.defs = PROJECT_DEFS();
+    out.projects.defsV = PROJECT_DEFS_V;
+    // drop log entries pointing at projects that no longer exist, so counts stay honest
+    const live={}; out.projects.defs.forEach(function(x){ live[x.id]=1; });
+    const log={};
+    Object.keys(out.projects.log).forEach(function(date){
+      const e=out.projects.log[date];
+      const ids=((e&&e.ids)||[]).filter(function(id){ return live[id]; });
+      if(ids.length) log[date]=Object.assign({},e,{ids:ids});
+    });
+    out.projects.log=log;
+  }
   return out;
 }
 
@@ -1736,7 +1758,7 @@ function WeekGrid({data, A, week}){
       off:d=>!langForDate(d) && !p.lang.log[d],
       click:d=>A.tickLang(d, !p.lang.log[d]) },
   ].concat((p.projects.defs||[]).map(function(pr){
-    return { key:"pr_"+pr.id, label:pr.name, color:pr.color||"#5E7155",
+    return { key:"pr_"+pr.id, label:pr.name, note:pr.note||"", color:pr.color||"#5E7155",
       on:d=>{ const e=p.projects.log[d]; return !!(e&&e.ids&&e.ids.indexOf(pr.id)>=0); },
       late:d=>{ const e=p.projects.log[d]; return !!(e&&loggedLate(d,e.tickedAt)); },
       click:d=>A.toggleProject(d,pr.id) };
@@ -1744,7 +1766,7 @@ function WeekGrid({data, A, week}){
   return (
     <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"12px 12px 6px",marginTop:16}}>
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-        <span style={{width:92,flex:"none",fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>this week</span>
+        <span style={{width:104,flex:"none",fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>this week</span>
         {week.map(function(d){
           const isT=d===t;
           return <span key={d} style={{flex:1,textAlign:"center",fontSize:10.5,color:isT?"var(--ink)":"var(--ink-3)",fontWeight:isT?600:400}}>
@@ -1755,7 +1777,10 @@ function WeekGrid({data, A, week}){
       {rows.map(function(r){
         return (
           <div key={r.key} style={{display:"flex",alignItems:"center",gap:8,borderTop:"0.5px solid var(--line)"}}>
-            <span style={{width:92,flex:"none",fontSize:12.5,color:"var(--ink-2)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.label}</span>
+            <span title={r.label+(r.note?" — "+r.note:"")} style={{width:104,flex:"none",fontSize:12.5,color:"var(--ink-2)",overflow:"hidden",lineHeight:1.25}}>
+              <span style={{display:"block",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.label}</span>
+              {r.note && <span style={{display:"block",fontSize:9.5,color:"var(--ink-3)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.note}</span>}
+            </span>
             {week.map(function(d){
               return <TickCell key={d} on={r.on(d)} color={r.color} late={r.late?r.late(d):false}
                 disabled={r.off?r.off(d):false} onClick={()=>{haptic();r.click(d);}}

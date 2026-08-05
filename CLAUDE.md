@@ -182,7 +182,7 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | --- | --- | --- |
 | Endocrinology | 454 | ✅ 454 shipped, 2 answer-key warnings |
 | Nervous System | 502 | ✅ 499 shipped, 4 dropped as unsalvageable, 2 answer-key warnings |
-| Kidney | 680 | ✗ |
+| Kidney | 680 | ⏳ 324 shipped (batches 0-13 verified); 39 flagged-but-unrepaired held; 1 disputed (43) held; batches 14-26 (316 cards) never written |
 | Physiology of Blood | 602 | ✗ |
 | Gastrointestinal Tract | 510 | ✗ |
 | Circulation | 499 | ✗ |
@@ -238,6 +238,39 @@ Do not "simplify" the flashcard merge into the planner's. It is different delibe
 - The Productivity tab derives its pacing from `EXAMS`, so it self-corrects when the exam moves.
 
 ---
+
+## Where Kidney stopped, exactly
+
+Batches 0-13 (cards 0-363) were written and both checkers ran. 96 were flagged; 57 were repaired
+before the run died. **324 shipped.** Held back and NOT on the phone:
+
+- **39 flagged cards whose repair batch failed** — batches 2, 8, 10, 11, 12, 13
+- **card 43**, whose explanation disputes the key and has never been adjudicated
+
+Batches 14-26 (cards 364-679, 316 cards) were never written at all.
+
+The saved state is `<scratchpad>/kidney_state.json` — `items`, `flagged`, `unrepaired`, `disputes`.
+The scratchpad is session-scoped and will be gone in a new session, so **regenerate rather than hunt
+for it**: re-run the topic workflow for kidney from scratch with batches 0-26. It is cheaper than
+reconstructing partial state, and the deck file already tells you which 324 are done — anything
+already in the `kid-exp` island can be skipped or simply overwritten.
+
+To finish it:
+
+1. Split kidney into batches (snippet above), run the topic-explanations workflow for batches 14-26.
+2. Re-run batches 2, 8, 10, 11, 12, 13 so their repairs complete.
+3. Adjudicate card 43 with the two-examiner pattern.
+
+## Cost, and why this ran out
+
+Explanations are by far the most expensive thing in this project. Rough measured cost: a full topic
+with the three-pass protocol is **~1M subagent tokens per ~360 cards**. Endocrinology, Nervous System
+and half of Kidney together exhausted a monthly spend limit.
+
+Budget accordingly: **one half-topic (~13 batches) per session**, and expect the session limit to
+bite before that if anything else large ran first. When a limit hits mid-run it is always the *later*
+phases that die — verification and repair — leaving finished-looking explanations nobody checked.
+Never ship those.
 
 ## Open items
 

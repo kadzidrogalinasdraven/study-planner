@@ -131,8 +131,24 @@ for b in range((len(qs) + B - 1) // B):
     json.dump({"topic": TOPIC, "batch": b, "questions": chunk}, open(f"{DIR}/{TOPIC}/b{b:02d}.json", "w"), indent=1)
 ```
 
-Two topics can run at once — the agents are network-bound, not CPU-bound, and each workflow gets its
-own concurrency cap. Beyond two, they start queueing behind each other for no gain.
+**Run one topic at a time.** Two concurrent runs exhausted the session limit partway through and
+killed 39 of 63 agents on one and 34 of 41 on the other. The explanation agents had already
+succeeded, so what died was the *verification* — the most dangerous possible half to lose, because
+it leaves a pile of finished-looking explanations that nobody checked.
+
+If a run dies partway:
+
+```js
+Workflow({ scriptPath: "<the script>", resumeFromRunId: "<run id>", args: {...} })
+```
+
+Completed agents replay from cache instantly; only the failed ones re-run. Same script and args →
+100% cache hit on the survivors.
+
+**Never ship a topic whose verification did not complete.** Check the returned logs for
+`N repaired after review` — if that number is 0 on a topic of hundreds of cards, the checkers did
+not run, because the real rate is 5-10%. Partial results are parked in the scratchpad as
+`<topic>_UNVERIFIED.json` rather than merged into the deck.
 
 ### Coverage
 

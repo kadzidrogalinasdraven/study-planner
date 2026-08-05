@@ -25,6 +25,13 @@ Two cards currently carry a warning, both in Endocrinology:
 | 8 | "All hormone levels decrease in aging." | True | False — FSH/LH rise sharply after menopause, PTH usually rises |
 | 32 | "Oxytocin acts via cAMP." | True | False — the oxytocin receptor is Gq → IP₃/Ca²⁺; cAMP is ADH at V2 |
 
+And two in Nervous System:
+
+| Index | Statement | Deck says | Physiology says |
+| --- | --- | --- | --- |
+| 158 | "Tectospinal tract mediates responses initiated by sudden changes of head position." | True | False — the tectospinal tract turns the head *towards* sudden visual/auditory stimuli; head displacement drives the vestibulospinal tracts |
+| 350 | "Individuals in REM sleep are more likely to awake spontaneously." | False | True — spontaneous awakenings cluster at the end of REM episodes, even though arousal threshold to external stimuli is high |
+
 Before committing any change to that file, verify nothing moved:
 
 ```bash
@@ -88,8 +95,9 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 
 | Run | Written | Needed correction |
 | --- | --- | --- |
-| General Physiology pilot (120) | 120 | 6 flagged (5%) |
-| Endocrinology (454) | 454 | 44 corrected, 7 sources dropped (~10%) |
+| General Physiology pilot (120) | 120 | 6 flagged (5%) — one checker |
+| Endocrinology (454) | 454 | 44 corrected, 7 sources dropped (~10%) — one checker |
+| Nervous System (502) | 502 | **121 flagged (24%)**, 4 unsalvageable — two checkers |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -154,8 +162,8 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 
 | Topic | Cards | Explanations |
 | --- | --- | --- |
-| Endocrinology | 454 | ✅ done |
-| Nervous System | 502 | in progress |
+| Endocrinology | 454 | ✅ 454 shipped, 2 answer-key warnings |
+| Nervous System | 502 | ✅ 499 shipped, 4 dropped as unsalvageable, 2 answer-key warnings |
 | Kidney | 680 | ✗ |
 | Physiology of Blood | 602 | ✗ |
 | Gastrointestinal Tract | 510 | ✗ |

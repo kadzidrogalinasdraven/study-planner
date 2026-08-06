@@ -134,6 +134,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Kidney, remaining 356 | 356 | 59 corrected (17%) — two checkers |
 | Physiology of Blood, cards 0-311 | 312 | 59 corrected (19%) — two checkers |
 | Circulation, cards 0-259 | 260 | 52 corrected (20%) — two checkers |
+| Special Senses, cards 0-233 | 234 | 33 corrected (14%) — two checkers |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -200,6 +201,12 @@ killed 39 of 63 agents on one and 34 of 41 on the other. The explanation agents 
 succeeded, so what died was the *verification* — the most dangerous possible half to lose, because
 it leaves a pile of finished-looking explanations that nobody checked.
 
+**A dropped wifi connection kills agents exactly like a spend limit does**, and it kills the same
+half — Special Senses lost 11 agents to `ENOTFOUND`, of which 6 were repairs and 5 were checkers,
+leaving nine finished-looking batches that nobody had checked. Resume is the answer, not a re-run:
+the 23 survivors replayed from cache and only the 11 failures re-ran, at no extra cost for the work
+already done.
+
 If a run dies partway:
 
 ```js
@@ -224,11 +231,11 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | Gastrointestinal Tract | 510 | ✅ 510 shipped, 0 answer-key warnings |
 | Physiology of Blood | 602 | ⏳ 312 shipped (batches 0-11, fully verified, 0 disputes); batches 12-23 (290 cards) never written |
 | Circulation | 499 | ⏳ 260 shipped (batches 0-9, fully verified, 2 adjudicated and defended); batches 10-19 (239 cards) never written |
-| Special Senses | 466 | ✗ |
+| Special Senses | 466 | ⏳ 234 shipped (batches 0-8, fully verified, 0 disputes); batches 9-17 (232 cards) never written |
 | Respiratory | 365 | ✗ |
 | General Physiology | 362 | ✗ (120 piloted, not shipped) |
 
-Island ids so far: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`, `blood-exp`, `circ-exp`. **The `EXPL` key must be
+Island ids so far: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`, `blood-exp`, `circ-exp`, `sens-exp`. **The `EXPL` key must be
 the deck's topic id, which is not always the island's prefix** — GI's topic id is `git`, not `gi`.
 
 To wire a new topic in: add its island to the `EXPL` map at the top of the Babel script. The UI shows

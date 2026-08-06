@@ -53,7 +53,8 @@ without one simply don't show the panel; nothing looks broken.
 | Kidney | 680 | all 680 |
 | Physiology of Blood | 602 | 312 (first half) |
 | Circulation | 499 | 260 (first half) |
-| Special Senses · Respiratory · General Physiology | 1,193 | — |
+| Special Senses | 466 | 234 (first half) |
+| Respiratory · General Physiology | 727 | — |
 
 They are written and checked by AI, and **that is not free of error** — roughly one explanation in
 eight needed correcting before it shipped, and the ones that were wrong were wrong about specifics:

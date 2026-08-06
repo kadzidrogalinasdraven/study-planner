@@ -79,7 +79,20 @@ Netlify serves `main` at <https://peppy-lokum-2c5109.netlify.app>.
 | --- | --- |
 | `index.html` | the study planner — 7 tabs: Today, Plan, Progress, Goals, Health, Timeline, Productivity |
 | `physio_flashcards.html` | 4,440 true/false cards across 9 topics |
+| `physio_flashcards_silvia.html` | **generated** — Silvia's copy of the deck, own progress |
+| `make_silvia_copy.py` | regenerates that copy |
 | `README.md` | user-facing feature documentation |
+
+**Never hand-edit `physio_flashcards_silvia.html`.** It is derived. After *any* change to
+`physio_flashcards.html` — new explanations, a UI fix, anything — run `python3 make_silvia_copy.py`
+**in the same commit**, or her deck silently falls behind. The script rewrites exactly three
+identifiers (`KEY`, `BACKUP`, `DRIVE_FILE`) and asserts each appears once, so it fails loudly rather
+than quietly if that file changes shape.
+
+Those three are the whole point: progress is never stored in the HTML, only in `localStorage` under
+`KEY`, so a distinct key is what makes her copy start at zero and stay separate from Linas's — even
+in the same browser on the same domain. A plain `cp` would have shared his progress and, if she ever
+switched sync on, his Drive file too.
 
 Deploy is: commit on `test` → `git checkout main && git merge test --ff-only` → `git push origin main`.
 Netlify picks it up in well under a minute.

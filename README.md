@@ -8,6 +8,11 @@ file, or push to `main` and Netlify serves it at
 `physio_flashcards.html` is a separate standalone page that the planner links to. Keep it at the
 same address or the flashcard links break.
 
+`physio_flashcards_silvia.html` is Silvia's copy of the same deck — identical cards, explanations and
+features, but its own progress, kept under a different storage key so the two never mix even in the
+same browser. It is **generated**, not maintained by hand: after any change to the main deck run
+`python3 make_silvia_copy.py` so her copy picks it up.
+
 `CLAUDE.md` holds the working notes for AI sessions — the rules, the reasoning behind decisions, and
 what is done so far. **It is kept up to date as part of any change**, so a new session can pick the
 work up without re-reading a long conversation. If something new is built or learned here that the

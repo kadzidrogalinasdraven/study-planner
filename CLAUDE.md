@@ -232,7 +232,7 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | Physiology of Blood | 602 | ⏳ 312 shipped (batches 0-11, fully verified, 0 disputes); batches 12-23 (290 cards) never written |
 | Circulation | 499 | ⏳ 260 shipped (batches 0-9, fully verified, 2 adjudicated and defended); batches 10-19 (239 cards) never written |
 | Special Senses | 466 | ⏳ 234 shipped (batches 0-8, fully verified, 0 disputes); batches 9-17 (232 cards) never written |
-| Respiratory | 365 | ✗ |
+| Respiratory | 365 | ✗ — batches 0-6 written but HALF UNVERIFIED, not shipped (see below) |
 | General Physiology | 362 | ✗ (120 piloted, not shipped) |
 
 Island ids so far: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`, `blood-exp`, `circ-exp`, `sens-exp`. **The `EXPL` key must be
@@ -339,6 +339,19 @@ Two examiners per disputed card — one told to judge independently, one told it
 that the key is right and the challenger misread it. A warning is written **only when both say the
 key is wrong and both are high-confidence.** Pass `{cards: [{i, q, a, explanation}], label}`.
 
+## Where Respiratory stopped, exactly
+
+Batches 0-6 (cards 0-181) were **written but must not be shipped.** The monthly spend limit killed 12
+of 24 agents — 5 mechanism checkers, 5 consistency checkers and 2 repairs — so about half the batches
+were never checked at all. Nothing was merged into the deck.
+
+**Resume does not survive a session.** `resumeFromRunId` is same-session only, so run
+`wf_99ca879f-837` is unrecoverable from a fresh session, and the scratchpad batch files are gone with
+it. Re-split respiratory and re-run batches 0-6 from scratch; the deck has no `resp-exp` island, so
+there is nothing to skip or overwrite.
+
+General Physiology (batches 0-6, cards 0-181) was never started for the same reason.
+
 ## Cost, and why this ran out
 
 Explanations are by far the most expensive thing in this project. Rough measured cost: a full topic
@@ -348,7 +361,12 @@ and half of Kidney together exhausted a monthly spend limit once; all of GI plus
 four-agent adjudication** — see card 659.
 
 That is the failure mode to design around: the limit does not warn, and it bites the *last* thing
-you run. So run adjudication and any other small final pass **early**, or accept that the cheapest
+you run. It bit twice in one session — once four agents into an adjudication, once halfway through
+Respiratory.
+
+**Deploy after every topic, not at the end of the session.** Six topics went out one at a time here,
+so when the limit finally bit, the only casualty was the topic in flight. Batching the deploys would
+have put all six at risk of the same interruption. So run adjudication and any other small final pass **early**, or accept that the cheapest
 step is the one you will lose.
 
 Budget accordingly: **one half-topic (~10-13 batches) per session**, and expect the session limit to

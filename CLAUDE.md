@@ -219,7 +219,7 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | --- | --- | --- |
 | Endocrinology | 454 | ✅ 454 shipped, 2 answer-key warnings |
 | Nervous System | 502 | ✅ 499 shipped, 4 dropped as unsalvageable, 2 answer-key warnings |
-| Kidney | 680 | ✅ 679 shipped, 0 answer-key warnings; card 659 held (adjudication never ran) |
+| Kidney | 680 | ✅ 680 shipped, 0 answer-key warnings |
 | Gastrointestinal Tract | 510 | ✅ 510 shipped, 0 answer-key warnings |
 | Physiology of Blood | 602 | ⏳ 312 shipped (batches 0-11, fully verified, 0 disputes); batches 12-23 (290 cards) never written |
 | Circulation | 499 | ✗ |
@@ -279,32 +279,31 @@ Do not "simplify" the flashcard merge into the planner's. It is different delibe
 
 ---
 
-## Kidney — complete but for one card
+## Kidney — complete
 
-679 of 680 shipped. The 356 that a previous session left unwritten or unverified were written and
-double-checked in one run: 59 corrected (17%).
+All 680 shipped, no answer-key warnings. The 356 cards a previous session left unwritten or
+unverified were written and double-checked in one run: 59 corrected (17%).
 
-**Card 659 is the only one held back.** "Metabolic acidosis can be corrected by increasing pH of
-urine", stored True. The explanation argues the opposite — renal correction *lowers* urine pH toward
-4.5, and an alkaline urine means bicarbonate is being lost — so it cannot ship as written: an
-explanation that quietly contradicts its own answer is worse than none. Its two examiners were both
-killed by the spend limit before they could adjudicate. It sits in `<scratchpad>/kidney_HELD.json`,
-but regenerate rather than hunt for it — the scratchpad is session-scoped.
+**Two cards went to adjudication and the deck won both.** That is the pattern to expect, and the
+reason the defender examiner exists:
 
-To finish: adjudicate 659 with `adjudicate-disputes.js` (below). If unanimous and high-confidence,
-it becomes the deck's fifth answer-key warning; otherwise rewrite the explanation to defend the
-stored True and ship it.
+- **Card 43** — "Vasa recta can respond to sympathetic stimulation by vasoconstriction", stored
+  False. Prosecutor: descending vasa recta pericytes carry alpha-1 adrenoceptors and do constrict.
+  Defender: the deck's neighbouring cards class vasa recta as capillaries and put the sympathetic
+  effector at the arteriole, which is what a second-year course tests. Split, so no warning;
+  explanation rewritten by hand to the taught scheme with the pericyte literature as an aside.
 
-**Card 43 was adjudicated and the deck won.** "Vasa recta can respond to sympathetic stimulation by
-vasoconstriction", stored False. The prosecutor held that descending vasa recta pericytes carry
-alpha-1 adrenoceptors and do constrict; the defender held that the deck's own neighbouring cards
-class vasa recta as capillaries and put the sympathetic effector at the arteriole, which is what a
-second-year course tests. Not unanimous, so **no warning** — its explanation was rewritten by hand
-to the taught scheme, with the pericyte literature as a parenthetical aside.
+- **Card 659** — "Metabolic acidosis can be corrected by increasing pH of urine", stored True. The
+  challenge was strong: renal *compensation* acidifies the urine toward pH 4.5. But the defender
+  found the deck's own lexical distinction — it writes **"corrected"** for treatment and
+  **"compensated"** for the body's own response, consistently across topics — and cards 640 and 644
+  are keyed the challenger's way. On the therapeutic reading True is right: alkali pushes plasma
+  HCO3- past the reabsorptive threshold and the urine turns alkaline. Split, so no warning; the
+  shipped explanation teaches the corrected/compensated distinction explicitly, because that is the
+  trap.
 
-That split is the pattern to expect: a confident-sounding objection that is true of the specialist
-literature and false of the course. The defender exists to catch exactly that, and without it this
-card would have shipped a warning telling the student the answer key is wrong when it isn't.
+Both would have shipped a warning calling a correct answer key wrong if the prosecutor had run
+alone. **Never adjudicate with one examiner.**
 
 ## Adjudicating disputes
 

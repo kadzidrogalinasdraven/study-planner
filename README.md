@@ -50,7 +50,7 @@ without one simply don't show the panel; nothing looks broken.
 | Endocrinology | 454 | all 454 |
 | Nervous System | 502 | 499 |
 | Gastrointestinal Tract | 510 | all 510 |
-| Kidney | 680 | 679 |
+| Kidney | 680 | all 680 |
 | Physiology of Blood | 602 | 312 (first half) |
 | Circulation · Special Senses · Respiratory · General Physiology | 1,692 | — |
 

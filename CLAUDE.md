@@ -131,6 +131,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Nervous System (502) | 502 | **121 flagged (24%)**, 4 unsalvageable — two checkers |
 | Gastrointestinal Tract, cards 0-259 | 260 | 31 corrected (12%) — two checkers, + 8 more (3%) on a re-verify with a corrected lens |
 | Gastrointestinal Tract, cards 260-509 | 250 | 34 corrected (14%) — two checkers, lens named all three sub-subjects up front, no second pass needed |
+| Kidney, remaining 356 | 356 | 59 corrected (17%) — two checkers |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -217,7 +218,7 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | --- | --- | --- |
 | Endocrinology | 454 | ✅ 454 shipped, 2 answer-key warnings |
 | Nervous System | 502 | ✅ 499 shipped, 4 dropped as unsalvageable, 2 answer-key warnings |
-| Kidney | 680 | ⏳ 324 shipped (batches 0-13 verified); 39 flagged-but-unrepaired held; 1 disputed (43) held; batches 14-26 (316 cards) never written |
+| Kidney | 680 | ✅ 679 shipped, 0 answer-key warnings; card 659 held (adjudication never ran) |
 | Gastrointestinal Tract | 510 | ✅ 510 shipped, 0 answer-key warnings |
 | Physiology of Blood | 602 | ✗ |
 | Circulation | 499 | ✗ |
@@ -274,47 +275,52 @@ Do not "simplify" the flashcard merge into the planner's. It is different delibe
 
 ---
 
-## Where Kidney stopped, exactly
+## Kidney — complete but for one card
 
-Batches 0-13 (cards 0-363) were written and both checkers ran. 96 were flagged; 57 were repaired
-before the run died. **324 shipped.** Held back and NOT on the phone:
+679 of 680 shipped. The 356 that a previous session left unwritten or unverified were written and
+double-checked in one run: 59 corrected (17%).
 
-- **39 flagged cards whose repair batch failed** — batches 2, 8, 10, 11, 12, 13
-- **card 43**, whose explanation disputes the key and has never been adjudicated
+**Card 659 is the only one held back.** "Metabolic acidosis can be corrected by increasing pH of
+urine", stored True. The explanation argues the opposite — renal correction *lowers* urine pH toward
+4.5, and an alkaline urine means bicarbonate is being lost — so it cannot ship as written: an
+explanation that quietly contradicts its own answer is worse than none. Its two examiners were both
+killed by the spend limit before they could adjudicate. It sits in `<scratchpad>/kidney_HELD.json`,
+but regenerate rather than hunt for it — the scratchpad is session-scoped.
 
-Batches 14-26 (cards 364-679, 316 cards) were never written at all.
+To finish: adjudicate 659 with `adjudicate-disputes.js` (below). If unanimous and high-confidence,
+it becomes the deck's fifth answer-key warning; otherwise rewrite the explanation to defend the
+stored True and ship it.
 
-The saved state is `<scratchpad>/kidney_state.json` — `items`, `flagged`, `unrepaired`, `disputes`.
-The scratchpad is session-scoped and will be gone in a new session, so **regenerate rather than hunt
-for it**: re-run the topic workflow for kidney from scratch with batches 0-26. It is cheaper than
-reconstructing partial state, and the deck file already tells you which 324 are done — anything
-already in the `kid-exp` island can be skipped or simply overwritten.
+**Card 43 was adjudicated and the deck won.** "Vasa recta can respond to sympathetic stimulation by
+vasoconstriction", stored False. The prosecutor held that descending vasa recta pericytes carry
+alpha-1 adrenoceptors and do constrict; the defender held that the deck's own neighbouring cards
+class vasa recta as capillaries and put the sympathetic effector at the arteriole, which is what a
+second-year course tests. Not unanimous, so **no warning** — its explanation was rewritten by hand
+to the taught scheme, with the pericyte literature as a parenthetical aside.
 
-To finish it:
+That split is the pattern to expect: a confident-sounding objection that is true of the specialist
+literature and false of the course. The defender exists to catch exactly that, and without it this
+card would have shipped a warning telling the student the answer key is wrong when it isn't.
 
-1. Split kidney into batches (snippet above), run the topic-explanations workflow for batches 14-26.
-2. Re-run batches 2, 8, 10, 11, 12, 13 so their repairs complete.
-3. Adjudicate card 43 with the two-examiner pattern.
+## Adjudicating disputes
 
-## Gastrointestinal Tract — complete
+`~/.claude/projects/-Users-linas-Projects-study-planner/workflows/scripts/adjudicate-disputes.js`
 
-All 20 batches written, both checkers ran on every one, and every flagged card was repaired.
-**All 510 shipped: 0 held back, 0 disputes, 0 empty batches, 0 blank sources.** 73 corrected in
-total (14%) — 31 + 8 on the first half, 34 on the second.
-
-The island is `gi-exp`; note the deck's topic id is `git`, not `gi`, and the `EXPL` key must match
-the topic id, not the island id.
-
-The second half was done in one pass because the `mechFocus` named all three sub-subjects the range
-covers — GI proper, liver/biliary, and the BMR-and-thermogenesis cards around 300-335 — instead of
-just the one on the tin. That is the lesson from the first half applied, and it saved the 12-agent
-re-verify.
+Two examiners per disputed card — one told to judge independently, one told its default position is
+that the key is right and the challenger misread it. A warning is written **only when both say the
+key is wrong and both are high-confidence.** Pass `{cards: [{i, q, a, explanation}], label}`.
 
 ## Cost, and why this ran out
 
 Explanations are by far the most expensive thing in this project. Rough measured cost: a full topic
 with the three-pass protocol is **~1M subagent tokens per ~360 cards**. Endocrinology, Nervous System
-and half of Kidney together exhausted a monthly spend limit.
+and half of Kidney together exhausted a monthly spend limit once; all of GI plus the Kidney remainder
+(1,116 cards, 3.7M subagent tokens in one session) exhausted it again, **four agents into a
+four-agent adjudication** — see card 659.
+
+That is the failure mode to design around: the limit does not warn, and it bites the *last* thing
+you run. So run adjudication and any other small final pass **early**, or accept that the cheapest
+step is the one you will lose.
 
 Budget accordingly: **one half-topic (~10-13 batches) per session**, and expect the session limit to
 bite before that if anything else large ran first. Measured on GI: 10 batches / 260 cards = 40

@@ -130,6 +130,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Endocrinology (454) | 454 | 44 corrected, 7 sources dropped (~10%) — one checker |
 | Nervous System (502) | 502 | **121 flagged (24%)**, 4 unsalvageable — two checkers |
 | Gastrointestinal Tract, cards 0-259 | 260 | 31 corrected (12%) — two checkers, + 8 more (3%) on a re-verify with a corrected lens |
+| Gastrointestinal Tract, cards 260-509 | 250 | 34 corrected (14%) — two checkers, lens named all three sub-subjects up front, no second pass needed |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -217,7 +218,7 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | Endocrinology | 454 | ✅ 454 shipped, 2 answer-key warnings |
 | Nervous System | 502 | ✅ 499 shipped, 4 dropped as unsalvageable, 2 answer-key warnings |
 | Kidney | 680 | ⏳ 324 shipped (batches 0-13 verified); 39 flagged-but-unrepaired held; 1 disputed (43) held; batches 14-26 (316 cards) never written |
-| Gastrointestinal Tract | 510 | ⏳ 260 shipped (batches 0-9, fully verified, 0 disputes); batches 10-19 (250 cards) never written |
+| Gastrointestinal Tract | 510 | ✅ 510 shipped, 0 answer-key warnings |
 | Physiology of Blood | 602 | ✗ |
 | Circulation | 499 | ✗ |
 | Special Senses | 466 | ✗ |
@@ -295,18 +296,19 @@ To finish it:
 2. Re-run batches 2, 8, 10, 11, 12, 13 so their repairs complete.
 3. Adjudicate card 43 with the two-examiner pattern.
 
-## Where Gastrointestinal Tract stopped, exactly
+## Gastrointestinal Tract — complete
 
-Batches 0-9 (cards 0-259) were written, both checkers ran on every batch, and every flagged card was
-repaired. 31 were corrected on the first pass and 8 more on a corrected-lens re-verify of cards
-0-103. **Nothing is held back — all 260 shipped, 0 disputes, 0 empty batches, 0 blank sources.** The
-island is `gi-exp`; note the deck's topic id is `git`, not `gi`, and the `EXPL` key must match the
-topic id.
+All 20 batches written, both checkers ran on every one, and every flagged card was repaired.
+**All 510 shipped: 0 held back, 0 disputes, 0 empty batches, 0 blank sources.** 73 corrected in
+total (14%) — 31 + 8 on the first half, 34 on the second.
 
-To finish it: split as below and run the topic workflow for **batches 10-19** (cards 260-509). Use a
-GI `mechFocus` throughout — that range is GI proper (pancreas, bile, liver, colon, motility), so
-unlike the first half there is no thermoregulation or calorimetry hiding in it. Then adjudicate any
-disputes with the two-examiner pattern.
+The island is `gi-exp`; note the deck's topic id is `git`, not `gi`, and the `EXPL` key must match
+the topic id, not the island id.
+
+The second half was done in one pass because the `mechFocus` named all three sub-subjects the range
+covers — GI proper, liver/biliary, and the BMR-and-thermogenesis cards around 300-335 — instead of
+just the one on the tin. That is the lesson from the first half applied, and it saved the 12-agent
+re-verify.
 
 ## Cost, and why this ran out
 

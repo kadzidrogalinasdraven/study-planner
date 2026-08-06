@@ -49,8 +49,8 @@ without one simply don't show the panel; nothing looks broken.
 | --- | --- | --- |
 | Endocrinology | 454 | all 454 |
 | Nervous System | 502 | 499 |
+| Gastrointestinal Tract | 510 | all 510 |
 | Kidney | 680 | 324 (first half) |
-| Gastrointestinal Tract | 510 | 260 (first half) |
 | Blood · Circulation · Special Senses · Respiratory · General Physiology | 2,294 | — |
 
 They are written and checked by AI, and **that is not free of error** — roughly one explanation in

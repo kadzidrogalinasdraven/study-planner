@@ -133,6 +133,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Gastrointestinal Tract, cards 260-509 | 250 | 34 corrected (14%) — two checkers, lens named all three sub-subjects up front, no second pass needed |
 | Kidney, remaining 356 | 356 | 59 corrected (17%) — two checkers |
 | Physiology of Blood, cards 0-311 | 312 | 59 corrected (19%) — two checkers |
+| Circulation, cards 0-259 | 260 | 52 corrected (20%) — two checkers |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -222,12 +223,12 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | Kidney | 680 | ✅ 680 shipped, 0 answer-key warnings |
 | Gastrointestinal Tract | 510 | ✅ 510 shipped, 0 answer-key warnings |
 | Physiology of Blood | 602 | ⏳ 312 shipped (batches 0-11, fully verified, 0 disputes); batches 12-23 (290 cards) never written |
-| Circulation | 499 | ✗ |
+| Circulation | 499 | ⏳ 260 shipped (batches 0-9, fully verified, 2 adjudicated and defended); batches 10-19 (239 cards) never written |
 | Special Senses | 466 | ✗ |
 | Respiratory | 365 | ✗ |
 | General Physiology | 362 | ✗ (120 piloted, not shipped) |
 
-Island ids so far: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`, `blood-exp`. **The `EXPL` key must be
+Island ids so far: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`, `blood-exp`, `circ-exp`. **The `EXPL` key must be
 the deck's topic id, which is not always the island's prefix** — GI's topic id is `git`, not `gi`.
 
 To wire a new topic in: add its island to the `EXPL` map at the top of the Babel script. The UI shows
@@ -304,6 +305,24 @@ reason the defender examiner exists:
 
 Both would have shipped a warning calling a correct answer key wrong if the prosecutor had run
 alone. **Never adjudicate with one examiner.**
+
+Circulation added two more, and **the deck has now won all four adjudications ever run.** The write
+agents' `answerLooksWrong` flag is noticeably trigger-happy — Circulation card 218 was flagged while
+its own explanation argued *for* the stored answer. Treat the flag as "look at this", never as
+"the key is wrong".
+
+- **Circulation 218** — "QRS complex varies from 0.16 to 0.2 sec", stored False. Purely spurious:
+  both examiners high-confidence that False is right, since 0.16-0.2 s is the P-Q interval and the
+  deck's own cards 206, 459 and 465 say so.
+- **Circulation 223** — "If a rhythm is described as sinus, a QRS complex precedes each T wave",
+  stored False. Read as a bare conditional the sentence is true. But card **466 writes the same item
+  out in full — "sinus rhythm *indicates that* a P-wave precedes each QRS"** — so the family stem is
+  "indicates that", i.e. which feature identifies the pacemaker, and 223 is its distractor. Defective
+  wording, not a wrong key. Its explanation now states the elided clause outright and points at 466.
+
+**When a card reads oddly, search the deck for the same item written out in full.** These statements
+were converted from single-best-answer MCQs, and the long-form twin often still carries the clause
+that was elided — which decides the reading.
 
 ## Adjudicating disputes
 

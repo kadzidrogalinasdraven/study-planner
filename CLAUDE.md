@@ -132,6 +132,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Gastrointestinal Tract, cards 0-259 | 260 | 31 corrected (12%) — two checkers, + 8 more (3%) on a re-verify with a corrected lens |
 | Gastrointestinal Tract, cards 260-509 | 250 | 34 corrected (14%) — two checkers, lens named all three sub-subjects up front, no second pass needed |
 | Kidney, remaining 356 | 356 | 59 corrected (17%) — two checkers |
+| Physiology of Blood, cards 0-311 | 312 | 59 corrected (19%) — two checkers |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -220,11 +221,14 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | Nervous System | 502 | ✅ 499 shipped, 4 dropped as unsalvageable, 2 answer-key warnings |
 | Kidney | 680 | ✅ 679 shipped, 0 answer-key warnings; card 659 held (adjudication never ran) |
 | Gastrointestinal Tract | 510 | ✅ 510 shipped, 0 answer-key warnings |
-| Physiology of Blood | 602 | ✗ |
+| Physiology of Blood | 602 | ⏳ 312 shipped (batches 0-11, fully verified, 0 disputes); batches 12-23 (290 cards) never written |
 | Circulation | 499 | ✗ |
 | Special Senses | 466 | ✗ |
 | Respiratory | 365 | ✗ |
 | General Physiology | 362 | ✗ (120 piloted, not shipped) |
+
+Island ids so far: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`, `blood-exp`. **The `EXPL` key must be
+the deck's topic id, which is not always the island's prefix** — GI's topic id is `git`, not `gi`.
 
 To wire a new topic in: add its island to the `EXPL` map at the top of the Babel script. The UI shows
 an explanation where one exists and silently omits the panel where it doesn't.

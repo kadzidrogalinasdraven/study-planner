@@ -51,7 +51,8 @@ without one simply don't show the panel; nothing looks broken.
 | Nervous System | 502 | 499 |
 | Gastrointestinal Tract | 510 | all 510 |
 | Kidney | 680 | 679 |
-| Blood · Circulation · Special Senses · Respiratory · General Physiology | 2,294 | — |
+| Physiology of Blood | 602 | 312 (first half) |
+| Circulation · Special Senses · Respiratory · General Physiology | 1,692 | — |
 
 They are written and checked by AI, and **that is not free of error** — roughly one explanation in
 eight needed correcting before it shipped, and the ones that were wrong were wrong about specifics:

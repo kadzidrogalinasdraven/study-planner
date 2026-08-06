@@ -116,6 +116,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | General Physiology pilot (120) | 120 | 6 flagged (5%) — one checker |
 | Endocrinology (454) | 454 | 44 corrected, 7 sources dropped (~10%) — one checker |
 | Nervous System (502) | 502 | **121 flagged (24%)**, 4 unsalvageable — two checkers |
+| Gastrointestinal Tract, cards 0-259 | 260 | 31 corrected (12%) — two checkers, + 8 more (3%) on a re-verify with a corrected lens |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -136,14 +137,34 @@ The working recipe, per topic:
 
 Batch files go in the scratchpad, not the repo.
 
-**There is a reusable workflow for this.** It is generic over topic — pass
-`{dir, topic, label, batches}` and it runs the whole write → double-verify → repair pipeline:
+**There are two reusable workflows for this**, at paths that survive a new session (Claude Code's own
+copy lands under the *session* directory and disappears with it — these are the stable ones):
 
 ```text
-~/.claude/projects/-Users-linas-Projects-study-planner/workflows/scripts/topic-explanations-*.js
+~/.claude/projects/-Users-linas-Projects-study-planner/workflows/scripts/topic-explanations.js
+~/.claude/projects/-Users-linas-Projects-study-planner/workflows/scripts/reverify-batches.js
 ```
 
-Invoke it with `Workflow({scriptPath: "<that file>", args: {...}})`. Prepare the batch files first:
+`topic-explanations.js` runs the whole write → double-verify → repair pipeline. Pass
+`{dir, topic, label, batches, mechFocus}`.
+
+**`mechFocus` is not optional in practice.** It is the list of things the mechanism checker is told
+to actually check, and without it the checker inherits the kidney lens and skims everything else.
+Name the cell types, transporters, hormones, reflexes and numeric quantities that this topic turns
+on — the checker verifies what you name and glances at the rest.
+
+**A deck topic is not always about its own name.** Gastrointestinal Tract cards 0-39 are
+thermoregulation and 40-110 are energy metabolism and calorimetry; GI proper starts around 110.
+Before writing `mechFocus`, print every 10th question and read what the range is *actually* about.
+Getting this wrong is recoverable but costs a second pass: on GI a corrected-lens re-verify of cards
+0-103 found 8 more errors that the GI-lensed checker had let through, including two bomb-calorimeter
+energy values.
+
+`reverify-batches.js` is that second pass — it re-checks explanations that already exist against a
+corrected lens and repairs what it flags. Pass `{file, batches, size, lens, label}`, where `file` is
+a JSON array of `{i, explanation, source, answerLooksWrong}`.
+
+Invoke either with `Workflow({scriptPath: "<that file>", args: {...}})`. Prepare the batch files first:
 
 ```python
 # split one topic into batches of 26 under <scratchpad>/<topic>/bNN.json
@@ -183,8 +204,8 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | Endocrinology | 454 | ✅ 454 shipped, 2 answer-key warnings |
 | Nervous System | 502 | ✅ 499 shipped, 4 dropped as unsalvageable, 2 answer-key warnings |
 | Kidney | 680 | ⏳ 324 shipped (batches 0-13 verified); 39 flagged-but-unrepaired held; 1 disputed (43) held; batches 14-26 (316 cards) never written |
+| Gastrointestinal Tract | 510 | ⏳ 260 shipped (batches 0-9, fully verified, 0 disputes); batches 10-19 (250 cards) never written |
 | Physiology of Blood | 602 | ✗ |
-| Gastrointestinal Tract | 510 | ✗ |
 | Circulation | 499 | ✗ |
 | Special Senses | 466 | ✗ |
 | Respiratory | 365 | ✗ |
@@ -261,14 +282,30 @@ To finish it:
 2. Re-run batches 2, 8, 10, 11, 12, 13 so their repairs complete.
 3. Adjudicate card 43 with the two-examiner pattern.
 
+## Where Gastrointestinal Tract stopped, exactly
+
+Batches 0-9 (cards 0-259) were written, both checkers ran on every batch, and every flagged card was
+repaired. 31 were corrected on the first pass and 8 more on a corrected-lens re-verify of cards
+0-103. **Nothing is held back — all 260 shipped, 0 disputes, 0 empty batches, 0 blank sources.** The
+island is `gi-exp`; note the deck's topic id is `git`, not `gi`, and the `EXPL` key must match the
+topic id.
+
+To finish it: split as below and run the topic workflow for **batches 10-19** (cards 260-509). Use a
+GI `mechFocus` throughout — that range is GI proper (pancreas, bile, liver, colon, motility), so
+unlike the first half there is no thermoregulation or calorimetry hiding in it. Then adjudicate any
+disputes with the two-examiner pattern.
+
 ## Cost, and why this ran out
 
 Explanations are by far the most expensive thing in this project. Rough measured cost: a full topic
 with the three-pass protocol is **~1M subagent tokens per ~360 cards**. Endocrinology, Nervous System
 and half of Kidney together exhausted a monthly spend limit.
 
-Budget accordingly: **one half-topic (~13 batches) per session**, and expect the session limit to
-bite before that if anything else large ran first. When a limit hits mid-run it is always the *later*
+Budget accordingly: **one half-topic (~10-13 batches) per session**, and expect the session limit to
+bite before that if anything else large ran first. Measured on GI: 10 batches / 260 cards = 40
+agents, **1.06M subagent tokens, ~15 min wall clock**; the 4-batch corrected-lens re-verify added 12
+agents and 0.5M more — re-verification is not cheap, which is the argument for getting `mechFocus`
+right the first time. When a limit hits mid-run it is always the *later*
 phases that die — verification and repair — leaving finished-looking explanations nobody checked.
 Never ship those.
 

@@ -26,13 +26,41 @@ wins — the merge is by timestamp on the whole blob, not per field.
 
 **The questions and answers are never edited.** These exact statements, with these exact answers,
 appear in the computer test. Where standard physiology disagrees with an answer, the card carries a
-visible warning and still tells you to answer as the deck says. Two endocrinology cards currently
-carry that warning (indices 8 and 32).
+visible warning and still tells you to answer as the deck says. Four cards currently carry that
+warning — Endocrinology 8 and 32, Nervous System 158 and 350.
 
 ### One tap
 
 Tapping TRUE or FALSE both answers and grades the card — right counts as *Good*, wrong as *Again*.
 There is no second tap. *Hard* and *Easy* appear after the reveal if you want finer control.
+
+### Explanations
+
+Most cards reveal a short explanation underneath the answer — one to three sentences of mechanism
+with a textbook citation, written to be read on a phone in the seconds after you answer. Cards
+without one simply don't show the panel; nothing looks broken.
+
+| Topic | Cards | Explained |
+| --- | --- | --- |
+| Endocrinology | 454 | all 454 |
+| Nervous System | 502 | 499 |
+| Kidney | 680 | 324 (first half) |
+| Gastrointestinal Tract | 510 | 260 (first half) |
+| Blood · Circulation · Special Senses · Respiratory · General Physiology | 2,294 | — |
+
+They are written and checked by AI, and **that is not free of error** — roughly one explanation in
+eight needed correcting before it shipped, and the ones that were wrong were wrong about specifics:
+an energy value, a transporter, the direction of a reflex. So every explanation goes through a
+written-then-independently-checked-twice-then-repaired pipeline before it reaches the deck, and
+anything whose citation could not be stood behind ships with no citation rather than a plausible
+invented one. Trust the card; treat the explanation as a good revision note, not as a source.
+
+Where an explanation still disagrees with the stored answer after adjudication, it becomes the
+visible warning described above rather than a silent edit.
+
+**For the next AI session:** the pipeline, the measured error rates, the per-topic state and the
+reusable workflow scripts are documented in `CLAUDE.md` under *Explanations*. Read that before
+generating any — the writing is the cheap part and the verification is what makes them usable.
 
 ### Study modes
 

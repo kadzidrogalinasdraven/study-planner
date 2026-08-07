@@ -136,6 +136,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Circulation, cards 0-259 | 260 | 52 corrected (20%) — two checkers |
 | Special Senses, cards 0-233 | 234 | 33 corrected (14%) — two checkers |
 | Respiratory, cards 0-181 | 182 | 36 corrected (20%) — two checkers |
+| General Physiology, cards 0-181 | 182 | 22 corrected (12%) — two checkers |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -222,6 +223,13 @@ Completed agents replay from cache instantly; only the failed ones re-run. Same 
 not run, because the real rate is 5-10%. Partial results are parked in the scratchpad as
 `<topic>_UNVERIFIED.json` rather than merged into the deck.
 
+### What is left
+
+Every topic has explanations for at least its first half. What remains is the **second half of five
+topics** — the batch ranges are in the coverage table. Each is one workflow call against an island
+that already exists, so merging is an update rather than an insert: read the island, add the new
+keys, write it back (see the merge used for Kidney's remainder).
+
 ### Coverage
 
 | Topic | Cards | Explanations |
@@ -234,9 +242,11 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | Circulation | 499 | ⏳ 260 shipped (batches 0-9, fully verified, 2 adjudicated and defended); batches 10-19 (239 cards) never written |
 | Special Senses | 466 | ⏳ 234 shipped (batches 0-8, fully verified, 0 disputes); batches 9-17 (232 cards) never written |
 | Respiratory | 365 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-14 (183 cards) never written |
-| General Physiology | 362 | ✗ (120 piloted, not shipped) |
+| General Physiology | 362 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-13 (180 cards) never written |
 
-Island ids so far: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`, `blood-exp`, `circ-exp`, `sens-exp`, `resp-exp`. **The `EXPL` key must be
+**All nine topics are now wired.** Island ids: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`,
+`blood-exp`, `circ-exp`, `sens-exp`, `resp-exp`, `gp-exp`. There is no longer any topic to add — only
+batches to extend within the islands that exist. **The `EXPL` key must be
 the deck's topic id, which is not always the island's prefix** — GI's topic id is `git`, not `gi`.
 
 To wire a new topic in: add its island to the `EXPL` map at the top of the Babel script. The UI shows

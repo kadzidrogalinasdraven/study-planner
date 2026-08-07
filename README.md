@@ -54,7 +54,8 @@ without one simply don't show the panel; nothing looks broken.
 | Physiology of Blood | 602 | 312 (first half) |
 | Circulation | 499 | 260 (first half) |
 | Special Senses | 466 | 234 (first half) |
-| Respiratory · General Physiology | 727 | — |
+| Respiratory | 365 | 182 (first half) |
+| General Physiology | 362 | — |
 
 They are written and checked by AI, and **that is not free of error** — roughly one explanation in
 eight needed correcting before it shipped, and the ones that were wrong were wrong about specifics:

@@ -135,6 +135,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Physiology of Blood, cards 0-311 | 312 | 59 corrected (19%) — two checkers |
 | Circulation, cards 0-259 | 260 | 52 corrected (20%) — two checkers |
 | Special Senses, cards 0-233 | 234 | 33 corrected (14%) — two checkers |
+| Respiratory, cards 0-181 | 182 | 36 corrected (20%) — two checkers |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -232,10 +233,10 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 | Physiology of Blood | 602 | ⏳ 312 shipped (batches 0-11, fully verified, 0 disputes); batches 12-23 (290 cards) never written |
 | Circulation | 499 | ⏳ 260 shipped (batches 0-9, fully verified, 2 adjudicated and defended); batches 10-19 (239 cards) never written |
 | Special Senses | 466 | ⏳ 234 shipped (batches 0-8, fully verified, 0 disputes); batches 9-17 (232 cards) never written |
-| Respiratory | 365 | ✗ — batches 0-6 written but HALF UNVERIFIED, not shipped (see below) |
+| Respiratory | 365 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-14 (183 cards) never written |
 | General Physiology | 362 | ✗ (120 piloted, not shipped) |
 
-Island ids so far: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`, `blood-exp`, `circ-exp`, `sens-exp`. **The `EXPL` key must be
+Island ids so far: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`, `blood-exp`, `circ-exp`, `sens-exp`, `resp-exp`. **The `EXPL` key must be
 the deck's topic id, which is not always the island's prefix** — GI's topic id is `git`, not `gi`.
 
 To wire a new topic in: add its island to the `EXPL` map at the top of the Babel script. The UI shows
@@ -339,18 +340,16 @@ Two examiners per disputed card — one told to judge independently, one told it
 that the key is right and the challenger misread it. A warning is written **only when both say the
 key is wrong and both are high-confidence.** Pass `{cards: [{i, q, a, explanation}], label}`.
 
-## Where Respiratory stopped, exactly
+## Resume is same-session — and that is worth checking before writing anything off
 
-Batches 0-6 (cards 0-181) were **written but must not be shipped.** The monthly spend limit killed 12
-of 24 agents — 5 mechanism checkers, 5 consistency checkers and 2 repairs — so about half the batches
-were never checked at all. Nothing was merged into the deck.
+Respiratory lost 12 of 24 agents to the spend limit, and the notes here briefly recorded it as
+unrecoverable. That was wrong: `resumeFromRunId` works for the whole life of the session, not just
+immediately after the failure. The limit reset later in the same session, the run resumed, the 12
+survivors replayed from cache, and only the 12 failures re-ran.
 
-**Resume does not survive a session.** `resumeFromRunId` is same-session only, so run
-`wf_99ca879f-837` is unrecoverable from a fresh session, and the scratchpad batch files are gone with
-it. Re-split respiratory and re-run batches 0-6 from scratch; the deck has no `resp-exp` island, so
-there is nothing to skip or overwrite.
-
-General Physiology (batches 0-6, cards 0-181) was never started for the same reason.
+**Before re-running a dead topic from scratch, check whether the run id is still in this session.**
+Re-running costs the full topic; resuming costs only what failed. It is only across a session
+boundary that the run id dies and re-splitting becomes necessary.
 
 ## Cost, and why this ran out
 

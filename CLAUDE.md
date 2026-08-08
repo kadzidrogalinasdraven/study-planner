@@ -139,6 +139,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | General Physiology, cards 0-181 | 182 | 22 corrected (12%) — two checkers |
 | Physiology of Blood, cards 312-601 | 290 | 62 corrected (21%) — two checkers, 8-section mechFocus |
 | Circulation, cards 260-498 | 239 | 31 corrected (13%) — two checkers, 8-section mechFocus |
+| Special Senses, cards 234-465 | 232 | 40 corrected (17%) — two checkers, 5-section mechFocus |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -288,7 +289,7 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 
 ### What is left
 
-Every topic has explanations for at least its first half. What remains is the **second half of three
+Every topic has explanations for at least its first half. What remains is the **second half of two
 topics** — the batch ranges are in the coverage table. Each is one workflow call against an island
 that already exists, so merging is an update rather than an insert: read the island, add the new
 keys, write it back (see the merge used for Kidney's remainder).
@@ -309,7 +310,7 @@ keys, inserts new ones, skips blank explanations, and reports gaps.
 | Gastrointestinal Tract | 510 | ✅ 510 shipped, 0 answer-key warnings |
 | Physiology of Blood | 602 | ✅ 602 shipped, 0 answer-key warnings |
 | Circulation | 499 | ✅ 499 shipped, 2 adjudicated and defended, 0 answer-key warnings |
-| Special Senses | 466 | ⏳ 234 shipped (batches 0-8, fully verified, 0 disputes); batches 9-17 (232 cards) never written |
+| Special Senses | 466 | ✅ 466 shipped, 0 answer-key warnings |
 | Respiratory | 365 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-14 (183 cards) never written |
 | General Physiology | 362 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-13 (180 cards) never written |
 

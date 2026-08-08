@@ -55,7 +55,7 @@ without one simply don't show the panel; nothing looks broken.
 | Circulation | 499 | all 499 |
 | Special Senses | 466 | all 466 |
 | Respiratory | 365 | all 365 |
-| General Physiology | 362 | 182 (first half) |
+| General Physiology | 362 | all 362 |
 
 They are written and checked by AI, and **that is not free of error** — roughly one explanation in
 eight needed correcting before it shipped, and the ones that were wrong were wrong about specifics:

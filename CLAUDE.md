@@ -186,6 +186,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Circulation, cards 260-498 | 239 | 31 corrected (13%) — two checkers, 8-section mechFocus |
 | Special Senses, cards 234-465 | 232 | 40 corrected (17%) — two checkers, 5-section mechFocus |
 | Respiratory, cards 182-364 | 183 | 23 corrected (13%) — two checkers, 9-section mechFocus, arithmetic-weighted |
+| General Physiology, cards 182-361 | 180 | 17 corrected (9%) — two checkers, 3-block mechFocus |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -358,7 +359,7 @@ keys, inserts new ones, skips blank explanations, and reports gaps.
 | Circulation | 499 | ✅ 499 shipped, 2 adjudicated and defended, 0 answer-key warnings |
 | Special Senses | 466 | ✅ 466 shipped, 0 answer-key warnings |
 | Respiratory | 365 | ✅ 365 shipped, 0 answer-key warnings |
-| General Physiology | 362 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-13 (180 cards) never written |
+| General Physiology | 362 | ✅ 362 shipped, 0 answer-key warnings |
 
 **All nine topics are now wired.** Island ids: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`,
 `blood-exp`, `circ-exp`, `sens-exp`, `resp-exp`, `gp-exp`. There is no longer any topic to add — only

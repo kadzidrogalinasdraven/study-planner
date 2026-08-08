@@ -41,14 +41,14 @@ There is no second tap. *Hard* and *Easy* appear after the reveal if you want fi
 
 ### Explanations
 
-Most cards reveal a short explanation underneath the answer — one to three sentences of mechanism
+Every card reveals a short explanation underneath the answer — one to three sentences of mechanism
 with a textbook citation, written to be read on a phone in the seconds after you answer. Cards
 without one simply don't show the panel; nothing looks broken.
 
 | Topic | Cards | Explained |
 | --- | --- | --- |
 | Endocrinology | 454 | all 454 |
-| Nervous System | 502 | 499 |
+| Nervous System | 502 | all 502 |
 | Gastrointestinal Tract | 510 | all 510 |
 | Kidney | 680 | all 680 |
 | Physiology of Blood | 602 | all 602 |

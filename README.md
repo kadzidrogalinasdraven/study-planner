@@ -2,8 +2,23 @@
 
 A single-file app. Everything lives in `index.html` — React and Babel are pulled from a CDN and
 the JSX is compiled in the browser, so there is no build step and nothing to install. Open the
-file, or push to `main` and Netlify serves it at
-[peppy-lokum-2c5109.netlify.app](https://peppy-lokum-2c5109.netlify.app/).
+file, or push to `main` and GitHub Pages serves it within a minute.
+
+## Live
+
+| | |
+| --- | --- |
+| **Planner** | <https://kadzidrogalinasdraven.github.io/study-planner/> |
+| **Flashcards** | <https://kadzidrogalinasdraven.github.io/study-planner/physio_flashcards.html> |
+| **Flashcards — Silvia** | <https://kadzidrogalinasdraven.github.io/study-planner/physio_flashcards_silvia.html> |
+
+The old Netlify address still answers but is **frozen on an out-of-date build**, so use the links
+above and let the old bookmarks go.
+
+Signing in with Google needs two things that live in the Google Cloud console, not in this repo: your
+address has to be on the app's test-user list, and the site's address has to be on its list of
+allowed origins. Without the first you get *"Error 403: access_denied"*; without the second, sign-in
+fails with an origin error. Both are recorded in `CLAUDE.md`.
 
 `physio_flashcards.html` is a separate standalone page that the planner links to. Keep it at the
 same address or the flashcard links break.
@@ -44,8 +59,8 @@ There is no second tap. *Hard* and *Easy* appear after the reveal if you want fi
 ### Explanations
 
 Every card reveals a short explanation underneath the answer — one to three sentences of mechanism
-with a textbook citation, written to be read on a phone in the seconds after you answer. Cards
-without one simply don't show the panel; nothing looks broken.
+with a textbook citation, written to be read on a phone in the seconds after you answer. (The UI
+still hides the panel where an explanation is missing, so adding cards later degrades gracefully.)
 
 | Topic | Cards | Explained |
 | --- | --- | --- |
@@ -58,9 +73,12 @@ without one simply don't show the panel; nothing looks broken.
 | Special Senses | 466 | all 466 |
 | Respiratory | 365 | all 365 |
 | General Physiology | 362 | all 362 |
+| **Total** | **4,440** | **all 4,440** |
+
+Finished 8 August 2026.
 
 They are written and checked by AI, and **that is not free of error** — roughly one explanation in
-eight needed correcting before it shipped, and the ones that were wrong were wrong about specifics:
+six needed correcting before it shipped, and the ones that were wrong were wrong about specifics:
 an energy value, a transporter, the direction of a reflex. So every explanation goes through a
 written-then-independently-checked-twice-then-repaired pipeline before it reaches the deck, and
 anything whose citation could not be stood behind ships with no citation rather than a plausible
@@ -68,6 +86,10 @@ invented one. Trust the card; treat the explanation as a good revision note, not
 
 Where an explanation still disagrees with the stored answer after adjudication, it becomes the
 visible warning described above rather than a silent edit.
+
+Citations name a textbook chapter. Those chapter numbers are Guyton & Hall **14th edition** and were
+checked against the publisher's contents listing, because roughly 160 of them had been written with
+13th-edition numbers, which differ by one from chapter 33 onwards.
 
 **For the next AI session:** the pipeline, the measured error rates, the per-topic state and the
 reusable workflow scripts are documented in `CLAUDE.md` under *Explanations*. Read that before

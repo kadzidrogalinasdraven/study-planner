@@ -73,7 +73,19 @@ PY
 ## What this project is
 
 Two static files, no build step, no npm, no bundler. React 18 UMD + in-browser Babel from a CDN.
-Netlify serves `main` at <https://peppy-lokum-2c5109.netlify.app>.
+
+**Where it is live (as of 2026-08-08). GitHub Pages is now the primary host, not Netlify:**
+
+| | URL |
+| --- | --- |
+| Planner | <https://kadzidrogalinasdraven.github.io/study-planner/> |
+| Deck (Linas) | <https://kadzidrogalinasdraven.github.io/study-planner/physio_flashcards.html> |
+| Deck (Silvia) | <https://kadzidrogalinasdraven.github.io/study-planner/physio_flashcards_silvia.html> |
+| Netlify — **stale, do not send anyone here** | <https://peppy-lokum-2c5109.netlify.app> |
+
+Netlify is frozen at the 3,842-explanation build because its deploys are blocked (see below). It is
+still serving, so the old links work and quietly show out-of-date content — which is worse than being
+down. Treat GitHub Pages as the live site.
 
 | File | What it is |
 | --- | --- |
@@ -111,16 +123,20 @@ drive-only while still writing to the shared `sp_gtok`, then on a browser they b
 would overwrite the planner's and 403 its calendar calls. Never separate them.
 
 Deploy is: commit on `test` → `git checkout main && git merge test --ff-only` → `git push origin main`.
-Netlify picks it up in well under a minute.
+**GitHub Pages serves `main` from the repo root within about a minute — there is nothing to configure
+per file.** Pages publishes the whole repository, so any file committed is reachable at its own path.
+Netlify still watches `main` too and will resume automatically if its flag ever clears.
 
-### When Netlify refuses to deploy
+### Why Netlify was abandoned (2026-08-08)
 
-On 2026-08-08 Netlify showed *"running on operational credits — production deploys and Agent Runners
-are paused"* and stopped building. **This is a known Netlify bug**, not real exhaustion: through July
-and August 2026 many free-plan teams reported the identical banner while their credit balance was
-still full, and support clears the flag by hand. Check Usage & billing first — a healthy balance next
-to the paused banner confirms it. The fix is a free post on <https://answers.netlify.com> naming the
-team (**Planer**) and site (`peppy-lokum-2c5109`).
+Netlify showed *"running on operational credits — production deploys and Agent Runners are paused"*
+and stopped building. **This is a known Netlify bug**, not real exhaustion: through July and August
+2026 many free-plan teams reported the identical banner while their credit balance was still full,
+and support clears the flag by hand. The free fix is a post on <https://answers.netlify.com> naming
+the team (**Planer**) and site (`peppy-lokum-2c5109`) — **not yet done**, and no longer urgent.
+
+GitHub Pages was set up instead: repo is public, so it is free, has no build step and no credit
+system, and 4.5 MB of HTML is nothing against its 1 GB / 100 GB-per-month limits.
 
 **Never "solve" this by making a second account on another email.** It breaches Netlify's terms on
 circumventing plan limits, and it does not even work, for a reason that applies to *every* host move:
@@ -140,6 +156,42 @@ So the order of operations for **any** domain change is fixed:
    Cloud Console, and without it `requestAccessToken` fails with `origin_mismatch`.
 3. Update `LIVE_URL` (`index.html:124`, used by the four `file://` fallbacks), plus the URL in
    `README.md` and here.
+
+### The Google Cloud project — where sign-in actually lives
+
+Nothing in this repo controls Google sign-in beyond the client ID. Everything else is console state,
+so it is recorded here or it is lost:
+
+| | |
+| --- | --- |
+| Project name | **OpenClaw** (nothing to do with this app — it is just the only project on the account) |
+| Project ID | `driven-tape-493113-v3` |
+| Project number | `272590603949` — the first field of the client ID |
+| OAuth client | **planner-web**, `272590603949-tfgcscp9b13kka7gg8epj5tg4o47g6cq.apps.googleusercontent.com` |
+| Publishing status | **Testing**, user type External |
+| Test users | `kadzidrogalinas@gmail.com`, `silvia.stratta04@gmail.com` |
+| Authorised JS origins | `https://peppy-lokum-2c5109.netlify.app`, `https://kadzidrogalinasdraven.github.io` |
+
+There is a second client in the project ending `-3ssj…`; it belongs to something else. Do not touch it.
+
+**Project ID and project number look nothing alike, and the console lists only the ID.** An hour was
+lost to this: the Resource Manager showed one project called "OpenClaw" and no sign of `272590603949`,
+which looked like the app living under a different Google account. It was the same project.
+`https://console.cloud.google.com/iam-admin/settings` shows name, ID and number together.
+
+**Two things must be done in the console for every new person or every new origin**, and both fail in
+ways that look like application bugs:
+
+1. **A new user must be added under Zielgruppe/Audience → Test users.** Otherwise Google returns
+   `Error 403: access_denied` — *"the app has not completed Google's verification process"* — which
+   reads like the app is broken. It is not; Testing status simply admits only listed testers. Cap is
+   100, counted over the app's lifetime.
+2. **A new origin must be added to Authorised JavaScript origins.** Otherwise `requestAccessToken`
+   fails with `origin_mismatch`. Changes can take minutes to hours to propagate.
+
+**Do not click "App veröffentlichen" / "Publish app".** Publishing sends the app into Google's
+verification queue for the Drive scope — privacy policy, demo video, weeks of review — to solve a
+problem that adding a test user solves in a minute.
 
 Keep the three HTML files **siblings at the same path depth**: the inter-page links are relative
 (`index.html:95`, `physio_flashcards*.html:138`) and single-sign-on via `sp_gtok` only works while
@@ -523,11 +575,38 @@ right the first time. When a limit hits mid-run it is always the *later*
 phases that die — verification and repair — leaving finished-looking explanations nobody checked.
 Never ship those.
 
+## Where things stand — 2026-08-08
+
+**The computer test is 2026-08-14 and the oral 2026-08-24.** At the time of writing that is six days
+away, so prefer stability over improvement. Nothing below is urgent enough to risk the deck.
+
+- **Explanations are finished: 4,440 of 4,440, every topic, no gaps.** There is no explanation work
+  left. The 100% pass and the deck-wide citation fix both shipped on 2026-08-08.
+- **Live on GitHub Pages**, verified serving all 4,440 on both decks. Netlify is stale at 3,842.
+- **Linas has flashcard sync ON.** On the Netlify origin his progress was 516 known / 339 due /
+  3,766 unseen, heaviest in Endocrinology (230) and Nervous System (138), and he pushed it to Drive
+  before the move. On GitHub Pages that has to come back down from Drive on first sign-in — if the
+  numbers look wrong there, press **Sync now** before concluding anything is broken. The merge is a
+  per-card union, so a pull can add but never subtract.
+- **Silvia** was added as a Google test user and given the GitHub Pages link. Her deck had zero
+  progress at the time of the move, so she lost nothing by switching origin.
+
+### Known cosmetic bug — do not "fix" it in a panic
+
+The flashcard sync bar always reads **"Sync on"**, never "Syncing to \<email\>". That is correct
+behaviour, not a failure: `SyncBar` renders `email ? "Syncing to "+email : "Sync on"`, and in the deck
+`setEmail` is declared and never called — the deck makes no `drive/v3/about` call, while the planner
+makes exactly one. **"Sync on" means connected and syncing.** Worth wiring up properly one day, by
+reusing the planner's call, so that on a shared device the deck can say which account it is using.
+Not before the exam.
+
 ## Open items
 
-- Explanations for the remaining 7 topics (see the coverage table).
-- The user has **not yet switched on flashcard sync** — until they tap "Turn on sync", phone and Mac
-  still keep separate progress. That was the original complaint; the fix is built but dormant.
+- The **Netlify support post has not been made**. Doing it would restore the old URL; it is optional
+  now that Pages is primary.
+- No **custom domain** yet. This is the one change that would stop all of this recurring: the domain
+  becomes the identity, the host becomes disposable, and no future move costs progress or an OAuth
+  re-registration. ~€10/year. See the hosting section.
 - The Health tracker has no CSV/Markdown export yet, so its data has no backup path.
 - Only one of three redesign directions survived a truncated payload during the flashcard redesign;
   the other two were never scored.

@@ -85,14 +85,30 @@ Netlify serves `main` at <https://peppy-lokum-2c5109.netlify.app>.
 
 **Never hand-edit `physio_flashcards_silvia.html`.** It is derived. After *any* change to
 `physio_flashcards.html` — new explanations, a UI fix, anything — run `python3 make_silvia_copy.py`
-**in the same commit**, or her deck silently falls behind. The script rewrites exactly three
-identifiers (`KEY`, `BACKUP`, `DRIVE_FILE`) and asserts each appears once, so it fails loudly rather
-than quietly if that file changes shape.
+**in the same commit**, or her deck silently falls behind. The script asserts an exact occurrence
+count for every substitution, so it fails loudly rather than quietly if that file changes shape.
+(It has already caught one: `grep -c` counts *lines*, not occurrences, and `sp_gtok` appears twice
+in code plus once in a comment.)
 
-Those three are the whole point: progress is never stored in the HTML, only in `localStorage` under
-`KEY`, so a distinct key is what makes her copy start at zero and stay separate from Linas's — even
-in the same browser on the same domain. A plain `cp` would have shared his progress and, if she ever
-switched sync on, his Drive file too.
+The substitutions fall into two groups, for two different reasons.
+
+**Storage** — `KEY`, `BACKUP`, `DRIVE_FILE`. Progress is never stored in the HTML, only in
+`localStorage` under `KEY`, so a distinct key is what makes her copy start at zero and stay separate
+from Linas's, even in the same browser on the same domain. A plain `cp` would have shared his
+progress and, if she ever switched sync on, his Drive file too. **Never rename these once she has
+used the deck** — that orphans her progress.
+
+**Standalone** — Silvia has the flashcards but no planner, so her copy drops the `← planner` link,
+requests only `drive.appdata`, and keeps its token under `sil_gtok` / `sil_gaccount`.
+
+The main deck asks for `calendar.events` even though **the flashcards never call the Calendar API**
+(`grep -c 'calendar/v3' physio_flashcards.html` → 0). That is deliberate there: the scope string
+matches the planner's so the two share `sp_gtok` and one sign-in covers both. For Silvia it was pure
+cost — a personal-calendar permission grant for an app that cannot use it.
+
+**The narrow scope and the private token key are one change, not two.** If her copy asked for
+drive-only while still writing to the shared `sp_gtok`, then on a browser they both use her token
+would overwrite the planner's and 403 its calendar calls. Never separate them.
 
 Deploy is: commit on `test` → `git checkout main && git merge test --ff-only` → `git push origin main`.
 Netlify picks it up in well under a minute.

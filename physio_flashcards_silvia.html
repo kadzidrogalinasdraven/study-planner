@@ -256,14 +256,15 @@ function saveLocal(st){ try{ localStorage.setItem(KEY,JSON.stringify(st)); }catc
 
 /* ── Google auth — shares the planner's token, same origin, one sign-in ── */
 const GOOGLE_CLIENT_ID="272590603949-tfgcscp9b13kka7gg8epj5tg4o47g6cq.apps.googleusercontent.com";
-const AUTH_SCOPES="https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/drive.appdata";
+const AUTH_SCOPES="https://www.googleapis.com/auth/drive.appdata";
 const DRIVE_FILE="physio-flashcards-silvia-sync.json";
 let _tok=null,_exp=0,_client=null,_prom=null,_acct=null,_fileId=null;
-try{ _acct=localStorage.getItem("sp_gaccount")||null; }catch(e){}
-/* Same scope string as the planner deliberately: the two apps then share sp_gtok, so signing in
-   once covers both. A narrower token written back here would 403 the planner's calendar calls. */
-function restoreTok(){ try{ const s=localStorage.getItem("sp_gtok"); if(s){ const o=JSON.parse(s); if(o&&o.t&&o.e&&o.e>Date.now()+60000){_tok=o.t;_exp=o.e;} } }catch(e){} }
-function persistTok(){ try{ localStorage.setItem("sp_gtok",JSON.stringify({t:_tok,e:_exp})); }catch(e){} }
+try{ _acct=localStorage.getItem("sil_gaccount")||null; }catch(e){}
+/* Standalone copy: no planner, so no shared token and no Calendar scope. The token lives under
+   its own key — a drive-only token written to sp_gtok would 403 the planner's calendar calls on a
+   browser both are used in. Narrow scope and private key belong together; see make_silvia_copy.py. */
+function restoreTok(){ try{ const s=localStorage.getItem("sil_gtok"); if(s){ const o=JSON.parse(s); if(o&&o.t&&o.e&&o.e>Date.now()+60000){_tok=o.t;_exp=o.e;} } }catch(e){} }
+function persistTok(){ try{ localStorage.setItem("sil_gtok",JSON.stringify({t:_tok,e:_exp})); }catch(e){} }
 restoreTok();
 const gisReady=()=>!!(window.google&&window.google.accounts&&window.google.accounts.oauth2);
 const tokenValid=()=>!!_tok&&Date.now()<_exp-60000;
@@ -383,7 +384,7 @@ function Home({state, now, onOpen, sync}){
   const c=countsFor(all,cards,now);
   return (
     <div className="rise">
-      <a className="lnk" href={PLANNER}>← planner</a>
+      
       <h1 style={{fontSize:27,margin:"2px 0 2px"}}>Physiology</h1>
       <div className="eyebrow" style={{marginBottom:14}}>true/false revision · {c.total.toLocaleString()} statements</div>
       <hr className="rule"/>

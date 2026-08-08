@@ -10,8 +10,10 @@ same address or the flashcard links break.
 
 `physio_flashcards_silvia.html` is Silvia's copy of the same deck — identical cards, explanations and
 features, but its own progress, kept under a different storage key so the two never mix even in the
-same browser. It is **generated**, not maintained by hand: after any change to the main deck run
-`python3 make_silvia_copy.py` so her copy picks it up.
+same browser. It is a **standalone** copy: it has no link to the planner, and it asks Google only for
+the Drive permission it actually uses, not the planner's calendar permission. It is **generated**, not
+maintained by hand: after any change to the main deck run `python3 make_silvia_copy.py` so her copy
+picks it up.
 
 `CLAUDE.md` holds the working notes for AI sessions — the rules, the reasoning behind decisions, and
 what is done so far. **It is kept up to date as part of any change**, so a new session can pick the

@@ -138,6 +138,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Respiratory, cards 0-181 | 182 | 36 corrected (20%) — two checkers |
 | General Physiology, cards 0-181 | 182 | 22 corrected (12%) — two checkers |
 | Physiology of Blood, cards 312-601 | 290 | 62 corrected (21%) — two checkers, 8-section mechFocus |
+| Circulation, cards 260-498 | 239 | 31 corrected (13%) — two checkers, 8-section mechFocus |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -166,21 +167,45 @@ title under two different numbers** — "Hemostasis and Blood Coagulation" as bo
 and Ch.37 (69 cards). Whichever is true, a deck that says both is wrong on one of them, and a student
 comparing two cards sees the contradiction.
 
-The deck has a settled scheme, attested across the explanations already shipped and verified. It runs
-sequentially and is the tie-breaker — match it rather than re-deriving it:
+Chasing that revealed a deck-wide problem, since fixed: **160 explanations across every topic carried
+13th-edition chapter numbers** while claiming 14e, because writers drift between the two editions and
+the numbers differ by one from Ch.33 onwards. The titles were almost always right; the numbers were
+not.
 
-| Ch. | Title |
-| --- | --- |
-| 33 | Red Blood Cells, Anemia, and Polycythemia |
-| 34 | Resistance of the Body to Infection: I. Leukocytes, Granulocytes, Monocyte-Macrophage, Inflammation |
-| 35 | Resistance of the Body to Infection: II. Immunity and Allergy |
-| 36 | Blood Types; Transfusion; Tissue and Organ Transplantation |
-| 37 | Hemostasis and Blood Coagulation |
-| 38 | Pulmonary Ventilation |
-| 39 | Pulmonary Circulation, Pulmonary Edema, Pleural Fluid |
-| 42 | Regulation of Respiration |
-| 43 | Respiratory Insufficiency |
-| 71 | The Liver as an Organ |
+**The title decides the number, and the map below was verified against Elsevier's published 14e
+contents — not inferred.** Verify rather than reason from majority vote: raw majority was *wrong* for
+three titles, because the 13e number was the commoner one, and adopting it would have put two
+different chapter titles on Ch.55 and two more on Ch.57.
+
+| Ch. | Title | | Ch. | Title |
+| --- | --- | --- | --- | --- |
+| 33 | Red Blood Cells, Anemia, and Polycythemia | | 55 | Motor Functions of the Spinal Cord |
+| 34 | Resistance to Infection: I. Leukocytes, Inflammation | | 56 | Cortical and Brain Stem Control of Motor Function |
+| 35 | Resistance to Infection: II. Immunity and Allergy | | 57 | Cerebellum and Basal Ganglia in Motor Control |
+| 36 | Blood Types; Transfusion; Transplantation | | 58 | Cerebral Cortex, Intellectual Functions, Memory |
+| 37 | Hemostasis and Blood Coagulation | | 59 | Behavioral and Motivational Mechanisms; Limbic |
+| 38 | Pulmonary Ventilation | | 60 | States of Brain Activity: Sleep, Brain Waves |
+| 39 | Pulmonary Circulation, Pulmonary Edema | | 61 | The Autonomic Nervous System and Adrenal Medulla |
+| 41 | Transport of Oxygen and Carbon Dioxide | | 62 | Cerebral Blood Flow, CSF, Brain Metabolism |
+| 42 | Regulation of Respiration | | 64 | Propulsion and Mixing of Food |
+| 43 | Respiratory Insufficiency | | 65 | Secretory Functions of the Alimentary Tract |
+| 46 | Organization of the Nervous System, Synapses | | 66 | Digestion and Absorption |
+| 47 | Sensory Receptors, Neuronal Circuits | | 67 | Physiology of Gastrointestinal Disorders |
+| 48 | Somatic Sensations: I. Tactile and Position | | 68 | Metabolism of Carbohydrates, Formation of ATP |
+| 49 | Somatic Sensations: II. Pain, Headache, Thermal | | 69 | Lipid Metabolism |
+| 50-52 | The Eye: I. Optics / II. Retina / III. Central | | 70 | Protein Metabolism |
+| 53 | The Sense of Hearing | | 71 | The Liver as an Organ |
+| 9 | Cardiac Muscle; The Heart as a Pump | | 72 | Dietary Balances |
+| 14 | Overview of the Circulation; Biophysics | | 73 | Energetics and Metabolic Rate |
+| 16 | The Microcirculation and Lymphatic System | | 74 | Body Temperature Regulation and Fever |
+| 18 | Nervous Regulation of the Circulation | | 84 | Fetal and Neonatal Physiology |
+
+Ganong 26e: Ch.10 is *Hearing & Equilibrium*.
+
+Beware two false positives when auditing. Compound citations like `Ch.65 and Ch.66 — Secretory
+Functions...; Digestion and Absorption...` are **correct** — two chapters for two titles. And one
+chapter legitimately carries several section headings (Ch.9 appears as "Cardiac Muscle", "The Cardiac
+Cycle", "Heart Sounds"). Check before rewriting; a blind fix breaks both.
 
 So after every run, before merging, group the citations by chapter *title* and flag any title carrying
 more than one number. It is a few lines of local Python and needs no agent:
@@ -263,7 +288,7 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 
 ### What is left
 
-Every topic has explanations for at least its first half. What remains is the **second half of four
+Every topic has explanations for at least its first half. What remains is the **second half of three
 topics** — the batch ranges are in the coverage table. Each is one workflow call against an island
 that already exists, so merging is an update rather than an insert: read the island, add the new
 keys, write it back (see the merge used for Kidney's remainder).
@@ -283,7 +308,7 @@ keys, inserts new ones, skips blank explanations, and reports gaps.
 | Kidney | 680 | ✅ 680 shipped, 0 answer-key warnings |
 | Gastrointestinal Tract | 510 | ✅ 510 shipped, 0 answer-key warnings |
 | Physiology of Blood | 602 | ✅ 602 shipped, 0 answer-key warnings |
-| Circulation | 499 | ⏳ 260 shipped (batches 0-9, fully verified, 2 adjudicated and defended); batches 10-19 (239 cards) never written |
+| Circulation | 499 | ✅ 499 shipped, 2 adjudicated and defended, 0 answer-key warnings |
 | Special Senses | 466 | ⏳ 234 shipped (batches 0-8, fully verified, 0 disputes); batches 9-17 (232 cards) never written |
 | Respiratory | 365 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-14 (183 cards) never written |
 | General Physiology | 362 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-13 (180 cards) never written |

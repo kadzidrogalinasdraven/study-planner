@@ -52,7 +52,7 @@ without one simply don't show the panel; nothing looks broken.
 | Gastrointestinal Tract | 510 | all 510 |
 | Kidney | 680 | all 680 |
 | Physiology of Blood | 602 | all 602 |
-| Circulation | 499 | 260 (first half) |
+| Circulation | 499 | all 499 |
 | Special Senses | 466 | 234 (first half) |
 | Respiratory | 365 | 182 (first half) |
 | General Physiology | 362 | 182 (first half) |

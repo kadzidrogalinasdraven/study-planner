@@ -140,6 +140,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Physiology of Blood, cards 312-601 | 290 | 62 corrected (21%) — two checkers, 8-section mechFocus |
 | Circulation, cards 260-498 | 239 | 31 corrected (13%) — two checkers, 8-section mechFocus |
 | Special Senses, cards 234-465 | 232 | 40 corrected (17%) — two checkers, 5-section mechFocus |
+| Respiratory, cards 182-364 | 183 | 23 corrected (13%) — two checkers, 9-section mechFocus, arithmetic-weighted |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -289,8 +290,8 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 
 ### What is left
 
-Every topic has explanations for at least its first half. What remains is the **second half of two
-topics** — the batch ranges are in the coverage table. Each is one workflow call against an island
+Every topic has explanations for at least its first half. What remains is the **second half of one
+topic** — the batch ranges are in the coverage table. Each is one workflow call against an island
 that already exists, so merging is an update rather than an insert: read the island, add the new
 keys, write it back (see the merge used for Kidney's remainder).
 
@@ -311,7 +312,7 @@ keys, inserts new ones, skips blank explanations, and reports gaps.
 | Physiology of Blood | 602 | ✅ 602 shipped, 0 answer-key warnings |
 | Circulation | 499 | ✅ 499 shipped, 2 adjudicated and defended, 0 answer-key warnings |
 | Special Senses | 466 | ✅ 466 shipped, 0 answer-key warnings |
-| Respiratory | 365 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-14 (183 cards) never written |
+| Respiratory | 365 | ✅ 365 shipped, 0 answer-key warnings |
 | General Physiology | 362 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-13 (180 cards) never written |
 
 **All nine topics are now wired.** Island ids: `endo-exp`, `nerv-exp`, `kid-exp`, `gi-exp`,

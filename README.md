@@ -51,7 +51,7 @@ without one simply don't show the panel; nothing looks broken.
 | Nervous System | 502 | 499 |
 | Gastrointestinal Tract | 510 | all 510 |
 | Kidney | 680 | all 680 |
-| Physiology of Blood | 602 | 312 (first half) |
+| Physiology of Blood | 602 | all 602 |
 | Circulation | 499 | 260 (first half) |
 | Special Senses | 466 | 234 (first half) |
 | Respiratory | 365 | 182 (first half) |

@@ -137,6 +137,7 @@ keyed by question index: `{"12": {"e": "...", "s": "Guyton & Hall 14e, Ch.75 —
 | Special Senses, cards 0-233 | 234 | 33 corrected (14%) — two checkers |
 | Respiratory, cards 0-181 | 182 | 36 corrected (20%) — two checkers |
 | General Physiology, cards 0-181 | 182 | 22 corrected (12%) — two checkers |
+| Physiology of Blood, cards 312-601 | 290 | 62 corrected (21%) — two checkers, 8-section mechFocus |
 
 Errors were real: a sodium-channel selectivity figure out by an order of magnitude, osmolarity
 numbers that didn't multiply out, a membrane potential contradicting the chapter it cited.
@@ -156,6 +157,43 @@ The working recipe, per topic:
    warnings.
 
 Batch files go in the scratchpad, not the repo.
+
+### Check citation chapter numbers after every run — the checkers do not
+
+Neither checker catches this, because the consistency lens only asks whether a chapter *plausibly*
+covers the claim, not whether its number is right. Blood 312-601 came back citing **the same chapter
+title under two different numbers** — "Hemostasis and Blood Coagulation" as both Ch.36 (38 cards)
+and Ch.37 (69 cards). Whichever is true, a deck that says both is wrong on one of them, and a student
+comparing two cards sees the contradiction.
+
+The deck has a settled scheme, attested across the explanations already shipped and verified. It runs
+sequentially and is the tie-breaker — match it rather than re-deriving it:
+
+| Ch. | Title |
+| --- | --- |
+| 33 | Red Blood Cells, Anemia, and Polycythemia |
+| 34 | Resistance of the Body to Infection: I. Leukocytes, Granulocytes, Monocyte-Macrophage, Inflammation |
+| 35 | Resistance of the Body to Infection: II. Immunity and Allergy |
+| 36 | Blood Types; Transfusion; Tissue and Organ Transplantation |
+| 37 | Hemostasis and Blood Coagulation |
+| 38 | Pulmonary Ventilation |
+| 39 | Pulmonary Circulation, Pulmonary Edema, Pleural Fluid |
+| 42 | Regulation of Respiration |
+| 43 | Respiratory Insufficiency |
+| 71 | The Liver as an Organ |
+
+So after every run, before merging, group the citations by chapter *title* and flag any title carrying
+more than one number. It is a few lines of local Python and needs no agent:
+
+```python
+bt = defaultdict(Counter)
+for it in items:
+    m = re.match(r'Guyton\s*&\s*Hall\s*14e,\s*Ch\.?\s*(\d+)\s*—\s*(.+)', it['source'].strip())
+    if m: bt[m.group(2).strip()][m.group(1)] += 1
+print({t: dict(c) for t, c in bt.items() if len(c) > 1} or "no conflicts")
+```
+
+Rewrite only the number bound to a canonical title, and never touch the explanation text.
 
 **There are two reusable workflows for this**, at paths that survive a new session (Claude Code's own
 copy lands under the *session* directory and disappears with it — these are the stable ones):
@@ -225,10 +263,16 @@ not run, because the real rate is 5-10%. Partial results are parked in the scrat
 
 ### What is left
 
-Every topic has explanations for at least its first half. What remains is the **second half of five
+Every topic has explanations for at least its first half. What remains is the **second half of four
 topics** — the batch ranges are in the coverage table. Each is one workflow call against an island
 that already exists, so merging is an update rather than an insert: read the island, add the new
 keys, write it back (see the merge used for Kidney's remainder).
+
+**One topic per run, and ship it before starting the next.** The user asked for exactly this after
+initially agreeing to pair topics up, and it is the right shape: pairing two topics into one run
+only widens the blast radius of a spend limit, and buys nothing, because the runs are sequential
+either way. A reusable merge script lives at `<scratchpad>/merge_island.py` — it updates existing
+keys, inserts new ones, skips blank explanations, and reports gaps.
 
 ### Coverage
 
@@ -238,7 +282,7 @@ keys, write it back (see the merge used for Kidney's remainder).
 | Nervous System | 502 | ✅ 499 shipped, 4 dropped as unsalvageable, 2 answer-key warnings |
 | Kidney | 680 | ✅ 680 shipped, 0 answer-key warnings |
 | Gastrointestinal Tract | 510 | ✅ 510 shipped, 0 answer-key warnings |
-| Physiology of Blood | 602 | ⏳ 312 shipped (batches 0-11, fully verified, 0 disputes); batches 12-23 (290 cards) never written |
+| Physiology of Blood | 602 | ✅ 602 shipped, 0 answer-key warnings |
 | Circulation | 499 | ⏳ 260 shipped (batches 0-9, fully verified, 2 adjudicated and defended); batches 10-19 (239 cards) never written |
 | Special Senses | 466 | ⏳ 234 shipped (batches 0-8, fully verified, 0 disputes); batches 9-17 (232 cards) never written |
 | Respiratory | 365 | ⏳ 182 shipped (batches 0-6, fully verified, 0 disputes); batches 7-14 (183 cards) never written |

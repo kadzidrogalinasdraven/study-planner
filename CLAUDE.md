@@ -97,6 +97,51 @@ switched sync on, his Drive file too.
 Deploy is: commit on `test` → `git checkout main && git merge test --ff-only` → `git push origin main`.
 Netlify picks it up in well under a minute.
 
+### When Netlify refuses to deploy
+
+On 2026-08-08 Netlify showed *"running on operational credits — production deploys and Agent Runners
+are paused"* and stopped building. **This is a known Netlify bug**, not real exhaustion: through July
+and August 2026 many free-plan teams reported the identical banner while their credit balance was
+still full, and support clears the flag by hand. Check Usage & billing first — a healthy balance next
+to the paused banner confirms it. The fix is a free post on <https://answers.netlify.com> naming the
+team (**Planer**) and site (`peppy-lokum-2c5109`).
+
+**Never "solve" this by making a second account on another email.** It breaches Netlify's terms on
+circumventing plan limits, and it does not even work, for a reason that applies to *every* host move:
+
+> **`localStorage` is scoped to the origin.** A new URL silently resets all seven keys —
+> `study_planner_v2`, `physio_flashcards_v1`, `physio_flashcards_silvia_v1`, both `_backup` keys, and
+> the shared `sp_gtok` / `sp_gaccount`. Every graded card is gone.
+
+So the order of operations for **any** domain change is fixed:
+
+1. **Turn on Drive sync first, on the old origin.** Drive data is keyed to the Google account and
+   client ID, *not* the origin, so it is the only thing that survives the move. This is also why the
+   dormant sync feature matters more than it looks.
+2. Add the new origin to **Authorised JavaScript origins** for the OAuth client
+   (`272590603949-…apps.googleusercontent.com`, hard-coded at `index.html:130` and
+   `physio_flashcards*.html:258`). Nothing in this repo controls that list — it lives only in Google
+   Cloud Console, and without it `requestAccessToken` fails with `origin_mismatch`.
+3. Update `LIVE_URL` (`index.html:124`, used by the four `file://` fallbacks), plus the URL in
+   `README.md` and here.
+
+Keep the three HTML files **siblings at the same path depth**: the inter-page links are relative
+(`index.html:95`, `physio_flashcards*.html:138`) and single-sign-on via `sp_gtok` only works while
+planner and both decks share one origin. Avoid hosts that rewrite `/physio_flashcards.html` to a
+clean URL — deck deep-linking reads `location.pathname` (`physio_flashcards.html:737-746`).
+
+Fallback hosts, in order of preference. The repo is public, so both are free:
+
+| Host | Why |
+| --- | --- |
+| **Cloudflare Pages** | unlimited bandwidth, 500 builds/mo, works with private repos, 25 MB/file (our largest is 2.2 MB) |
+| **GitHub Pages** | zero setup — repo is already there; 1 GB site, 100 GB/mo; needs the repo public |
+
+**The durable fix is a custom domain (~€10/year).** Then the domain is the identity and the host is
+disposable: no origin change, so no lost progress, no OAuth re-registration, no broken bookmark, ever
+again. Do not rent a VPS for this — the project is deliberately backend-free (browser + Drive), so
+static hosting is correct permanently, and a server would only add patching, TLS renewal and downtime.
+
 ---
 
 ## Conventions that must be matched

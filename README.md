@@ -151,10 +151,16 @@ tomorrow re-flows. Each topic falls into one of four tiers, all derived:
 
 | Tier | What it means | Time |
 | --- | --- | --- |
-| **deep** | unticked and examinable | ~2.5 h, up to 3 a day, senses first then kidney |
-| **shallow** | unticked but deprioritised | ~15 min — definition and mechanism sketch only |
-| **review** | already ticked | rehearsed inside a triplet, not re-studied |
+| **deep** | unticked and examinable | **5 h**, up to 3 a day, senses first then kidney |
+| **shallow** | unticked but deprioritised | 30 min — definition and mechanism sketch only |
+| **review** | already ticked | covered by rehearsing its triplet, not re-studied |
 | **drop** | in no triplet and no practical | never scheduled |
+
+Days are filled to a **10-hour budget**, item by item, not to a count of items — a triplet is around
+forty pages and takes **two hours to say out loud** even when you are only revising. Whatever does
+not fit is reported on the Plan tab rather than quietly dropped, because only then can you choose
+what to cut. Right now it does not all fit: the fortnight cannot hold eighteen new topics at five
+hours plus forty triplets at two. Marking a block *shallow* in Progress is the lever.
 
 You can override any topic's tier by hand, and the override is checked first — 123 triplet lines
 were mapped from a PDF, so there had to be a one-tap repair for a line mapped wrong.

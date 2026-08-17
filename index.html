@@ -416,12 +416,25 @@ TRIPLETS.forEach((t,i)=>t.forEach(c=>{ TRIPLET_FREQ[c]=(TRIPLET_FREQ[c]||0)+1; (
 const PRACTICAL_CODES = {}, PRACTICALS_OF = {};
 PRACTICALS.forEach(p=>p.codes.forEach(c=>{ PRACTICAL_CODES[c]=true; (PRACTICALS_OF[c]=PRACTICALS_OF[c]||[]).push(p.n); }));
 
+/* Triplet 39 is the same three topics as triplet 25 (EN12 + GP03 + SS04, reordered and reworded).
+   It is kept in TRIPLETS because the sheet numbers up to 41 and 39 can still be drawn — but it is
+   only ever REHEARSED once, under 25. The draw probability of those three topics is genuinely 2/41,
+   so the yield count is left alone; it is the study time that would have been wasted twice. */
+const DUPLICATE_OF = { 39: 25 };
+
+/* GP16 Homeostasis appears in no triplet as printed. But the sheet carries TWO "Hemostasis" AND
+   TWO "Hemocoagulation" triplets — four slots on two clotting topics — and the user reads one of
+   the Hemostasis entries as a publisher's slip for Homeostasis. Unverifiable from the PDF, so the
+   triplet data is left exactly as printed and the topic is simply forced back into the study set.
+   Being wrong costs an hour; being wrong the other way costs a third of a draw. */
+const FORCED_CODES = ["GP16"];
+
 const CODE_TITLE = {}; CURRICULUM.forEach(f=>f.topics.forEach(t=>{ CODE_TITLE[t[0]]=t[1]; }));
 /* Yield counts triplets AND practicals, so a topic that is only ever examined at the bench —
    KI03 Clearance (practical 26), NS18 Cerebellum (practical 10) — cannot fall out of the plan.
    Deriving it beats a hand-written drop list precisely because those two were nearly lost to one. */
 const yieldOf    = c => (TRIPLET_FREQ[c]||0) + ((PRACTICALS_OF[c]||[]).length ? 1 : 0);
-const EXAMINABLE = Object.keys(CODE_TITLE).filter(c=>yieldOf(c)>0);
+const EXAMINABLE = Object.keys(CODE_TITLE).filter(c=>yieldOf(c)>0 || FORCED_CODES.indexOf(c)>=0);
 
 /* TopicCard renders null for an unknown code, so a mistyped code would vanish in silence
    rather than error. 123 triplet lines were mapped by hand — shout if any of them is wrong. */
@@ -439,11 +452,14 @@ const DEEP_ORDER = ["SS01","SS02","SS03","SS06","SS07","SS08","SS09","SS04","SS0
 
 const PLAN_START = "2026-08-17", PLAN_END = "2026-08-30";
 const DEEP_PER_DAY = 3;          // the user's own stated ceiling for topics done properly
-const DEEP_WINDOW = 8;           // spread the deep queue over this many days, then it is all rehearsal
-const SHALLOW_PER_DAY = 8, PRACTICALS_PER_DAY = 3;
-const REHEARSE_PER_DAY = 3;      // on a day that also carries deep topics
-const REHEARSE_LIGHT = 8;        // on a day that does not — this is what makes the back half a second pass
-const MAX_REHEARSE_PASSES = 4;
+const DEEP_WINDOW = 11;          /* Spread the deep queue over this many days. Not 8: at 5 h a topic,
+                                    a tighter window fills the first nine days solidly and the first
+                                    triplet is not said out loud until day 10. Widening it to 11
+                                    starts rehearsal on day 3 for the cost of about two triplets, and
+                                    rehearsal is the only thing that reveals what has decayed while
+                                    there is still time to repair it. */
+const SHALLOW_PER_DAY = 8, PRACTICALS_PER_DAY = 5;   // the user does 5-10 practicals a day easily
+
 
 const LANG = { czech:{name:"Czech",color:SUBJ.czech,url:CHAT_CZECH}, italian:{name:"Italian",color:SUBJ.italian,url:CHAT_ITALIAN} };
 
@@ -578,12 +594,16 @@ function migrateProd(p){
      review   already ticked                 → rehearsed inside a triplet, not re-studied
      drop     appears in no triplet/practical → never scheduled
 
-   DEEP_HOURS is the one soft number here. The user's own estimate is 5 h a topic; three a day at
-   that rate is 15 h and does not survive contact with reality. 2.5 h is defensible for a different
-   reason: these topics are not cold. The written test already covered 466 Special Senses and 680
-   Kidney cards, so what is missing is production, not first acquaintance — and building production
-   on recognition is roughly half the cost. It is a constant precisely so it can be argued with. */
-const DEEP_HOURS = 2.5, SHALLOW_HOURS = 0.25, REHEARSE_HOURS = 0.25, PRACTICAL_HOURS = 0.33;
+   THE HOURS ARE THE USER'S OWN AND THEY ARE NOT NEGOTIABLE DOWNWARDS. A triplet is roughly forty
+   pages of text; two hours is the floor to revise one, let alone learn it, and an earlier version
+   of this file costed a rehearsal at fifteen minutes, which produced a schedule that looked
+   comfortable and was fiction. Five hours is the user's figure for a topic studied properly.
+
+   Days are therefore filled to an HOURS budget, not to a count of items. Whatever does not fit is
+   returned as `overflow` and shown in the Plan tab. A schedule that quietly drops work is worse
+   than one that admits it does not fit, because only the second lets you choose what to cut. */
+const DEEP_HOURS = 5, SHALLOW_HOURS = 0.5, REHEARSE_HOURS = 2, PRACTICAL_HOURS = 0.33;
+const HOURS_PER_DAY = 10;        // the ceiling a day is filled to; overflow is reported, never hidden
 
 const FIELD_OF = {}, TITLE_OF = {};
 CURRICULUM.forEach(f=>f.topics.forEach(t=>{ FIELD_OF[t[0]]=f.name; TITLE_OF[t[0]]=t[1]; }));
@@ -593,7 +613,7 @@ CURRICULUM.forEach(f=>f.topics.forEach(t=>{ FIELD_OF[t[0]]=f.name; TITLE_OF[t[0]
 function tierOf(code, data){
   const ov = data && data.study && data.study.tier ? data.study.tier[code] : null;
   if(ov==="deep" || ov==="shallow" || ov==="drop") return ov;
-  if(yieldOf(code)===0)                        return "drop";   // in no triplet and no practical
+  if(yieldOf(code)===0 && FORCED_CODES.indexOf(code)<0) return "drop";   // no triplet, no practical
   if(data && data.done && data.done[code])     return "review";
   if(SHALLOW_CODES.indexOf(code)>=0)           return "shallow";
   return "deep";
@@ -620,79 +640,75 @@ function buildPlan(data, today){
   const days = dateRange(PLAN_START, PLAN_END), N = days.length;
   const queue = deepQueue(data);
   const shallowQ = SHALLOW_CODES.filter(c=>tierOf(c,data)==="shallow");
-  const deepBy=[], shallowBy=[], tripBy=[], pracBy=[];
-  for(let i=0;i<N;i++){ deepBy.push([]); shallowBy.push([]); tripBy.push([]); pracBy.push([]); }
+  const deepBy=[], shallowBy=[], tripBy=[], pracBy=[], used=[];
+  for(let i=0;i<N;i++){ deepBy.push([]); shallowBy.push([]); tripBy.push([]); pracBy.push([]); used.push(0); }
+  const room = (d,h) => used[d] + h <= HOURS_PER_DAY;
 
-  /* Deep work is spread EVENLY over the first DEEP_WINDOW days rather than crammed at
-     DEEP_PER_DAY until the queue runs dry. Front-loading put 10 h on the first six days and
-     left the last six nearly empty, which is not a plan anyone can actually follow. */
-  const W = Math.min(DEEP_WINDOW, N), deepDayOf = {};
+  /* Deep work spread evenly over the first DEEP_WINDOW days, capped both by DEEP_PER_DAY and by
+     the hours budget — three five-hour topics is fifteen hours and will never be placed. */
+  const deepDayOf = {}, deepLeft = [];
   let dd = 0;
   queue.forEach((c,i)=>{
-    const target = Math.min(W-1, Math.floor(i*W/Math.max(1,queue.length)));
-    if(dd < target) dd = target;                       // the even spread...
-    while(dd < N && deepBy[dd].length >= DEEP_PER_DAY) dd++;   // ...but never over the daily ceiling
-    if(dd < N){ deepBy[dd].push(c); deepDayOf[c]=dd; }
+    const target = Math.min(DEEP_WINDOW-1, Math.floor(i*DEEP_WINDOW/Math.max(1,queue.length)));
+    if(dd < target) dd = target;
+    let d = dd;
+    while(d < N && (deepBy[d].length >= DEEP_PER_DAY || !room(d, DEEP_HOURS))) d++;
+    if(d < N){ deepBy[d].push(c); deepDayOf[c]=d; used[d]+=DEEP_HOURS; dd=d; } else deepLeft.push(c);
   });
-  /* More deep topics than DEEP_PER_DAY x days can hold. Nothing is silently dropped: the surplus
-     stays in the queue, and `overflow` is what the Plan tab reports rather than pretending. */
-  const overflow = queue.filter(c=>!(c in deepDayOf));
 
-  const firstFree = Math.min(N-1, W);
-  shallowQ.forEach((c,i)=>{ shallowBy[Math.min(N-1, firstFree+Math.floor(i/SHALLOW_PER_DAY))].push(c); });
+  const shallowLeft = [];
+  shallowQ.forEach(c=>{
+    let d=Math.min(N-1, DEEP_WINDOW);
+    while(d<N && (shallowBy[d].length>=SHALLOW_PER_DAY || !room(d, SHALLOW_HOURS))) d++;
+    if(d<N){ shallowBy[d].push(c); used[d]+=SHALLOW_HOURS; } else shallowLeft.push(c);
+  });
 
-  /* A triplet is only worth saying out loud once its deep topics exist to say. 23 of the 41
-     contain no deep topic at all, which is more than enough to keep the early days busy.
-     Days carrying deep topics take fewer rehearsals; days without take many more, which is what
-     turns the back half into a genuine second pass instead of dead time. */
   const readyAfter = codes => { let d=0; codes.forEach(c=>{
     if(c in deepDayOf) d=Math.max(d, deepDayOf[c]+1);
-    else if(tierOf(c,data)==="deep") d=N-1;            // never scheduled — do not call it rehearsable
+    else if(tierOf(c,data)==="deep") d=N-1;
   }); return Math.min(d, N-1); };
-  const tReady = TRIPLETS.map(readyAfter);
-  const capOf  = d => deepBy[d].length ? REHEARSE_PER_DAY : REHEARSE_LIGHT;
-  const passes = TRIPLETS.map(()=>0);
-  for(let pass=0; pass<MAX_REHEARSE_PASSES; pass++){
-    let placed=false;
-    TRIPLETS.map((t,i)=>i).filter(i=>passes[i]===pass).sort((a,b)=>(tReady[a]-tReady[b])||(a-b)).forEach(i=>{
-      let d=tReady[i]; while(d<N && tripBy[d].length>=capOf(d)) d++;
-      if(d>=N && pass===0){                             // pass one must never lose a triplet:
-        d=tReady[i];                                    // put it on the emptiest eligible day
-        for(let k=tReady[i]; k<N; k++) if(tripBy[k].length<tripBy[d].length) d=k;
-      }
-      if(d<N){ tripBy[d].push(i+1); passes[i]=pass+1; placed=true; }
-    });
-    if(!placed) break;
-  }
 
-  /* Deal the practical whose theory was studied MOST recently first, so a sense-organ practical
-     lands beside the senses rather than a fortnight later. */
   const pReady = PRACTICALS.map(p=>readyAfter(p.codes));
-  const left = PRACTICALS.map((p,i)=>i);
+  const left = PRACTICALS.map((p,i)=>i), pracLeft=[];
   for(let d=0; d<N && left.length; d++){
     const avail = left.filter(i=>pReady[i]<=d).sort((a,b)=>(pReady[b]-pReady[a])||(a-b));
-    avail.slice(0, PRACTICALS_PER_DAY).forEach(i=>{ pracBy[d].push(PRACTICALS[i].n); left.splice(left.indexOf(i),1); });
+    avail.slice(0, PRACTICALS_PER_DAY).forEach(i=>{
+      if(!room(d, PRACTICAL_HOURS)) return;
+      pracBy[d].push(PRACTICALS[i].n); used[d]+=PRACTICAL_HOURS; left.splice(left.indexOf(i),1);
+    });
   }
-  left.forEach(i=>pracBy[N-1].push(PRACTICALS[i].n));
+  left.forEach(i=>pracLeft.push(PRACTICALS[i].n));
+
+  /* One honest rehearsal pass. At two hours each, 40 distinct triplets is 80 hours — a second pass
+     does not fit inside a fortnight and pretending otherwise is how the last version went wrong.
+     A triplet is only scheduled once its deep topics exist to say. */
+  const nums = TRIPLETS.map((t,i)=>i+1).filter(n=>!DUPLICATE_OF[n]);
+  const tReady = {}; nums.forEach(n=>{ tReady[n]=readyAfter(TRIPLETS[n-1]); });
+  const tripLeft = [];
+  nums.sort((a,b)=>(tReady[a]-tReady[b])||(a-b)).forEach(n=>{
+    let d=tReady[n]; while(d<N && !room(d, REHEARSE_HOURS)) d++;
+    if(d<N){ tripBy[d].push(n); used[d]+=REHEARSE_HOURS; } else tripLeft.push(n);
+  });
 
   const out = days.map((date,d)=>{
     const keystones=deepBy[d], shallow=shallowBy[d], triplets=tripBy[d], practicals=pracBy[d];
     const fields=[]; keystones.forEach(c=>{ const f=FIELD_OF[c]; if(f && fields.indexOf(f)<0) fields.push(f); });
-    const hrs = keystones.length*DEEP_HOURS + shallow.length*SHALLOW_HOURS
-              + triplets.length*REHEARSE_HOURS + practicals.length*PRACTICAL_HOURS;
     const label = fields.length ? fields.join(" · ") + " — deep"
+                : triplets.length ? "Rehearsal — say each triplet out loud"
                 : shallow.length ? "Shallow pass — the deprioritised topics"
-                : "Rehearsal & repair";
+                : "Spare — repair whatever came back shaky";
     return { date, day:parseISO(date).toLocaleDateString("en-GB",{weekday:"short"}),
-             label, est:"~"+(Math.round(hrs*2)/2)+" h",
+             label, est:"~"+(Math.round(used[d]*2)/2)+" h",
              keystones, shallow, triplets, practicals, q:[], mock:[], drill:null, note:null };
   });
-  out.overflow = overflow;
 
   const exam = EXAMS[EXAMS.length-1];
   out.push({ date:exam.iso, day:parseISO(exam.iso).toLocaleDateString("en-GB",{weekday:"short"}),
              label:"Oral exam", est:"", keystones:[], shallow:[], triplets:[], practicals:[],
              q:[], mock:[], drill:null, oral:true, note:exam.place });
+  out.overflow = { deep:deepLeft, shallow:shallowLeft, triplets:tripLeft, practicals:pracLeft,
+                   hours: deepLeft.length*DEEP_HOURS + tripLeft.length*REHEARSE_HOURS
+                        + shallowLeft.length*SHALLOW_HOURS + pracLeft.length*PRACTICAL_HOURS };
   return out;
 }
 
@@ -972,6 +988,38 @@ function TripletCard({n, data, A, dense}){
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* A schedule that silently drops work is worse than one that says it does not fit, because only
+   the second lets you choose what to cut. This is the "does not fit" case, stated plainly. */
+function OverflowBanner({sched, A}){
+  const o=sched.overflow; if(!o || o.hours<0.5) return null;
+  const bits=[];
+  if(o.triplets.length)   bits.push(o.triplets.length+" triplet"+(o.triplets.length>1?"s":""));
+  if(o.deep.length)       bits.push(o.deep.length+" deep topic"+(o.deep.length>1?"s":""));
+  if(o.practicals.length) bits.push(o.practicals.length+" practical"+(o.practicals.length>1?"s":""));
+  if(o.shallow.length)    bits.push(o.shallow.length+" shallow topic"+(o.shallow.length>1?"s":""));
+  return (
+    <div style={{padding:"13px 15px",border:"0.5px solid #b4530955",borderRadius:"var(--r-lg)",background:"#b453090f",marginBottom:16}}>
+      <div style={{fontSize:14,color:"#92400e",marginBottom:5}}>
+        <i className="fa-solid fa-triangle-exclamation" style={{marginRight:8}} aria-hidden="true"/>
+        <strong>{Math.round(o.hours)} h more than the fortnight holds.</strong>
+      </div>
+      <p style={{fontSize:13,color:"#92400e",margin:"0 0 8px",lineHeight:1.5}}>
+        {bits.join(", ")} could not be given a slot at {DEEP_HOURS} h a deep topic and {REHEARSE_HOURS} h a
+        triplet, inside {HOURS_PER_DAY} h a day. Nothing has been quietly dropped — it is listed here so the
+        cut is yours.
+      </p>
+      <p style={{fontSize:13,color:"#92400e",margin:0,lineHeight:1.5}}>
+        The lever is the deep queue: it is {DEEP_HOURS} h a topic and eats most of the budget. Marking a
+        block <em>shallow</em> in <button onClick={()=>A.go("progress")} style={{background:"none",border:0,padding:0,color:"#92400e",textDecoration:"underline",font:"inherit"}}>Progress</button> frees
+        about {DEEP_HOURS-SHALLOW_HOURS} h each and buys back roughly two triplets per topic.
+      </p>
+      {o.triplets.length>0 && <p style={{fontSize:12,color:"#92400e",margin:"8px 0 0",opacity:.85}}>
+        Unscheduled triplets: {o.triplets.join(", ")}
+      </p>}
     </div>
   );
 }
@@ -1319,6 +1367,7 @@ function TodayView({data, A, gcalStatus}){
       <h1 style={{fontSize:30,margin:"2px 0 16px"}}>Today</h1>
       <BriefingCard gcalOn={gcalOn} events={cal.events}/>
       <Countdown/>
+      <OverflowBanner sched={sched} A={A}/>
       <ProdTodayStrip data={data} A={A}/>
 
       {today ? (
@@ -1333,7 +1382,6 @@ function TodayView({data, A, gcalStatus}){
           <p style={{fontSize:14,color:"var(--ink-2)"}}>Nothing scheduled — the run-up to the oral covers {fmtShort(PLAN_START)} to {fmtShort(PLAN_END)}. Open <button onClick={()=>A.go("triplets")} style={{background:"none",border:0,color:"var(--accent)",padding:0,textDecoration:"underline"}}>the triplets</button> and rehearse whichever you are least sure of.</p>
         </>
       )}
-
 
       <div className="seclabel">Today’s plan</div><hr className="rule" style={{marginBottom:10}}/>
       <CalendarBar status={gcalStatus} onConnect={A.connectGcal} onDisconnect={A.disconnectGcal} busy={A.gcalBusy} sync={A.syncState} onSync={A.syncNow} onReconnect={A.reconnect} email={A.syncEmail} err={A.syncErr} onSwitch={A.switchAccount}/>
@@ -1386,8 +1434,9 @@ function PlanView({data, A}){
     <div>
       <div className="eyebrow" style={{marginTop:18}}>{fmtShort(PLAN_START)} → the oral</div>
       <h1 style={{fontSize:28,margin:"2px 0 6px"}}>Physiology plan</h1>
-      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 4px"}}>Nothing here is hand-written — every day below is derived from what you have actually ticked, so it re-flows the moment you tick something and cannot go stale. Up to {DEEP_PER_DAY} deep topics a day (senses first, then kidney), the deprioritised list at definition level, {REHEARSE_PER_DAY} triplets said out loud, and the practicals beside the theory they demonstrate.</p>
-      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 4px"}}>Right now you could answer <strong>{cov.ready} of {cov.total}</strong> draws.</p>
+      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 4px"}}>Nothing here is hand-written — every day below is derived from what you have actually ticked, so it re-flows the moment you tick something and cannot go stale. Days are filled to {HOURS_PER_DAY} h at your own rates — {DEEP_HOURS} h for a topic studied properly, {REHEARSE_HOURS} h to say a triplet out loud, because a triplet is about forty pages and fifteen minutes was never real. Senses first, then kidney; practicals sit beside the theory they demonstrate.</p>
+      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px"}}>Right now you could answer <strong>{cov.ready} of {cov.total}</strong> draws.</p>
+      <OverflowBanner sched={sched} A={A}/>
       {sched.map(p=>{
         const done=p.keystones.filter(c=>data.done[c]).length; const isToday=p.date===ts, past=p.date<ts;
         const day=parseISO(p.date).toLocaleDateString("en-GB",{weekday:"short"});

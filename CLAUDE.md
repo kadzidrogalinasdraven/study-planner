@@ -541,12 +541,53 @@ a hand-written list is exactly what lost them the first time.
 `buildPlan(data, today)` is a pure function of `data.done` + `data.study` + today, recomputed each
 render via `useMemo`. It replaced a 161-line hand-written `PLAN` that had gone stale twice. Tiers:
 
-| Tier | Rule | Treatment |
+| Tier | Rule | Cost |
 | --- | --- | --- |
-| `deep` | unticked, examinable | ~2.5 h, <= `DEEP_PER_DAY` (3), spread evenly over `DEEP_WINDOW` (8 days), senses then kidney |
-| `shallow` | unticked, in `SHALLOW_CODES` | ~15 min, definition + mechanism sketch |
-| `review` | already ticked | rehearsed inside a triplet, never re-studied |
-| `drop` | `yieldOf()===0` | never scheduled |
+| `deep` | unticked, examinable | `DEEP_HOURS` = **5 h**, <= 3/day, spread over `DEEP_WINDOW` (11 days), senses then kidney |
+| `shallow` | unticked, in `SHALLOW_CODES` | 30 min, definition + mechanism sketch |
+| `review` | already ticked | covered by rehearsing its triplet, never re-studied |
+| `drop` | `yieldOf()===0` and not in `FORCED_CODES` | never scheduled |
+
+### The hours are the user's own, and days are filled to a budget
+
+**`REHEARSE_HOURS` = 2 and `DEEP_HOURS` = 5.** An earlier version costed a triplet rehearsal at
+**fifteen minutes**, which produced a schedule that looked comfortable and was fiction — the user
+corrected it: *a triplet is around forty pages of text, and two hours is the floor even to revise
+one.* Never quietly lower these to make a plan fit.
+
+Days are therefore filled to **`HOURS_PER_DAY` = 10**, item by item, in the order
+**deep → shallow → practicals → triplets**. Practicals are booked *before* triplets deliberately:
+they are 20 minutes each and were being crowded out entirely by 2-hour rehearsals.
+
+**Whatever does not fit is returned as `plan.overflow` and shown by `OverflowBanner` on Plan and
+Today.** At the current state that is **~52 h and ~26 triplets** — the fortnight genuinely cannot
+hold 18 new topics at 5 h plus 40 triplets at 2 h (170 h against 140 h of capacity). A schedule that
+silently drops a third of the work is worse than one that admits it, because only the second lets
+the user choose the cut. Measured levers, if that choice ever needs making again:
+
+| Change | Unscheduled |
+| --- | --- |
+| as-is, 18 deep topics | ~52 h, 26 triplets |
+| kidney block marked `shallow` | ~14 h, 7 triplets |
+| kidney + the three small senses (`SS01`, `SS04`, `SS05`) shallow | **0 h, everything fits** |
+
+**`DEEP_WINDOW` is 11, not 8.** At 8 the deep queue fills the first nine days solidly and the first
+triplet is not said out loud until **day 10**; at 11 rehearsal starts on **day 3** for the cost of
+about two triplets. Rehearsal is the only instrument that reveals what has decayed, so it has to
+start while there is still time to act on it.
+
+### Triplet 39 and the Hemostasis/Homeostasis question
+
+`DUPLICATE_OF = { 39: 25 }`. Triplet 39 is the **same three topics** as 25 (`EN12`+`GP03`+`SS04`,
+reordered and reworded) — the user flagged it and the sets match exactly. It is kept in `TRIPLETS`
+because the sheet numbers to 41 and 39 can still be drawn, so the 2/41 draw probability of those
+topics is real and the yield count is left alone; what is skipped is rehearsing it a second time.
+
+`FORCED_CODES = ["GP16"]`. Homeostasis appears in no triplet **as printed**. But the sheet carries
+**two "Hemostasis" and two "Hemocoagulation"** triplets — four slots on two clotting topics — and
+the user reads one Hemostasis as a publisher's slip for Homeostasis. That is not verifiable from the
+PDF, so **the triplet data is left exactly as printed** and the topic is simply forced back into the
+study set. Being wrong costs an hour; being wrong the other way costs a third of a draw.
 
 **`data.study.tier` is checked FIRST in `tierOf()`, before the drop rule.** 123 lines were mapped by
 hand; that ordering is what makes a mis-mapped topic a one-tap fix instead of a redeploy.

@@ -129,6 +129,53 @@ the ~20 KB of app code.
 
 ---
 
+## The oral exam: triplets, tiers and the derived plan
+
+The oral is drawn as **one triplet of three topics plus one practical**, and all 41 triplets are
+published in advance. That, not the 122-topic curriculum, is what the app now plans against.
+
+The **Triplets** tab is the whole exam laid out: 41 cards, each showing its three topics with how
+often each can be drawn, and all 26 practicals underneath. The headline number is the only one that
+matters — *how many of the 41 draws you could answer today*.
+
+Rehearsal is the review mechanism. Saying a triplet out loud, from memory, is the only honest test
+of whether something studied a month ago is still there; recognising it on a flashcard is not the
+same thing. Marking a topic **shaky** unticks it and sends it back to the top of the deep queue, so
+the plan repairs itself from evidence rather than from a guess.
+
+### The plan is derived, not written
+
+The **Plan** tab used to be 59 hand-written days. It went stale the moment the exam moved. It is now
+computed from what you have actually ticked, every render, so it cannot drift: tick something and
+tomorrow re-flows. Each topic falls into one of four tiers, all derived:
+
+| Tier | What it means | Time |
+| --- | --- | --- |
+| **deep** | unticked and examinable | ~2.5 h, up to 3 a day, senses first then kidney |
+| **shallow** | unticked but deprioritised | ~15 min — definition and mechanism sketch only |
+| **review** | already ticked | rehearsed inside a triplet, not re-studied |
+| **drop** | in no triplet and no practical | never scheduled |
+
+You can override any topic's tier by hand, and the override is checked first — 123 triplet lines
+were mapped from a PDF, so there had to be a one-tap repair for a line mapped wrong.
+
+A triplet is only scheduled for rehearsal once its deep topics have actually been studied; 23 of the
+41 contain no deep topic at all, which is what keeps the early days busy while the senses are still
+being learned.
+
+### Two things worth knowing about the source
+
+Fifteen curriculum topics appear in **no** triplet. Three of them are still scheduled anyway:
+*Clearance* and *Cerebellum* are examined as practicals 26 and 10, and *Adaptation of respiration*
+is the hidden middle line of triplet 38 — set in a nine-glyph subset font that text extraction drops
+silently, leaving what looks like a legitimate two-topic triplet. It is not: 41 × 3 = 123.
+
+Practicals are tracked separately from topics, in their own map. They deliberately do **not** count
+toward the `done` ledger, because the weekly physiology ring is computed from that ledger and 26
+practical ticks would inflate it.
+
+---
+
 ## Productivity
 
 Four weekly rings plus a combined one. Weeks run **Monday–Sunday**, local time.
@@ -154,12 +201,13 @@ is what makes "this week" answerable. Unticking deletes the stamp, so it can't l
 credit behind. The 85 topics ticked before `doneAt` existed carry no stamp and count toward no
 week, which is correct — we genuinely don't know when they were done.
 
-The pace is derived from the next exam in `EXAMS`, with the deadline set to the **day before** it
-(the computer test starts at 08:00, so exam day is not a study day). On exam morning it rolls on to
-the next exam, so the figure never divides by zero.
+The pace is derived from the next exam in `EXAMS`, with the deadline set to the **day before** it,
+since exam day is not a study day. On exam morning it rolls on to the next exam, so the figure never
+divides by zero. It counts only the **examinable** topics — the ones that appear in a triplet or a
+practical — because pacing against topics that cannot be drawn would invent work that does not exist.
 
 The weekly target defaults to the pace needed to finish the curriculum and is editable. The daily
-figure — *"4 topics a day to finish by 13 Aug"* — is the one to read: the weekly equivalent is the
+figure — *"3 topics a day to finish by 30 Aug"* — is the one to read: the weekly equivalent is the
 same fact in a form that sounds impossible.
 
 ### Logged late
@@ -171,87 +219,8 @@ afterwards is marked "late" in the week grid. Physiology has no late mark, and t
 rather than an omission: a topic isn't done *for* a date the way a gym session is, so its stamp
 *is* its tick time.
 
----
+## Privacy
 
-## Health tracker
-
-A tab for running structured n-of-1 self-experiments: take something daily, score your symptoms
-daily, and don't look at the answer until the date you set in advance.
-
-It shares the planner's storage, so health entries sync between phone and Mac the same way, and
-are covered by the same Export backup.
-
-### The metrics
-
-Every metric points the same way — **0 = no problem, 10 = worst** — so a falling number is always
-an improvement, on every line. That is what makes the first-half/second-half comparison readable
-at a glance.
-
-| Metric | Scale | Meaning |
-| --- | --- | --- |
-| **Night wakings** | count | How many times you woke in the night. 0 = slept through. |
-| **Nasal patency** | 0–10 | 0 = clear, breathing freely · 10 = completely blocked. |
-| **Fatigue** | 0–10 | 0 = no problem · 10 = worst. |
-| **Brain fog** | 0–10 | 0 = no problem · 10 = worst. |
-
-Note the direction on **nasal patency**: it keeps that name, but it is *scored as obstruction* so
-it runs with the others. Higher is worse, as everywhere else.
-
-Two flags are recorded alongside them — neck swelling and rescue medication — plus free-text notes.
-
-Each experiment nominates one metric as its **primary endpoint** (the trial ships with nasal
-patency). That is the one the verdict hangs on. The others are context, and reading a result off
-a secondary metric after the fact is how you fool yourself.
-
-### Void days
-
-A day is **void** when the dose was missed, or when the dose checkbox was never answered at all.
-Unanswered is treated the same as missed — not because skipping is assumed, but because a day you
-can't vouch for is equally unusable as evidence.
-
-Void days are dropped from the analysis. They are not counted as bad days, or as good ones. They
-are counted as no data, and the `n` for each half of the trial is shown so you can see how much
-was thrown away.
-
-### When the whole trial is declared void
-
-This is the part the app exists for.
-
-The miss allowance is calculated against the **full length of the trial**, not against the days
-elapsed so far. A 14-day trial at 80% adherence allows 2 missed days. You spend them as you go and
-the app shows how many are left.
-
-The trial is only marked `void` when the misses **exceed** that allowance — the point where even a
-flawless run through the remaining days can no longer reach the threshold. At that moment the
-target is mathematically out of reach, and the app says so plainly and tells you to restart.
-
-It deliberately does **not** judge on a running percentage. One miss on day 2 of 14 is 50%
-adherence, which looks catastrophic and is not: it is one miss out of an allowance of two. An app
-that voided the trial there would be manufacturing exactly the premature-abandonment result this
-is meant to prevent.
-
-The distinction that matters, and the one the void banner states outright:
-
-> **A void trial is not a negative result. It is no result.**
-
-An aborted trial tells you nothing about whether the intervention works. It has to be run again
-from a fresh start date.
-
-### The readout lock
-
-No verdict is shown before the experiment's `readoutDate`. Until then the app will only tell you
-how many days remain and how your adherence is doing — no trend line, no means, no comparison,
-nothing that can be squinted at and read as an early answer.
-
-On or after the readout date the period is split in half and each metric is compared, first half
-against second, with mean ± SD, absolute and percentage change, and the number of valid days
-behind each figure.
-
-That comparison is an uncontrolled, unblinded n-of-1 observation. Symptoms drift on their own,
-seasons change, and you know what you are taking. It can tell you that something changed over
-those two weeks. It cannot tell you that the intervention caused it.
-
-### Privacy
-
-Health entries stay in your browser and in your own private Google Drive app-data folder. They are
-not sent anywhere else, there is no backend, no account, and no analytics anywhere in this app.
+Everything you tick, write or log stays in your browser and, if you turn sync on, in your own
+private Google Drive app-data folder. Nothing is sent anywhere else: there is no backend, no
+account, and no analytics anywhere in this app.

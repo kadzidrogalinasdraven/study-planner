@@ -89,7 +89,7 @@ down. Treat GitHub Pages as the live site.
 
 | File | What it is |
 | --- | --- |
-| `index.html` | the study planner — 7 tabs: Today, Plan, Progress, Goals, Health, Timeline, Productivity |
+| `index.html` | the study planner — 7 tabs: Today, Plan, Triplets, Progress, Goals, Timeline, Productivity |
 | `physio_flashcards.html` | 4,440 true/false cards across 9 topics |
 | `physio_flashcards_silvia.html` | **generated** — Silvia's copy of the deck, own progress |
 | `make_silvia_copy.py` | regenerates that copy |
@@ -478,9 +478,119 @@ Do not "simplify" the flashcard merge into the planner's. It is different delibe
 
 ---
 
+## The oral exam — how the planner now models it (2026-08-17)
+
+**The oral draws ONE triplet of three topics plus one practical.** All 41 triplets are published in
+advance, in `exam structure/physiology tripletes.pdf`. Planning against the 122-topic `CURRICULUM`
+optimises the wrong thing, so `TRIPLETS` and `PRACTICALS` are now first-class data in `index.html`.
+
+**41 x 3 = 123 slots, 108 distinct drawable topics, 15 doubles.** 108 + 15 = 123; if your arithmetic
+does not close like that, an extraction dropped a line. Adding the two practical-only topics gives
+**110 examinable of 122**.
+
+### Triplet 38 is a trap for text extractors — do not "fix" it
+
+Its middle topic is set in a **separate 9-glyph Identity-H subset font (hex CIDs)** while the rest of
+page 3 is WinAnsi literals. A parser that only reads `(...)` strings drops the line in silence and
+leaves what looks like a perfectly legitimate **two-topic** triplet. It is not. The line reads
+**"Adaptation of respiration"** (`RS10`), and that was confirmed three ways: the F4 ToUnicode map
+yields exactly `dpttonofresprton` (the font has no `A`, `a`, `i` or space), the slot count closes at
+123, and a second independent extraction agreed. **`RS10` is examinable.** An earlier pass here had
+it wrong and nearly dropped it as unexaminable.
+
+Decode with all fonts, not just the literal strings:
+
+```python
+# per page: map each /Fn through its own /ToUnicode CMap; handle BOTH (lit) and <hex> in TJ arrays
+mp, is_type0 = fonts[current_font]          # None mp => WinAnsi literal, use raw bytes
+step = 4 if is_type0 else 2                 # Identity-H is 2-byte CIDs
+```
+
+### The mapping, code by code — verified against the PDF wording, one line at a time
+
+|  1 KI05+EN06+SS07 |  2 CV13+NS13+RS09 |  3 BL09+KI01+NS15 |
+|  4 CV04+SS02+EN05 |  5 RS05+BL04+EN02 |  6 GP02+SS06+CV20 |
+|  7 GI07+GP15+CV11 |  8 BL01+CV05+NS09 |  9 KI02+NS07+EN08 |
+| 10 GP14+CV12+SS09 | 11 CV01+BL11+EN07 | 12 BL07+KI07+CV06 |
+| 13 NS16+RS04+GP05 | 14 GP13+CV08+MT02 | 15 GI10+SS08+BL02 |
+| 16 BL01+KI06+CV14 | 17 GP08+CV03+GI08 | 18 SS05+CV18+EN01 |
+| 19 GP09+GI09+EN04 | 20 NS02+KI06+BL09 | 21 GP04+EN11+NS04 |
+| 22 CV09+KI04+EN09 | 23 RS03+SS01+CV16 | 24 GP11+RS01+BL08 |
+| 25 EN12+GP03+SS04 | 26 BL03+CV06+NS14 | 27 RS07+GP07+BL06 |
+| 28 BL13+MT01+NS20 | 29 NS19+GP10+CV10 | 30 NS06+RS06+GI05 |
+| 31 CV07+EN03+BL05 | 32 NS12+GI03+CV02 | 33 NS17+EN01+GP01 |
+| 34 CV12+GI06+GP12 | 35 BL08+GI02+RS08 | 36 BL13+GI04+CV05 |
+| 37 EN13+GP11+CV19 | 38 BL10+RS10+SS03 | 39 GP03+EN12+SS04 |
+| 40 GP14+EN10+SS09 | 41 KI08+RS02+NS01 |
+
+Not typos, do not "tidy" them: **25 and 39 are near-duplicates** (both `GP03`+`SS04`+ovaries;
+39's "Female endocrine System" reads as `EN12`, arguably `EN11`); **`BL13` covers T-lymphocytes (28)
+and B-lymphocytes (36)** under one curriculum code; **triplet 39's third slot names a practical
+outright** — "Taste / RBC in Hypotonic Solution" — which is the evidence for restoring practical #3,
+blank in `curriculum_GM_2025.pdf`.
+
+### Zero-yield does not mean droppable
+
+15 curriculum topics appear in no triplet, but **three of them are still examinable**: `KI03`
+Clearance is practical 26, `NS18` Cerebellum is practical 10, and `RS10` is the hidden line above.
+That is why `yieldOf()` counts **triplets AND practicals** and there is no hand-written drop list —
+a hand-written list is exactly what lost them the first time.
+
+### The plan is derived; the `PLAN` literal is gone
+
+`buildPlan(data, today)` is a pure function of `data.done` + `data.study` + today, recomputed each
+render via `useMemo`. It replaced a 161-line hand-written `PLAN` that had gone stale twice. Tiers:
+
+| Tier | Rule | Treatment |
+| --- | --- | --- |
+| `deep` | unticked, examinable | ~2.5 h, <= `DEEP_PER_DAY` (3), spread evenly over `DEEP_WINDOW` (8 days), senses then kidney |
+| `shallow` | unticked, in `SHALLOW_CODES` | ~15 min, definition + mechanism sketch |
+| `review` | already ticked | rehearsed inside a triplet, never re-studied |
+| `drop` | `yieldOf()===0` | never scheduled |
+
+**`data.study.tier` is checked FIRST in `tierOf()`, before the drop rule.** 123 lines were mapped by
+hand; that ordering is what makes a mis-mapped topic a one-tap fix instead of a redeploy.
+
+Rules that are load-bearing and easy to break:
+
+- **A triplet is only rehearsable once its deep topics are studied.** 23 of the 41 contain no deep
+  topic, which is exactly enough to fill the early days — there is no deadlock, but only just.
+- **`REHEARSE_LIGHT` (8) on days with no deep work vs `REHEARSE_PER_DAY` (3) on days with it** is
+  what turns the back half into a genuine second pass instead of dead time. Every triplet gets 2.
+- **Deep work is spread evenly, not front-loaded.** Front-loading at 3/day put ~10 h on the first six
+  days and left the last six nearly empty. `overflow` reports any surplus rather than hiding it.
+- **Practicals live in `data.study.prac`, never in `done`/`doneAt`.** `prodStats` counts `doneAt` for
+  the weekly physiology ring, so 26 practical ticks in there would inflate it and poison the pace.
+- **`loadData()` routes the fresh-install path through `migrate({})`.** The oral-goal seed flag
+  cannot live in `DEFAULT_DATA()` — `Object.assign` would hand it to existing users as already-true
+  and the goal would never seed for the one person who needs it.
+- `useMemo` had to be added to the React destructure at the top; it was not imported.
+
+### The measured triage, for the record
+
+88 of 122 ticked, 34 outstanding. Deep queue came to **17** (9 Special Senses + `KI01`-`KI08`), which
+is 5-8 days of work, not the 107-topic catastrophe it looks like from the raw count — because the
+already-ticked 88 need **recall, not re-study**, and rehearsal supplies that. Total ~71 h over 14
+days. The user's own "5 h per topic" x 3 a day is 15 h/day and does not survive contact with a
+calendar; `DEEP_HOURS` is 2.5 and is a constant so it can be argued with.
+
+**Worth revisiting before the exam:** `GP14` Smooth muscle and `BL13` Specific immunity are both
+double-weighted AND head their two triplets each, yet sit in `SHALLOW_CODES` at the user's request.
+That was flagged to them; the data reflects their choice, not the recommendation.
+
 ## Dates that go stale
 
-- Computer test **2026-08-14**, oral **2026-08-24**, both in `EXAMS` in `index.html`.
+- **Computer test: PASSED.** It is no longer in `EXAMS` at all — `Countdown` and `physioPace` both
+  pick the next *future* exam, so a past entry is only noise. It survives as a `TIMELINE` milestone.
+- **Oral exam 2026-08-31**, the single entry in `EXAMS` in `index.html`.
+- `PLAN_START` / `PLAN_END` (`2026-08-17` → `2026-08-30`) bound the derived schedule.
+- `langForDate`'s anchor is `2026-09-01`, which pauses language practice for the run-up and resumes
+  it the day after the oral. `off<0` already returns `null`, so no other change was needed.
+- Flashcard `EXAM_ISO` is now **2026-08-31** (was the computer test). `capDue` guards with
+  `if(last<=now) return due;`, so a past date does **not** break scheduling — it just stops capping.
+  It was briefly reported as "everything permanently due, Smart mode degenerated to All"; that was
+  wrong, and the guard is why. Updating it restores the guarantee that every seen card resurfaces
+  before the oral.
 - Flashcard scheduling caps intervals at the day before `EXAM_ISO` in `physio_flashcards.html` —
   this is cramming, not lifelong retention, so nothing is scheduled past the test.
 - The Productivity tab derives its pacing from `EXAMS`, so it self-corrects when the exam moves.
@@ -575,7 +685,7 @@ right the first time. When a limit hits mid-run it is always the *later*
 phases that die — verification and repair — leaving finished-looking explanations nobody checked.
 Never ship those.
 
-## Where things stand — 2026-08-08
+## Where things stand — 2026-08-08 (superseded, kept for the hosting/Drive detail)
 
 **The computer test is 2026-08-14 and the oral 2026-08-24.** At the time of writing that is six days
 away, so prefer stability over improvement. Nothing below is urgent enough to risk the deck.
@@ -607,6 +717,36 @@ Not before the exam.
 - No **custom domain** yet. This is the one change that would stop all of this recurring: the domain
   becomes the identity, the host becomes disposable, and no future move costs progress or an OAuth
   re-registration. ~€10/year. See the hosting section.
-- The Health tracker has no CSV/Markdown export yet, so its data has no backup path.
 - Only one of three redesign directions survived a truncated payload during the flashcard redesign;
   the other two were never scored.
+
+
+---
+
+## Where things stand — 2026-08-17
+
+**The computer test is passed. The oral is 2026-08-31, fourteen days out.** The planner was rebuilt
+around how the oral is actually assessed:
+
+- **Health tab removed entirely** — data layer, components, CSS, actions, `SUBJ.health`, the README
+  section, and `delete out.health` in `migrate()` so the dead blob stops syncing to Drive. Nothing
+  outside the tab read it. `index.html` went 2,177 → ~1,880 lines despite everything added.
+- **`TRIPLETS` (41) and `PRACTICALS` (26) are now data**, and a **new Triplets tab** shows the whole
+  exam with a "how many of the 41 draws could you answer today" headline.
+- **The 161-line `PLAN` literal is gone**, replaced by `buildPlan()`. See the section above.
+- Verified in a real browser against a simulated 88-topic tick state: all seven tabs render, no
+  runtime errors, the code-integrity guard is silent, **88 ticks survive migration untouched**, the
+  legacy `health` blob is dropped, the oral goal seeds *alongside* the user's existing goals, and
+  ticking a topic re-flows the schedule on the next render.
+
+### What is NOT done
+
+- **The user has not been asked to confirm which 34 topics are outstanding.** The tier system reads
+  `data.done` live, so it self-corrects, but the 17-topic deep queue above assumes the working
+  hypothesis (all senses + `KI01`-`KI08` + the deprioritised GP/BL). If their real `done` map differs,
+  the plan differs — which is the point of deriving it, but worth confirming on first open.
+- `ProgressView` still counts against all 122 rather than the 110 examinable. Harmless, slightly
+  misleading; `physioPace` was switched to `EXAMINABLE` and is the number that drives pacing.
+- The duplicate `exam structure/Copia di Physiology Triplets tg.pdf` is byte-identical to
+  `physiology tripletes.pdf` and is still untracked. The data now lives in `index.html`, so neither
+  PDF is load-bearing any more.

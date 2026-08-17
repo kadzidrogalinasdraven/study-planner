@@ -56,18 +56,6 @@
   .iconbtn{background:transparent;border:0;color:var(--ink-3);padding:6px;border-radius:6px;line-height:1;transition:color .15s,background .15s}
   .iconbtn:hover{color:var(--ink);background:var(--paper-2)}
   .copied{font-size:11px;color:var(--accent)}
-  /* health tracker — big touch targets, this gets used one-handed at night */
-  .hslider{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer;margin:2px 0}
-  .hslider::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:var(--line)}
-  .hslider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;margin-top:-10px;border-radius:50%;background:var(--card);border:1.5px solid var(--hc,var(--accent));box-shadow:0 1px 3px rgba(0,0,0,.16)}
-  .hslider::-moz-range-track{height:6px;border-radius:6px;background:var(--line)}
-  .hslider::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--card);border:1.5px solid var(--hc,var(--accent));box-shadow:0 1px 3px rgba(0,0,0,.16)}
-  .hslider.unset::-webkit-slider-thumb{border-color:var(--line-2);background:var(--paper-2);box-shadow:none}
-  .hslider.unset::-moz-range-thumb{border-color:var(--line-2);background:var(--paper-2);box-shadow:none}
-  .pick{flex:1;min-width:40px;padding:10px 0;font-size:14px;text-align:center;background:var(--card);border:0.5px solid var(--line-2);border-radius:var(--r-md);color:var(--ink-2);transition:background .15s,border-color .15s,color .15s}
-  .pick[aria-pressed="true"]{background:var(--hc,var(--accent));border-color:var(--hc,var(--accent));color:#fff}
-  .daychip{flex:none;min-width:46px;padding:7px 5px;border-radius:var(--r-md);border:0.5px solid var(--line-2);background:var(--card);text-align:center;line-height:1.25;transition:background .15s,border-color .15s}
-  .daychip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
   @keyframes cbpop{0%{transform:scale(1)}42%{transform:scale(1.18)}100%{transform:scale(1)}}
   @keyframes ckin{0%{transform:scale(0) rotate(-14deg);opacity:0}55%{transform:scale(1.28) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
   @keyframes ckring{0%{transform:scale(.6);opacity:.5}100%{transform:scale(2.4);opacity:0}}
@@ -85,10 +73,10 @@
 <body>
 <div id="root"></div>
 <script type="text/babel" data-presets="react">
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useRef, useMemo } = React;
 
 /* ── identity & links ───────────────────────────────────────────── */
-const SUBJ = { physio:"#534AB7", micro:"#0F6E56", im:"#BE123C", czech:"#185FA5", italian:"#2F8F57", health:"#0E7490" };
+const SUBJ = { physio:"#534AB7", micro:"#0F6E56", im:"#BE123C", czech:"#185FA5", italian:"#2F8F57" };
 const PROJECT_PHYSIO = "https://claude.ai/project/019cc8a2-db77-7717-b48d-d8fff233e1c9";
 const CHAT_CZECH   = "https://claude.ai/chat/53820c71-73a6-4d0c-bd13-87f8136b833b";
 const CHAT_ITALIAN = "https://claude.ai/chat/a3aebc22-8fa1-41ec-8205-a05785d4ba0f";
@@ -296,9 +284,11 @@ function driveUpdateKeepalive(id,obj){
 }
 
 /* ── exams ──────────────────────────────────────────────────────── */
+/* The computer test is PASSED and deliberately not listed here. Countdown and physioPace both
+   pick the next exam whose iso is strictly after today, so a past entry would only add noise —
+   it lives on as a milestone in TIMELINE instead. */
 const EXAMS = [
-  { id:"ct", label:"Physiology · computer test", iso:"2026-08-14", time:"08:00", place:"Unimec 1 – 5. patro · U5.29-TESTY", color:SUBJ.physio },
-  { id:"or", label:"Physiology · oral exam",      iso:"2026-08-24", time:"09:00", place:"Department of Physiology",        color:SUBJ.physio },
+  { id:"or", label:"Physiology · oral exam", iso:"2026-08-31", time:"09:00", place:"Department of Physiology", color:SUBJ.physio },
 ];
 
 /* ── the nine keystone topics ─────────────────────────────────────── */
@@ -350,174 +340,117 @@ const CURRICULUM = [
   ]},
 ];
 
-const PLAN = [
-  // ── Phase 1 · deep-dives (all 67 remaining topics, ~2/day, NS first + variety) ──
-  { date:"2026-06-27", day:"Sat", label:"Nervous — memory & learning", est:"~6 h",
-    note:"Back at it. Two related higher-function topics to ease in.",
-    keystones:["NS09","NS10"], drill:null, q:[], mock:[] },
-  { date:"2026-06-28", day:"Sun", label:"Nervous — hypothalamus & autonomic", est:"~7 h",
-    note:"The big autonomic pair starts — sympathetic today.",
-    keystones:["NS11","NS12"], drill:null, q:[], mock:[] },
-  { date:"2026-06-29", day:"Mon", label:"Autonomic (parasympathetic) + CVS intro", est:"~6 h",
-    keystones:["NS13","CV01"], drill:null, q:[], mock:[] },
-  { date:"2026-06-30", day:"Tue", label:"Somatic NS + respiration control", est:"~6 h",
-    keystones:["NS14","RS09"], drill:null, q:[], mock:[] },
-  { date:"2026-07-01", day:"Wed", label:"Spinal reflexes", est:"~6 h",
-    note:"Proprioceptive + exteroceptive — a natural pair.",
-    keystones:["NS15","NS16"], drill:null, q:[], mock:[] },
-  { date:"2026-07-02", day:"Thu", label:"Brain stem + respiration adaptation", est:"~6 h",
-    keystones:["NS17","RS10"], drill:null, q:[], mock:[] },
-  { date:"2026-07-03", day:"Fri", label:"Flex + lock in CVS & respiratory", est:"~3 h",
-    note:"Catch-up day. Drill the two small fields you just finished.",
-    keystones:[], drill:"circulation", q:[{deck:"respiratory", label:"Respiratory deck"}], mock:[] },
+/* ── the exam itself ──────────────────────────────────────────────────────
+   The oral draws ONE triplet of three topics plus one practical. All 41 triplets are published
+   in advance, so they — not the 122-topic curriculum — are what this plan optimises for.
+   Index + 1 = the triplet number on the printed list.
 
-  { date:"2026-07-04", day:"Sat", label:"Finish nervous system", est:"~6 h",
-    note:"Basal ganglia + voluntary movement — NS complete after today.",
-    keystones:["NS19","NS20"], drill:null, q:[], mock:[] },
-  { date:"2026-07-05", day:"Sun", label:"General physiology — foundations", est:"~6 h",
-    keystones:["GP01","GP02"], drill:null, q:[], mock:[] },
-  { date:"2026-07-06", day:"Mon", label:"Endocrine — pituitary axis", est:"~6 h",
-    keystones:["EN02","EN03"], drill:null, q:[], mock:[] },
-  { date:"2026-07-07", day:"Tue", label:"Endocrine — Ca/bone + adrenal medulla", est:"~6 h",
-    keystones:["EN05","EN06"], drill:null, q:[], mock:[] },
-  { date:"2026-07-08", day:"Wed", label:"Adrenal cortex", est:"~7 h",
-    note:"Glucocorticoids + mineralocorticoids — high-yield, give it room.",
-    keystones:["EN07","EN08"], drill:null, q:[], mock:[] },
-  { date:"2026-07-09", day:"Thu", label:"Membrane channels + endocrine pancreas", est:"~6 h",
-    keystones:["GP03","EN09"], drill:null, q:[], mock:[] },
-  { date:"2026-07-10", day:"Fri", label:"Flex + lock in nervous deck", est:"~3 h",
-    note:"Catch-up. Drill the full nervous deck now NS is done.",
-    keystones:[], drill:"nervous", q:[], mock:[] },
+   TRIPLET 38 IS A TRAP FOR TEXT EXTRACTORS. Its middle topic is set in a separate 9-glyph
+   subset font (Identity-H, hex CIDs) that a naive parser drops silently, leaving what looks
+   like a legitimate two-topic triplet. It is not: the line reads "Adaptation of respiration"
+   (RS10). Do not "tidy" 38 back to two entries — 41 x 3 = 123 slots, and the count is right.
 
-  { date:"2026-07-11", day:"Sat", label:"Endocrine — reproduction I", est:"~6 h",
-    keystones:["EN10","EN11"], drill:null, q:[], mock:[] },
-  { date:"2026-07-12", day:"Sun", label:"Endocrine — reproduction II", est:"~6 h",
-    note:"Ovaries + pregnancy/lactation — endocrine complete after today.",
-    keystones:["EN12","EN13"], drill:null, q:[], mock:[] },
-  { date:"2026-07-13", day:"Mon", label:"GP — transport & signalling", est:"~6 h",
-    keystones:["GP04","GP05"], drill:null, q:[], mock:[] },
-  { date:"2026-07-14", day:"Tue", label:"Blood — red cells", est:"~6 h",
-    keystones:["BL03","BL04"], drill:null, q:[], mock:[] },
-  { date:"2026-07-15", day:"Wed", label:"Blood — destruction & groups", est:"~6 h",
-    keystones:["BL05","BL06"], drill:null, q:[], mock:[] },
-  { date:"2026-07-16", day:"Thu", label:"Synapse + hemostasis", est:"~6 h",
-    keystones:["GP06","BL08"], drill:null, q:[], mock:[] },
-  { date:"2026-07-17", day:"Fri", label:"Flex + lock in endocrine deck", est:"~3 h",
-    note:"Catch-up. Endocrine deck drill.",
-    keystones:[], drill:"endocrine", q:[], mock:[] },
-
-  { date:"2026-07-18", day:"Sat", label:"Blood — coagulation & WBC", est:"~7 h",
-    note:"Hemocoagulation is dense — give it the long-day slot.",
-    keystones:["BL09","BL10"], drill:null, q:[], mock:[] },
-  { date:"2026-07-19", day:"Sun", label:"Immunity I", est:"~6 h",
-    keystones:["BL11","BL12"], drill:null, q:[], mock:[] },
-  { date:"2026-07-20", day:"Mon", label:"Immunity II + neurotransmitters", est:"~6 h",
-    note:"Specific immunity finishes blood; GP neurotransmitters as variety.",
-    keystones:["BL13","GP07"], drill:null, q:[], mock:[] },
-  { date:"2026-07-21", day:"Tue", label:"Kidney — anatomy & clearance", est:"~6 h",
-    keystones:["KI01","KI03"], drill:null, q:[], mock:[] },
-  { date:"2026-07-22", day:"Wed", label:"Kidney — tubular function & water", est:"~6 h",
-    keystones:["KI04","KI05"], drill:null, q:[], mock:[] },
-  { date:"2026-07-23", day:"Thu", label:"Receptors + renal ion handling", est:"~6 h",
-    keystones:["GP08","KI06"], drill:null, q:[], mock:[] },
-  { date:"2026-07-24", day:"Fri", label:"Flex + lock in blood deck", est:"~3 h",
-    note:"Catch-up. Blood deck drill.",
-    keystones:[], drill:"blood", q:[], mock:[] },
-
-  { date:"2026-07-25", day:"Sat", label:"Kidney — regulation & acid–base", est:"~7 h",
-    keystones:["KI07","KI08"], drill:null, q:[], mock:[] },
-  { date:"2026-07-26", day:"Sun", label:"Micturition + resting potential", est:"~6 h",
-    note:"Kidney complete; GP resting potential as variety.",
-    keystones:["KI09","GP09"], drill:null, q:[], mock:[] },
-  { date:"2026-07-27", day:"Mon", label:"Senses — general & somatosensory", est:"~6 h",
-    keystones:["SS01","SS02"], drill:null, q:[], mock:[] },
-  { date:"2026-07-28", day:"Tue", label:"Senses — nociception & taste", est:"~6 h",
-    keystones:["SS03","SS04"], drill:null, q:[], mock:[] },
-  { date:"2026-07-29", day:"Wed", label:"GP — graded response & action potential", est:"~6 h",
-    note:"The two electrophysiology cornerstones.",
-    keystones:["GP10","GP11"], drill:null, q:[], mock:[] },
-  { date:"2026-07-30", day:"Thu", label:"Senses — smell & vision", est:"~6 h",
-    keystones:["SS05","SS06"], drill:null, q:[], mock:[] },
-  { date:"2026-07-31", day:"Fri", label:"Flex + lock in kidney deck", est:"~3 h",
-    note:"Catch-up. Kidney deck drill.",
-    keystones:[], drill:"kidney", q:[], mock:[] },
-
-  { date:"2026-08-01", day:"Sat", label:"Senses — hearing & balance", est:"~6 h",
-    note:"Senses complete after today — drill the deck.",
-    keystones:["SS08","SS09"], drill:"senses", q:[], mock:[] },
-  { date:"2026-08-02", day:"Sun", label:"GP — muscle", est:"~7 h",
-    note:"Skeletal muscle + neuromuscular transmission.",
-    keystones:["GP12","GP13"], drill:null, q:[], mock:[] },
-  { date:"2026-08-03", day:"Mon", label:"GP — smooth muscle & body fluids", est:"~6 h",
-    checkpoint:"CHECKPOINT — 1.5 weeks out. Are the deep-dives on track to finish tomorrow? If you're behind, switch NOW to the Aug 21 or Aug 28 computer test — don't leave it to the last minute. We'll review together.",
-    keystones:["GP14","GP15"], drill:null, q:[], mock:[] },
-  { date:"2026-08-04", day:"Tue", label:"GP — homeostasis · ALL 67 DONE", est:"~5 h",
-    note:"Last deep-dive. Homeostasis ties it together — then drill the genphys deck. Every topic is now covered.",
-    keystones:["GP16"], drill:"genphys", q:[], mock:[] },
-
-  // ── Phase 2 · consolidation (flashcard-led + mocks) ──
-  { date:"2026-08-05", day:"Wed", label:"Consolidation — first full mock", est:"~4 h",
-    note:"Deep-dives done. From here it's flashcard-led. Start with a full mixed mock to find the gaps.",
-    keystones:[], drill:null, q:[], mock:[{label:"Master Exam — mixed mock #1"}] },
-  { date:"2026-08-06", day:"Thu", label:"Consolidation — GIT + weak spots", est:"~4 h",
-    note:"Drill the GIT deck (field's ticked, but give it a clean pass), then re-study anything shaky.",
-    keystones:[], drill:"git", q:[], mock:[], weak:true },
-  { date:"2026-08-07", day:"Fri", label:"Consolidation — timed mock", est:"~4 h",
-    keystones:[], drill:null, q:[], mock:[{label:"Master Exam — timed mock #2"}], weak:true },
-  { date:"2026-08-08", day:"Sat", label:"Consolidation — weakest decks", est:"~4 h",
-    note:"Re-drill your two weakest decks end to end; convert every 'needs review' card.",
-    keystones:[], drill:null, q:[], mock:[], weak:true },
-  { date:"2026-08-09", day:"Sun", label:"Consolidation — timed mock", est:"~4 h",
-    keystones:[], drill:null, q:[], mock:[{label:"Master Exam — timed mock #3"}], weak:true },
-  { date:"2026-08-10", day:"Mon", label:"Consolidation — clear review cards", est:"~3 h",
-    note:"Sweep every deck's remaining 'needs review' cards.",
-    keystones:[], drill:null, q:[], mock:[], weak:true },
-  { date:"2026-08-11", day:"Tue", label:"Consolidation — full timed mock", est:"~4 h",
-    keystones:[], drill:null, q:[], mock:[{label:"Master Exam — full timed mock #4"}] },
-  { date:"2026-08-12", day:"Wed", label:"Light review", est:"~2 h",
-    note:"Easy day. Last shaky cards only — no new material.",
-    keystones:[], drill:null, q:[], mock:[], weak:true },
-  { date:"2026-08-13", day:"Thu", label:"Taper — rest & sleep", est:"~2 h",
-    note:"One short mixed mock for confidence, then stop early. Sleep is the priority tonight.",
-    keystones:[], drill:null, q:[], mock:[{label:"Master Exam — short confidence run"}] },
-
-  { date:"2026-08-14", day:"Fri", label:"Computer test", est:"08:00", exam:true,
-    note:"Unimec 1 – 5. patro · U5.29-TESTY.", keystones:[], drill:null, q:[], mock:[] },
-
-  // ── Phase 3 · oral prep (oral on Aug 24 — or Aug 17 if the watching spot comes through) ──
-  { date:"2026-08-15", day:"Sat", label:"Oral prep — cardio & respiratory", est:"~5 h",
-    note:"Test done — switch to oral mode: explain out loud, full depth.",
-    keystones:[], drill:null, q:[], mock:[], discuss:"Cardiovascular + Respiratory" },
-  { date:"2026-08-16", day:"Sun", label:"Oral prep — endocrine & kidney", est:"~5 h",
-    keystones:[], drill:null, q:[], mock:[], discuss:"Endocrine + Kidney" },
-  { date:"2026-08-17", day:"Mon", label:"Oral prep — nervous system", est:"~5 h",
-    note:"If your Aug 17 watching spot came through, this is your ORAL — good luck. If not, keep prepping.",
-    keystones:[], drill:null, q:[], mock:[], discuss:"Nervous system" },
-  { date:"2026-08-18", day:"Tue", label:"Oral prep — blood & immunity", est:"~5 h",
-    keystones:[], drill:null, q:[], mock:[], discuss:"Blood & immunity" },
-  { date:"2026-08-19", day:"Wed", label:"Oral prep — GIT & metabolism", est:"~5 h",
-    keystones:[], drill:null, q:[], mock:[], discuss:"GIT + Metabolism & temperature" },
-  { date:"2026-08-20", day:"Thu", label:"Oral prep — GP & senses", est:"~5 h",
-    keystones:[], drill:null, q:[], mock:[], discuss:"General physiology + Special senses" },
-  { date:"2026-08-21", day:"Fri", label:"Mock viva #1", est:"~4 h",
-    note:"Mixed mock viva — pick random topics and explain each out loud, as if to the examiner.",
-    keystones:[], drill:null, q:[], mock:[], discuss:"random mix — mock viva" },
-  { date:"2026-08-22", day:"Sat", label:"Weak-area re-read + discussion", est:"~4 h",
-    note:"Re-read whatever felt shaky in the viva, then talk it through.",
-    keystones:[], drill:null, q:[], mock:[], discuss:"your shaky topics" },
-  { date:"2026-08-23", day:"Sun", label:"Mock viva #2 + taper", est:"~3 h",
-    note:"One more mock viva, then light review and sleep early.",
-    keystones:[], drill:null, q:[], mock:[], discuss:"random mix — final viva" },
-  { date:"2026-08-24", day:"Mon", label:"Oral exam", est:"09:00", oral:true,
-    note:"Department of Physiology.", keystones:[], drill:null, q:[], mock:[] },
+   Three things that ARE in the source and are not typos:
+     · triplets 25 and 39 are near-duplicates (both GP03 + SS04 + ovaries);
+     · BL13 carries T-lymphocytes (28) and B-lymphocytes (36) — one code, two exam topics;
+     · triplet 39 reads "Taste / RBC in Hypotonic Solution" — a practical named inside a
+       theory triplet, which is why practicals are scheduled next to their theory below. */
+const TRIPLETS = [
+  /* 1*/ ["KI05","EN06","SS07"],  /* 2*/ ["CV13","NS13","RS09"],
+  /* 3*/ ["BL09","KI01","NS15"],  /* 4*/ ["CV04","SS02","EN05"],
+  /* 5*/ ["RS05","BL04","EN02"],  /* 6*/ ["GP02","SS06","CV20"],
+  /* 7*/ ["GI07","GP15","CV11"],  /* 8*/ ["BL01","CV05","NS09"],
+  /* 9*/ ["KI02","NS07","EN08"],  /*10*/ ["GP14","CV12","SS09"],
+  /*11*/ ["CV01","BL11","EN07"],  /*12*/ ["BL07","KI07","CV06"],
+  /*13*/ ["NS16","RS04","GP05"],  /*14*/ ["GP13","CV08","MT02"],
+  /*15*/ ["GI10","SS08","BL02"],  /*16*/ ["BL01","KI06","CV14"],
+  /*17*/ ["GP08","CV03","GI08"],  /*18*/ ["SS05","CV18","EN01"],
+  /*19*/ ["GP09","GI09","EN04"],  /*20*/ ["NS02","KI06","BL09"],
+  /*21*/ ["GP04","EN11","NS04"],  /*22*/ ["CV09","KI04","EN09"],
+  /*23*/ ["RS03","SS01","CV16"],  /*24*/ ["GP11","RS01","BL08"],
+  /*25*/ ["EN12","GP03","SS04"],  /*26*/ ["BL03","CV06","NS14"],
+  /*27*/ ["RS07","GP07","BL06"],  /*28*/ ["BL13","MT01","NS20"],
+  /*29*/ ["NS19","GP10","CV10"],  /*30*/ ["NS06","RS06","GI05"],
+  /*31*/ ["CV07","EN03","BL05"],  /*32*/ ["NS12","GI03","CV02"],
+  /*33*/ ["NS17","EN01","GP01"],  /*34*/ ["CV12","GI06","GP12"],
+  /*35*/ ["BL08","GI02","RS08"],  /*36*/ ["BL13","GI04","CV05"],
+  /*37*/ ["EN13","GP11","CV19"],  /*38*/ ["BL10","RS10","SS03"],
+  /*39*/ ["GP03","EN12","SS04"],  /*40*/ ["GP14","EN10","SS09"],
+  /*41*/ ["KI08","RS02","NS01"],
 ];
+
+/* The 26 practical exercises, from curriculum_GM_2025.pdf. Number 3 is BLANK in that PDF —
+   restored here because triplet 39 names it outright. */
+const PRACTICALS = [
+  { n:1, label:"Hematocrit determination", group:"Hematology", codes:["BL01","BL03"] },
+  { n:2, label:"Determination of MCH, MCHC and MCV", group:"Hematology", codes:["BL03"] },
+  { n:3, label:"RBC in hypotonic solution — osmotic resistance", group:"Hematology", codes:["BL03","GP04"] },
+  { n:4, label:"Blood typing — AB0", group:"Hematology", codes:["BL06"] },
+  { n:5, label:"Blood typing — Rh system and bedside test", group:"Hematology", codes:["BL06"] },
+  { n:6, label:"Sedimentation rate", group:"Hematology", codes:["BL01","BL03"] },
+  { n:7, label:"Quick's prothrombin time", group:"Hematology", codes:["BL09"] },
+  { n:8, label:"Determination of plasma volume", group:"General & nervous", codes:["GP15","BL02"] },
+  { n:9, label:"Somatic reflexes", group:"General & nervous", codes:["NS15","NS16"] },
+  { n:10, label:"Cerebellar functions", group:"General & nervous", codes:["NS18"] },
+  { n:11, label:"Visceral reflexes", group:"General & nervous", codes:["NS12","NS13"] },
+  { n:12, label:"Visual acuity", group:"Sense organs", codes:["SS06"] },
+  { n:13, label:"Astigmatism and blind spot (Mariotte)", group:"Sense organs", codes:["SS06","SS07"] },
+  { n:14, label:"Optokinetic nystagmus", group:"Sense organs", codes:["SS09"] },
+  { n:15, label:"Colour vision", group:"Sense organs", codes:["SS07"] },
+  { n:16, label:"Hearing tests", group:"Sense organs", codes:["SS08"] },
+  { n:17, label:"Blood pressure", group:"Circulation & respiration", codes:["CV18"] },
+  { n:18, label:"Heart sounds", group:"Circulation & respiration", codes:["CV06"] },
+  { n:19, label:"ECG — registration", group:"Circulation & respiration", codes:["CV08"] },
+  { n:20, label:"ECG — interpretation", group:"Circulation & respiration", codes:["CV07"] },
+  { n:21, label:"Negative intrapleural pressure in the rat", group:"Circulation & respiration", codes:["RS02"] },
+  { n:22, label:"CO2 in expired air after hyperventilation and apnea", group:"Circulation & respiration", codes:["RS07","RS09"] },
+  { n:23, label:"Spirometry — static values", group:"Circulation & respiration", codes:["RS03"] },
+  { n:24, label:"Spirometry — dynamic values", group:"Circulation & respiration", codes:["RS03"] },
+  { n:25, label:"Basal metabolic rate", group:"Metabolism, endocrine, kidney & GIT", codes:["MT01"] },
+  { n:26, label:"Creatinine clearance. Glomerular filtration. Tubular reabsorption", group:"Metabolism, endocrine, kidney & GIT", codes:["KI02","KI03","KI04"] },
+];
+
+/* How often a topic can be drawn. A topic in two triplets is worth twice the revision. */
+const TRIPLET_FREQ = {}, TRIPLETS_OF = {};
+TRIPLETS.forEach((t,i)=>t.forEach(c=>{ TRIPLET_FREQ[c]=(TRIPLET_FREQ[c]||0)+1; (TRIPLETS_OF[c]=TRIPLETS_OF[c]||[]).push(i+1); }));
+const PRACTICAL_CODES = {}, PRACTICALS_OF = {};
+PRACTICALS.forEach(p=>p.codes.forEach(c=>{ PRACTICAL_CODES[c]=true; (PRACTICALS_OF[c]=PRACTICALS_OF[c]||[]).push(p.n); }));
+
+const CODE_TITLE = {}; CURRICULUM.forEach(f=>f.topics.forEach(t=>{ CODE_TITLE[t[0]]=t[1]; }));
+/* Yield counts triplets AND practicals, so a topic that is only ever examined at the bench —
+   KI03 Clearance (practical 26), NS18 Cerebellum (practical 10) — cannot fall out of the plan.
+   Deriving it beats a hand-written drop list precisely because those two were nearly lost to one. */
+const yieldOf    = c => (TRIPLET_FREQ[c]||0) + ((PRACTICALS_OF[c]||[]).length ? 1 : 0);
+const EXAMINABLE = Object.keys(CODE_TITLE).filter(c=>yieldOf(c)>0);
+
+/* TopicCard renders null for an unknown code, so a mistyped code would vanish in silence
+   rather than error. 123 triplet lines were mapped by hand — shout if any of them is wrong. */
+TRIPLETS.forEach((t,i)=>t.forEach(c=>{ if(!CODE_TITLE[c]) console.warn("TRIPLETS: unknown code",c,"in triplet",i+1); }));
+PRACTICALS.forEach(p=>p.codes.forEach(c=>{ if(!CODE_TITLE[c]) console.warn("PRACTICALS: unknown code",c,"in practical",p.n); }));
+
+/* Deprioritised by the user: a definition and a mechanism sketch, not a deep dive. Skipping
+   them outright would hole 17 of the 41 triplets, so they are shallow — never absent.
+   Worth revisiting: GP14 and BL13 are each double-weighted AND head their two triplets. */
+const SHALLOW_CODES = ["GP04","GP05","GP07","GP08","GP09","GP10","GP11","GP12","GP13","GP14","GP15","BL06","BL10","BL11","BL13"];
+
+/* Senses first — the user's absolute priority — in teaching order, then the kidney block. */
+const DEEP_ORDER = ["SS01","SS02","SS03","SS06","SS07","SS08","SS09","SS04","SS05",
+                    "KI01","KI02","KI03","KI04","KI05","KI06","KI07","KI08"];
+
+const PLAN_START = "2026-08-17", PLAN_END = "2026-08-30";
+const DEEP_PER_DAY = 3;          // the user's own stated ceiling for topics done properly
+const DEEP_WINDOW = 8;           // spread the deep queue over this many days, then it is all rehearsal
+const SHALLOW_PER_DAY = 8, PRACTICALS_PER_DAY = 3;
+const REHEARSE_PER_DAY = 3;      // on a day that also carries deep topics
+const REHEARSE_LIGHT = 8;        // on a day that does not — this is what makes the back half a second pass
+const MAX_REHEARSE_PASSES = 4;
 
 const LANG = { czech:{name:"Czech",color:SUBJ.czech,url:CHAT_CZECH}, italian:{name:"Italian",color:SUBJ.italian,url:CHAT_ITALIAN} };
 
 /* Language cadence: one day on, one day off — alternating Czech → Italian → Czech …
    30 min each (≈ twice Czech + twice Italian a week). Anchored to the plan start. */
 function langForDate(iso){
-  const anchor=parseISO("2026-06-27"), d=parseISO(iso);
+  const anchor=parseISO("2026-09-01"), d=parseISO(iso);   // paused for the oral run-up; off<0 returns null
   const off=Math.round((d-anchor)/86400000);
   if(off<0 || off%2!==0) return null;            // before the plan, or a break day
   return ((off/2)%2===0) ? "czech" : "italian";
@@ -525,13 +458,12 @@ function langForDate(iso){
 
 const TIMELINE = [
   { kind:"done",  label:"Microbiology, Internal Medicine & Czech", detail:"All passed · May – Jun 9" },
-  { kind:"done",  label:"Physiology computer test — 1st try", detail:"Fri 26 Jun · narrowly missed · re-test booked" },
-  { kind:"phase", label:"Deep-dives — all 67 remaining topics", detail:"27 Jun → 4 Aug · ~2/day · nervous system first · deck drill per field" },
-  { kind:"note",  label:"Go / no-go checkpoint", detail:"Mon 3 Aug · 1.5 weeks out — hold Aug 14 or switch to Aug 21/28" },
-  { kind:"phase", label:"Consolidation — flashcards & mocks", detail:"5 → 13 Aug · Master Exam mocks + clear review cards" },
-  { kind:"exam",  label:"Physiology computer test — re-do", detail:"Fri 14 Aug · 08:00 · Unimec 1, U5.29", color:SUBJ.physio, big:true },
-  { kind:"phase", label:"Oral prep — guides & mock vivas", detail:"15 → 23 Aug · /physiology-guide + /discussion topics" },
-  { kind:"exam",  label:"Physiology oral exam", detail:"Mon 24 Aug · 09:00 · Dept of Physiology (or Mon 17 if the watching spot opens)", color:SUBJ.physio, big:true, final:true },
+  { kind:"done",  label:"Physiology computer test", detail:"Passed · 4,440 statements, every one with a written explanation" },
+  { kind:"phase", label:"Senses, then kidney — deep", detail:"17 → 22 Aug · 3 topics a day · the 16 unstudied topics that can actually be drawn" },
+  { kind:"phase", label:"Shallow pass + rehearsal", detail:"23 → 26 Aug · the deprioritised list at definition level; first full pass over all 41 triplets" },
+  { kind:"note",  label:"Everything answerable", detail:"Wed 26 Aug · every triplet said out loud once — from here it is repair, not learning" },
+  { kind:"phase", label:"Second pass & repair", detail:"27 → 30 Aug · weakest triplets first, all 26 practicals, stop early on the eve" },
+  { kind:"exam",  label:"Physiology oral exam", detail:"Mon 31 Aug · 09:00 · Dept of Physiology · one triplet of three topics plus a practical", color:SUBJ.physio, big:true, final:true },
 ];
 
 /* ── helpers ────────────────────────────────────────────────────────── */
@@ -570,119 +502,6 @@ function AnimatedNumber({value, suffix, dur=520, style, className}){
 function fmtTaskWhen(task){
   const dayPart = task.date===todayStr() ? "today" : fmtDay(task.date);
   return task.time ? dayPart+" · "+task.time : dayPart;
-}
-
-/* ── health experiments — data layer ──────────────────────────────────
-   Every metric points the same way: 0 = no problem, 10 = worst. "Nasal patency" keeps the
-   name you use for it, but it is SCORED AS OBSTRUCTION so it runs with the others — 0 clear,
-   10 blocked. That means a falling number is always an improvement, on every metric, which is
-   what makes the first-half/second-half comparison readable at a glance.
-
-   VOID LOGIC — the point of the whole thing. A day is void when the dose was missed or was
-   never answered; void days are thrown out of the analysis. The TRIAL is only declared void
-   when the misses exceed what the adherence threshold allows across the FULL trial length —
-   i.e. when the target has become unreachable, not on a running percentage. One miss on day 2
-   is 50% but is not fatal, and the app must not pretend it is. */
-const METRICS = [
-  { key:"wakings",      label:"Night wakings", kind:"count", help:"How many times you woke in the night. 0 = slept through." },
-  { key:"nasalPatency", label:"Nasal patency", kind:"scale", help:"0 = clear, breathing freely · 10 = completely blocked" },
-  { key:"fatigue",      label:"Fatigue",       kind:"scale", help:"0 = no problem · 10 = worst" },
-  { key:"fog",          label:"Brain fog",     kind:"scale", help:"0 = no problem · 10 = worst" },
-];
-const METRIC_BY_KEY = {}; METRICS.forEach(m=>{ METRIC_BY_KEY[m.key]=m; });
-const FLAGS = [
-  { key:"neckSwelling", label:"Neck swelling" },
-  { key:"rescueMed",    label:"Rescue medication taken" },
-];
-const HEALTH_EDIT_DAYS = 7;   // how far back you can still fill in a missed evening
-
-function DEFAULT_HEALTH(){
-  const mome=uid(), deslo=uid();
-  return {
-    seeded:true,
-    interventions:[
-      { id:mome,  label:"Mometasone 50µg — 2 sprays per nostril, morning", active:true },
-      { id:deslo, label:"Desloratadine 5mg — evening", active:true },
-    ],
-    experiments:[{
-      id:uid(),
-      name:"Nasal corticosteroid trial (attempt 2)",
-      intervention:"Mometasone 50µg, 2 sprays per nostril, every morning",
-      startDate:"2026-08-02",
-      readoutDate:"2026-08-15",
-      primaryEndpoint:"nasalPatency",
-      minAdherencePct:80,
-      status:"active",
-      interventionIds:[mome,deslo],
-      notes:"Attempt 1 (27.07–29.07) aborted at day 2 — VOID, not negative. Full effect needs ~2 weeks. Do not judge before 15.08.",
-    }],
-    entries:{},
-  };
-}
-/* seeded flag, not an empty-array check: deleting the trial on purpose must not resurrect it */
-function migrateHealth(h){
-  if(!h || !h.seeded) return DEFAULT_HEALTH();
-  const out = Object.assign({ seeded:true, interventions:[], experiments:[], entries:{} }, h);
-  if(!Array.isArray(out.interventions)) out.interventions=[];
-  if(!Array.isArray(out.experiments)) out.experiments=[];
-  if(!out.entries || typeof out.entries!=="object") out.entries={};
-  return out;
-}
-
-const emptyEntry = date => ({ date, metrics:{}, flags:{}, doses:{}, notes:"", loggedAt:0 });
-
-/* "unknown" is deliberately distinct from "missed": an unanswered checkbox is not evidence
-   that you skipped the dose, but it is equally unusable, so both void the day. */
-function doseState(entry, ids){
-  if(!ids.length) return "none";
-  if(!entry || !entry.doses) return "unknown";
-  let missed=false, unknown=false;
-  ids.forEach(function(id){ const v=entry.doses[id]; if(v===false) missed=true; else if(v!==true) unknown=true; });
-  return missed ? "missed" : unknown ? "unknown" : "taken";
-}
-function entryComplete(entry, ids){
-  if(!entry) return false;
-  const scored = METRICS.every(m=>typeof entry.metrics[m.key]==="number");
-  return scored && doseState(entry,ids)!=="unknown";
-}
-function entryProgress(entry, ids){
-  const total = METRICS.length + ids.length;
-  if(!entry) return { done:0, total };
-  let done = METRICS.filter(m=>typeof entry.metrics[m.key]==="number").length;
-  ids.forEach(function(id){ if(typeof entry.doses[id]==="boolean") done++; });
-  return { done, total };
-}
-
-function expStats(exp, health, today){
-  const ids = (exp.interventionIds||[]).filter(id=>health.interventions.some(i=>i.id===id && i.active));
-  const trialDays = dayDiff(exp.startDate, exp.readoutDate) + 1;
-  const allowedMisses = Math.floor(trialDays * (100 - (exp.minAdherencePct||80)) / 100);
-  const started = today >= exp.startDate;
-  const lastDay = today < exp.readoutDate ? today : exp.readoutDate;
-  const days = (started ? dateRange(exp.startDate, lastDay) : []).map(function(d){
-    const e  = health.entries[d] || null;
-    const ds = doseState(e, ids);
-    // today is not a miss until the day is over — no nagging at breakfast
-    const pending = (d===today && ds!=="missed" && ds!=="taken");
-    return { date:d, entry:e, dose:ds, pending:pending, isVoid: !pending && ds!=="taken" };
-  });
-  const counted = days.filter(d=>!d.pending);
-  const missed  = counted.filter(d=>d.isVoid).length;
-  const pct     = counted.length ? Math.round((counted.length-missed)/counted.length*100) : 100;
-  let streak=0;
-  for(let i=days.length-1;i>=0;i--){
-    if(days[i].dose==="taken") streak++;
-    else if(days[i].pending) continue;      // an unlogged today doesn't break yesterday's streak
-    else break;
-  }
-  const blown = missed > allowedMisses;
-  return {
-    ids, trialDays, allowedMisses, missed, pct, streak, days, counted, blown, started,
-    remainingMisses: Math.max(0, allowedMisses - missed),
-    dayNo: started ? dayDiff(exp.startDate, lastDay) + 1 : 0,
-    daysToReadout: dayDiff(today, exp.readoutDate),
-    readoutReached: today >= exp.readoutDate,
-  };
 }
 
 /* ── productivity — data layer ────────────────────────────────────────
@@ -748,8 +567,137 @@ function migrateProd(p){
 
 /* How fast you have to move to finish the curriculum before the next exam. The deadline is the
    day BEFORE the exam — the computer test starts at 08:00, so exam day is not a study day. */
+/* ── the derived schedule ──────────────────────────────────────────────────
+   The old plan was 59 hand-written days. It went stale the moment the exam moved, and it could
+   not know which topics were actually ticked. This derives the whole run-up from data.done every
+   render instead, so it is never wrong for longer than it takes to tick a box.
+
+   Four tiers, all derived — nothing per-topic is maintained by hand:
+     deep     unticked and examinable        → DEEP_PER_DAY a day, senses first, then kidney
+     shallow  unticked but deprioritised     → definition + mechanism sketch, in bulk
+     review   already ticked                 → rehearsed inside a triplet, not re-studied
+     drop     appears in no triplet/practical → never scheduled
+
+   DEEP_HOURS is the one soft number here. The user's own estimate is 5 h a topic; three a day at
+   that rate is 15 h and does not survive contact with reality. 2.5 h is defensible for a different
+   reason: these topics are not cold. The written test already covered 466 Special Senses and 680
+   Kidney cards, so what is missing is production, not first acquaintance — and building production
+   on recognition is roughly half the cost. It is a constant precisely so it can be argued with. */
+const DEEP_HOURS = 2.5, SHALLOW_HOURS = 0.25, REHEARSE_HOURS = 0.25, PRACTICAL_HOURS = 0.33;
+
+const FIELD_OF = {}, TITLE_OF = {};
+CURRICULUM.forEach(f=>f.topics.forEach(t=>{ FIELD_OF[t[0]]=f.name; TITLE_OF[t[0]]=t[1]; }));
+
+/* The override is checked FIRST, deliberately. 123 triplet lines were mapped by hand; if one is
+   wrong, one tap in Progress rescues the topic — no code change, no redeploy, six days out. */
+function tierOf(code, data){
+  const ov = data && data.study && data.study.tier ? data.study.tier[code] : null;
+  if(ov==="deep" || ov==="shallow" || ov==="drop") return ov;
+  if(yieldOf(code)===0)                        return "drop";   // in no triplet and no practical
+  if(data && data.done && data.done[code])     return "review";
+  if(SHALLOW_CODES.indexOf(code)>=0)           return "shallow";
+  return "deep";
+}
+
+/* Senses then kidney in teaching order; anything else still unticked follows, commonest first,
+   so a topic drawable in two triplets is never queued behind one drawable in none. */
+function deepQueue(data){
+  const head = DEEP_ORDER.filter(c=>tierOf(c,data)==="deep");
+  const tail = EXAMINABLE
+    .filter(c=>tierOf(c,data)==="deep" && DEEP_ORDER.indexOf(c)<0)
+    .sort((a,b)=>(yieldOf(b)-yieldOf(a)) || (a<b?-1:1));
+  return head.concat(tail);
+}
+
+/* The only number that matters for this exam: how many of the 41 draws you could take today.
+   A draw is answerable when none of its three topics is still sitting in the deep queue. */
+function tripletCoverage(data){
+  const ready=TRIPLETS.filter(t=>t.every(c=>tierOf(c,data)!=="deep")).length;
+  return { ready, total:TRIPLETS.length, pct:Math.round(ready/TRIPLETS.length*100) };
+}
+
+function buildPlan(data, today){
+  const days = dateRange(PLAN_START, PLAN_END), N = days.length;
+  const queue = deepQueue(data);
+  const shallowQ = SHALLOW_CODES.filter(c=>tierOf(c,data)==="shallow");
+  const deepBy=[], shallowBy=[], tripBy=[], pracBy=[];
+  for(let i=0;i<N;i++){ deepBy.push([]); shallowBy.push([]); tripBy.push([]); pracBy.push([]); }
+
+  /* Deep work is spread EVENLY over the first DEEP_WINDOW days rather than crammed at
+     DEEP_PER_DAY until the queue runs dry. Front-loading put 10 h on the first six days and
+     left the last six nearly empty, which is not a plan anyone can actually follow. */
+  const W = Math.min(DEEP_WINDOW, N), deepDayOf = {};
+  let dd = 0;
+  queue.forEach((c,i)=>{
+    const target = Math.min(W-1, Math.floor(i*W/Math.max(1,queue.length)));
+    if(dd < target) dd = target;                       // the even spread...
+    while(dd < N && deepBy[dd].length >= DEEP_PER_DAY) dd++;   // ...but never over the daily ceiling
+    if(dd < N){ deepBy[dd].push(c); deepDayOf[c]=dd; }
+  });
+  /* More deep topics than DEEP_PER_DAY x days can hold. Nothing is silently dropped: the surplus
+     stays in the queue, and `overflow` is what the Plan tab reports rather than pretending. */
+  const overflow = queue.filter(c=>!(c in deepDayOf));
+
+  const firstFree = Math.min(N-1, W);
+  shallowQ.forEach((c,i)=>{ shallowBy[Math.min(N-1, firstFree+Math.floor(i/SHALLOW_PER_DAY))].push(c); });
+
+  /* A triplet is only worth saying out loud once its deep topics exist to say. 23 of the 41
+     contain no deep topic at all, which is more than enough to keep the early days busy.
+     Days carrying deep topics take fewer rehearsals; days without take many more, which is what
+     turns the back half into a genuine second pass instead of dead time. */
+  const readyAfter = codes => { let d=0; codes.forEach(c=>{
+    if(c in deepDayOf) d=Math.max(d, deepDayOf[c]+1);
+    else if(tierOf(c,data)==="deep") d=N-1;            // never scheduled — do not call it rehearsable
+  }); return Math.min(d, N-1); };
+  const tReady = TRIPLETS.map(readyAfter);
+  const capOf  = d => deepBy[d].length ? REHEARSE_PER_DAY : REHEARSE_LIGHT;
+  const passes = TRIPLETS.map(()=>0);
+  for(let pass=0; pass<MAX_REHEARSE_PASSES; pass++){
+    let placed=false;
+    TRIPLETS.map((t,i)=>i).filter(i=>passes[i]===pass).sort((a,b)=>(tReady[a]-tReady[b])||(a-b)).forEach(i=>{
+      let d=tReady[i]; while(d<N && tripBy[d].length>=capOf(d)) d++;
+      if(d>=N && pass===0){                             // pass one must never lose a triplet:
+        d=tReady[i];                                    // put it on the emptiest eligible day
+        for(let k=tReady[i]; k<N; k++) if(tripBy[k].length<tripBy[d].length) d=k;
+      }
+      if(d<N){ tripBy[d].push(i+1); passes[i]=pass+1; placed=true; }
+    });
+    if(!placed) break;
+  }
+
+  /* Deal the practical whose theory was studied MOST recently first, so a sense-organ practical
+     lands beside the senses rather than a fortnight later. */
+  const pReady = PRACTICALS.map(p=>readyAfter(p.codes));
+  const left = PRACTICALS.map((p,i)=>i);
+  for(let d=0; d<N && left.length; d++){
+    const avail = left.filter(i=>pReady[i]<=d).sort((a,b)=>(pReady[b]-pReady[a])||(a-b));
+    avail.slice(0, PRACTICALS_PER_DAY).forEach(i=>{ pracBy[d].push(PRACTICALS[i].n); left.splice(left.indexOf(i),1); });
+  }
+  left.forEach(i=>pracBy[N-1].push(PRACTICALS[i].n));
+
+  const out = days.map((date,d)=>{
+    const keystones=deepBy[d], shallow=shallowBy[d], triplets=tripBy[d], practicals=pracBy[d];
+    const fields=[]; keystones.forEach(c=>{ const f=FIELD_OF[c]; if(f && fields.indexOf(f)<0) fields.push(f); });
+    const hrs = keystones.length*DEEP_HOURS + shallow.length*SHALLOW_HOURS
+              + triplets.length*REHEARSE_HOURS + practicals.length*PRACTICAL_HOURS;
+    const label = fields.length ? fields.join(" · ") + " — deep"
+                : shallow.length ? "Shallow pass — the deprioritised topics"
+                : "Rehearsal & repair";
+    return { date, day:parseISO(date).toLocaleDateString("en-GB",{weekday:"short"}),
+             label, est:"~"+(Math.round(hrs*2)/2)+" h",
+             keystones, shallow, triplets, practicals, q:[], mock:[], drill:null, note:null };
+  });
+  out.overflow = overflow;
+
+  const exam = EXAMS[EXAMS.length-1];
+  out.push({ date:exam.iso, day:parseISO(exam.iso).toLocaleDateString("en-GB",{weekday:"short"}),
+             label:"Oral exam", est:"", keystones:[], shallow:[], triplets:[], practicals:[],
+             q:[], mock:[], drill:null, oral:true, note:exam.place });
+  return out;
+}
+
 function physioPace(data, today){
-  const allCodes = CURRICULUM.flatMap(f=>f.topics.map(t=>t[0]));
+  const allCodes = EXAMINABLE;   // pacing against 122 would chase topics that cannot be drawn
   const total    = allCodes.length;
   const doneCount= allCodes.filter(c=>data.done[c]).length;
   const remaining= Math.max(0, total-doneCount);
@@ -803,12 +751,39 @@ function prodStats(data, today){
 
 /* ── persistence ──────────────────────────────────────────────────── */
 const KEY = "study_planner_v2";
+/* ── study state for the oral ──────────────────────────────────────────
+   Three sparse maps, all keyed the same way the rest of the app is keyed.
+
+   tier  code → "deep"|"shallow"|"drop", the manual override tierOf() honours first.
+   reh   triplet number (STRING — JSON has no integer keys) → {count, last, shaky:[codes]}.
+   prac  practical number (string) → the ISO date it was last done. One map is both the tick
+         and the recency clock, which is what lets the scheduler re-serve the oldest ones.
+
+   Practicals deliberately do NOT live in done/doneAt: prodStats counts doneAt entries for the
+   weekly physiology ring, so 26 practical ticks in there would inflate the ring and poison the
+   pace maths. Separate map, on purpose. */
+function DEFAULT_STUDY(){ return { tier:{}, reh:{}, prac:{} }; }
+function migrateStudy(x){
+  const out = Object.assign({}, DEFAULT_STUDY(), (x && typeof x==="object") ? x : {});
+  ["tier","reh","prac"].forEach(k=>{ if(!out[k] || typeof out[k]!=="object" || Array.isArray(out[k])) out[k]={}; });
+  return out;
+}
+
+/* Object.assign in migrate() keeps a user's saved goals array, so a new DEFAULT_DATA goal never
+   reaches anyone who has already used the app. Seeding has to be additive and idempotent — the
+   flag means deleting this goal on purpose does not resurrect it on the next load. */
+const ORAL_GOAL = () => ({ id:"goal-oral-2026", title:"Pass the Physiology oral exam", date:"2026-08-31", steps:[
+  { id:"s-ss",  text:"All 9 Special Senses topics studied properly", done:false },
+  { id:"s-ki",  text:"The whole Kidney block studied properly",      done:false },
+  { id:"s-tri", text:"All 41 triplets said out loud at least once",  done:false },
+  { id:"s-pr",  text:"All 26 practicals describable end to end",     done:false },
+]});
+
 const DEFAULT_DATA = () => ({
-  done:{}, doneAt:{}, tasks:[], gcalEnabled:false, updatedAt:0, health:DEFAULT_HEALTH(), prod:DEFAULT_PROD(),
+  done:{}, doneAt:{}, tasks:[], gcalEnabled:false, updatedAt:0, prod:DEFAULT_PROD(), study:DEFAULT_STUDY(),
   goals:[
-    { id:uid(), title:"Pass the Physiology computer test", date:"2026-06-26",
-      steps:[ {id:uid(),text:"One clean pass over every keystone",done:false}, {id:uid(),text:"≥95% on the Master Exam decks",done:false} ] },
-    { id:uid(), title:"Secure summer Pflegepraktikum", date:"2026-08-31",
+    ORAL_GOAL(),
+    { id:uid(), title:"Secure summer Pflegepraktikum", date:"2026-09-07",
       steps:[ {id:uid(),text:"Confirm start date with the hospital",done:false} ] },
   ],
 });
@@ -821,15 +796,23 @@ function migrate(d){
     });
     out.tasks=flat;
   }
-  out.health = migrateHealth(out.health);
+  delete out.health;   // the Health tab is gone — drop the dead blob rather than syncing it forever
   out.prod   = migrateProd(out.prod);
+  out.study  = migrateStudy(out.study);
+  if(!Array.isArray(out.goals)) out.goals=[];
+  if(!out.goalsSeededOral){ out.goalsSeededOral=true;
+    if(!out.goals.some(g=>g.id==="goal-oral-2026")) out.goals.unshift(ORAL_GOAL()); }
   // the 85 topics ticked before doneAt existed get no entry, so they count toward no week —
   // correct, because we genuinely don't know when they were done
   if(!out.doneAt || typeof out.doneAt!=="object" || Array.isArray(out.doneAt)) out.doneAt={};
   return out;
 }
 const hasCloud = () => { try{ return window.storage && typeof window.storage.get==="function"; }catch(e){ return false; } };
-function loadData(){ try{ const s=localStorage.getItem(KEY); if(s) return migrate(JSON.parse(s)); }catch(e){} return DEFAULT_DATA(); }
+/* The fresh-install path goes through migrate() too. It must NOT be short-circuited to
+   DEFAULT_DATA(): the goal-seeding flag has to be stamped here, and it cannot live in
+   DEFAULT_DATA() because Object.assign would then hand it to existing users as already-true and
+   the oral goal would never be seeded for the one person who needs it. */
+function loadData(){ try{ const s=localStorage.getItem(KEY); if(s) return migrate(JSON.parse(s)); }catch(e){} return migrate({}); }
 function saveData(d){ const s=JSON.stringify(d); if(hasCloud()){ try{ window.storage.set(KEY,s); }catch(e){} } try{ localStorage.setItem(KEY,s); }catch(e){} }
 
 /* ── atoms ───────────────────────────────────────────────────────── */
@@ -849,7 +832,7 @@ function VideoChips({vids}){
   </div>;
 }
 
-function TopicCard({code, done, onToggle}){
+function TopicCard({code, done, onToggle, tier}){
   const cur=CURRICULUM.flatMap(f=>f.topics).find(t=>t[0]===code);
   const top=T[code]||(cur?{t:cur[1],cmd:"/physiology-guide "+cur[1]}:null);
   const [open,setOpen]=useState(false); const [copied,setCopied]=useState("");
@@ -862,8 +845,9 @@ function TopicCard({code, done, onToggle}){
         <input type="checkbox" className="cb" style={{"--ck":SUBJ.physio}} checked={done} onChange={onToggle} aria-label={"Mark "+top.t+" done"}/>
         <CodeChip code={code}/>
         <button onClick={()=>setOpen(o=>!o)} style={{flex:1,minWidth:0,textAlign:"left",background:"none",border:0,padding:0,opacity:done?.55:1}}>
-          <div style={{fontSize:14,color:"var(--ink)",display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>{top.t}<span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"var(--accent-soft)",color:"var(--accent)"}}>keystone · {top.hrs||"~2 h"}</span></div>
+          <div style={{fontSize:14,color:"var(--ink)",display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>{top.t}<TierBadge tier={tier||"deep"}/></div>
           {top.s && <div style={{fontSize:12.5,color:"var(--ink-3)",marginTop:2}}>{top.s}</div>}
+          <div style={{marginTop:2}}><DrawsLine code={code}/></div>
         </button>
         <button className="iconbtn" onClick={()=>setOpen(o=>!o)} aria-label="Toggle detail"><i className={"fa-solid fa-chevron-"+(open?"up":"down")} style={{fontSize:12}} aria-hidden="true"/></button>
       </div>
@@ -896,14 +880,137 @@ function DrillCard({deck}){
   );
 }
 
-function QuestionCard({item}){
-  const href=item.mock?FLASH+"#master":FLASH+"#"+item.deck;
+/* ── the oral: tiers, shallow passes, triplets, practicals ────────────── */
+function TierBadge({tier}){
+  const M = { deep:    { t:"deep · ~"+DEEP_HOURS+" h", b:"var(--accent-soft)", c:"var(--accent)" },
+              shallow: { t:"shallow · ~15 min",        b:"#F6EEDC",           c:"#8A6516"       },
+              review:  { t:"review",                   b:"#EAEFF6",           c:"#3A5F86"       },
+              drop:    { t:"not on the sheet",         b:"var(--paper-2)",    c:"var(--ink-3)"  } };
+  const m = M[tier] || M.review;
+  return <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:m.b,color:m.c,whiteSpace:"nowrap"}}>{m.t}</span>;
+}
+
+/* Why am I studying this? — the answer is which draws it is worth, so it is always on screen. */
+function DrawsLine({code}){
+  const t=TRIPLETS_OF[code]||[], p=PRACTICALS_OF[code]||[];
+  if(!t.length && !p.length) return <span style={{fontSize:11.5,color:"var(--ink-3)"}}>in no triplet — cannot be drawn</span>;
+  return <span style={{fontSize:11.5,color:"var(--ink-3)"}}>
+    {t.length ? "triplet "+t.join(", ") : "no triplet"}{p.length ? " · practical "+p.join(", ") : ""}
+    {t.length>1 ? " — drawn twice" : ""}
+  </span>;
+}
+
+/* The 15-minute unit. Deliberately not a TopicCard: no videos, no deep-dive command, one line of
+   scope, so that a shallow topic cannot quietly turn into an afternoon. */
+function ShallowCard({code, data, A}){
+  const done=!!data.done[code], [copied,setCopied]=useState(false);
+  const cmd="/physiology-guide "+(CODE_TITLE[code]||code)+" — 15-minute version: definition, mechanism sketch, one exam sentence";
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:11,padding:"12px 14px",border:`0.5px solid ${SUBJ.physio}26`,borderRadius:"var(--r-lg)",background:"var(--card)",textDecoration:"none",marginBottom:9}}>
-      <span style={{width:30,height:30,borderRadius:8,background:SUBJ.physio+"14",color:SUBJ.physio,display:"flex",alignItems:"center",justifyContent:"center",flex:"none"}}><i className={item.mock?"fa-solid fa-stopwatch":"fa-regular fa-circle-question"} aria-hidden="true"/></span>
-      <div style={{flex:1,minWidth:0}}><div style={{fontSize:14,color:"var(--ink)"}}>{item.label}</div><div style={{fontSize:12.5,color:"var(--ink-3)"}}>{item.mock?"all decks shuffled · time yourself":"keep a finished field warm"}</div></div>
-      <i className="fa-solid fa-arrow-right" style={{color:SUBJ.physio,fontSize:13}} aria-hidden="true"/>
-    </a>
+    <div style={{display:"flex",alignItems:"center",gap:11,padding:"10px 13px",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:done?"var(--paper-2)":"var(--card)",marginBottom:7}}>
+      <input type="checkbox" className="cb" style={{"--ck":SUBJ.physio}} checked={done} onChange={()=>A.toggleDone(code)} aria-label={"Mark "+(CODE_TITLE[code]||code)+" done"}/>
+      <CodeChip code={code}/>
+      <div style={{flex:1,minWidth:0,opacity:done?.55:1}}>
+        <div style={{fontSize:13.5,color:"var(--ink)"}}>{CODE_TITLE[code]||code}</div>
+        <DrawsLine code={code}/>
+      </div>
+      <button className="iconbtn" title="Copy the 15-minute guide command" onClick={()=>{copyText(cmd);setCopied(true);setTimeout(()=>setCopied(false),1600);}}>
+        <i className={copied?"fa-solid fa-check":"fa-regular fa-copy"} style={{fontSize:12}} aria-hidden="true"/>
+      </button>
+    </div>
+  );
+}
+
+/* The rehearsal unit — and the review mechanism for every topic already ticked. Saying all three
+   out loud is the only thing that distinguishes "I recognise this" from "I can answer this", which
+   is the whole problem with material last seen a month ago. Marking a topic shaky promotes it back
+   into the deep queue, so the schedule repairs itself from the evidence. */
+function TripletCard({n, data, A, dense}){
+  const codes=TRIPLETS[n-1]||[];
+  const reh=(data.study.reh||{})[String(n)] || {count:0,last:"",shaky:[]};
+  const blocked=codes.filter(c=>tierOf(c,data)==="deep");
+  const [open,setOpen]=useState(!dense);
+  const ready=blocked.length===0;
+  return (
+    <div style={{border:`0.5px solid ${reh.count?SUBJ.physio+"44":"var(--line)"}`,borderRadius:"var(--r-lg)",background:reh.count?SUBJ.physio+"08":"var(--card)",marginBottom:9}}>
+      <div style={{display:"flex",alignItems:"center",gap:10,padding:"11px 13px"}}>
+        <span style={{fontFamily:"var(--mono)",fontSize:12,color:SUBJ.physio,background:"#ECEAFB",padding:"2px 8px",borderRadius:6,flex:"none"}}>{n}</span>
+        <button onClick={()=>setOpen(o=>!o)} style={{flex:1,minWidth:0,textAlign:"left",background:"none",border:0,padding:0}}>
+          <div style={{fontSize:13.5,color:"var(--ink)"}}>{codes.map(c=>CODE_TITLE[c]||c).join(" · ")}</div>
+          <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2}}>
+            {ready ? (reh.count ? "said out loud "+reh.count+"×"+(reh.last?" · last "+fmtShort(reh.last):"") : "not rehearsed yet")
+                   : blocked.length+" topic"+(blocked.length>1?"s":"")+" not studied yet"}
+            {reh.shaky && reh.shaky.length ? " · shaky: "+reh.shaky.join(", ") : ""}
+          </div>
+        </button>
+        <span style={{display:"flex",gap:4,flex:"none"}}>{codes.map(c=><Dot key={c} color={tierOf(c,data)==="deep"?"var(--line-2)":SUBJ.physio} size={7}/>)}</span>
+        <button className="iconbtn" onClick={()=>setOpen(o=>!o)} aria-label="Toggle triplet detail"><i className={"fa-solid fa-chevron-"+(open?"up":"down")} style={{fontSize:11}} aria-hidden="true"/></button>
+      </div>
+      {open && (
+        <div style={{padding:"0 13px 13px"}}>
+          <hr className="rule" style={{marginBottom:10}}/>
+          {codes.map(c=>{
+            const deck=DECK_BY_PREFIX[c.replace(/[0-9]/g,"")]||"";
+            const shaky=(reh.shaky||[]).indexOf(c)>=0;
+            return (
+              <div key={c} style={{display:"flex",alignItems:"center",gap:9,marginBottom:7}}>
+                <CodeChip code={c}/>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontSize:13,color:"var(--ink)"}}>{CODE_TITLE[c]||c}</div>
+                  <DrawsLine code={c}/>
+                </div>
+                <TierBadge tier={tierOf(c,data)}/>
+                {deck && <a className="iconbtn" href={FLASH+"#"+deck} target="_blank" rel="noopener noreferrer" title={"Drill the "+(DECK_NAME[deck]||"")+" deck"}><i className="fa-regular fa-clone" style={{fontSize:12}} aria-hidden="true"/></a>}
+                <button className="iconbtn" title="I could not say this one — send it back to deep study" onClick={()=>A.flagShaky(n,c)} style={{color:shaky?"#B45309":"var(--ink-3)"}}>
+                  <i className="fa-solid fa-triangle-exclamation" style={{fontSize:12}} aria-hidden="true"/>
+                </button>
+              </div>
+            );
+          })}
+          <div style={{display:"flex",flexWrap:"wrap",gap:8,marginTop:11}}>
+            <button className="ln-btn" onClick={()=>A.logRehearsal(n)}><i className="fa-solid fa-microphone" aria-hidden="true"/> Said all three out loud</button>
+            <a className="ln-btn" href={PROJECT_PHYSIO} target="_blank" rel="noopener noreferrer" onClick={()=>copyText("/discussion topics — "+codes.map(c=>CODE_TITLE[c]||c).join("; "))}><i className="fa-solid fa-comments" aria-hidden="true"/> Discuss this triplet <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/></a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PracticalRow({p, doneAt, onToggle}){
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px",border:"0.5px solid var(--line)",borderRadius:"var(--r-md)",background:doneAt?"var(--paper-2)":"var(--card)",marginBottom:6}}>
+      <input type="checkbox" className="cb" style={{"--ck":SUBJ.physio}} checked={!!doneAt} onChange={onToggle} aria-label={"Mark practical "+p.n+" done"}/>
+      <span style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--ink-3)",flex:"none",minWidth:20}}>{p.n}</span>
+      <div style={{flex:1,minWidth:0,opacity:doneAt?.55:1}}>
+        <div style={{fontSize:13,color:"var(--ink)"}}>{p.label}</div>
+        <div style={{fontSize:11.5,color:"var(--ink-3)"}}>{p.codes.map(c=>CODE_TITLE[c]||c).join(" · ")}</div>
+      </div>
+      {doneAt && <span style={{fontSize:11,color:"var(--ink-3)",flex:"none"}}>{fmtShort(doneAt)}</span>}
+    </div>
+  );
+}
+
+/* ids given → just today's few. ids omitted → all 26, grouped as they are on the sheet. */
+function PracticalsPanel({data, A, ids}){
+  const prac=data.study.prac||{};
+  const list = ids ? PRACTICALS.filter(p=>ids.indexOf(p.n)>=0) : PRACTICALS;
+  if(!list.length) return null;
+  if(ids) return <>{list.map(p=><PracticalRow key={p.n} p={p} doneAt={prac[String(p.n)]} onToggle={()=>A.tickPractical(p.n)}/>)}</>;
+  const groups=[]; PRACTICALS.forEach(p=>{ if(groups.indexOf(p.group)<0) groups.push(p.group); });
+  const done=PRACTICALS.filter(p=>prac[String(p.n)]).length;
+  return (
+    <div>
+      <div style={{display:"flex",alignItems:"center",gap:10,margin:"6px 0 12px"}}>
+        <ProgressBar pct={Math.round(done/PRACTICALS.length*100)} color={SUBJ.physio}/>
+        <span style={{fontSize:12,color:"var(--ink-3)",flex:"none"}}>{done}/{PRACTICALS.length}</span>
+      </div>
+      {groups.map(g=>(
+        <div key={g} style={{marginBottom:14}}>
+          <div className="seclabel">{g}</div>
+          {PRACTICALS.filter(p=>p.group===g).map(p=><PracticalRow key={p.n} p={p} doneAt={prac[String(p.n)]} onToggle={()=>A.tickPractical(p.n)}/>)}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -917,19 +1024,30 @@ function LangChip({lang}){
 }
 
 function DayBody({p, data, A, showNote}){
+  const decks=[]; p.keystones.forEach(c=>{ const d=DECK_BY_PREFIX[c.replace(/[0-9]/g,"")]; if(d && decks.indexOf(d)<0) decks.push(d); });
+  if(p.oral) return (
+    <div style={{padding:"12px 14px",border:`0.5px solid ${SUBJ.physio}44`,borderRadius:"var(--r-lg)",background:SUBJ.physio+"0c",fontSize:14,color:SUBJ.physio}}>
+      <i className="fa-regular fa-calendar-check" style={{marginRight:8}} aria-hidden="true"/>Oral exam · 09:00 · {p.note}
+    </div>
+  );
   return (
     <>
-      {showNote && p.note && <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px",fontStyle:"italic"}}>{p.note} <span style={{color:"var(--ink-3)",fontStyle:"normal"}}>· {p.est}</span></p>}
-      {p.keystones.filter(c=>!data.done[c]).map(c=><TopicCard key={c} code={c} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)}/>)}
-      {p.drill && <DrillCard deck={p.drill}/>}
-      {p.q.map((q,i)=><QuestionCard key={"q"+i} item={q}/>)}
-      {p.mock.map((m,i)=><QuestionCard key={"m"+i} item={{mock:true,label:m.label}}/>)}
-      {p.weak && <a className="ln-btn" href={FLASH} target="_blank" rel="noopener noreferrer" style={{marginBottom:9}}><i className="fa-solid fa-bullseye" aria-hidden="true"/> Re-drill your weakest decks</a>}
-      {p.discuss && <a className="ln-btn" href={PROJECT_PHYSIO} target="_blank" rel="noopener noreferrer" onClick={()=>copyText("/discussion topics")} style={{marginBottom:9}}><i className="fa-solid fa-comments" aria-hidden="true"/> Discuss: {p.discuss} <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/></a>}
-      {!p.exam && !p.oral && langForDate(p.date) && <LangChip lang={langForDate(p.date)}/>}
-      {p.exam && <div style={{padding:"12px 14px",border:`0.5px solid ${SUBJ.physio}44`,borderRadius:"var(--r-lg)",background:SUBJ.physio+"0c",fontSize:14,color:SUBJ.physio}}><i className="fa-regular fa-calendar-check" style={{marginRight:8}} aria-hidden="true"/>Computer test · 08:00 · {p.note}</div>}
-      {p.oral && <div style={{padding:"12px 14px",border:`0.5px solid ${SUBJ.physio}44`,borderRadius:"var(--r-lg)",background:SUBJ.physio+"0c",fontSize:14,color:SUBJ.physio}}><i className="fa-regular fa-calendar-check" style={{marginRight:8}} aria-hidden="true"/>Oral exam · 09:00 · {p.note}</div>}
-      {p.checkpoint && <div style={{padding:"12px 14px",border:"0.5px solid #b4530955",borderRadius:"var(--r-lg)",background:"#b453090f",fontSize:14,color:"#92400e"}}><i className="fa-solid fa-flag-checkered" style={{marginRight:8}} aria-hidden="true"/>{p.checkpoint}</div>}
+      {showNote && p.est && <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px",fontStyle:"italic"}}>{p.label} <span style={{color:"var(--ink-3)",fontStyle:"normal"}}>· {p.est}</span></p>}
+      {p.keystones.map(c=><TopicCard key={c} code={c} tier={tierOf(c,data)} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)}/>)}
+      {decks.map(d=><DrillCard key={d} deck={d}/>)}
+      {p.shallow.length>0 && <>
+        <div className="seclabel">Shallow pass <span style={{fontSize:12,color:"var(--ink-3)"}}>· definition and mechanism only</span></div>
+        {p.shallow.map(c=><ShallowCard key={c} code={c} data={data} A={A}/>)}
+      </>}
+      {p.triplets.length>0 && <>
+        <div className="seclabel">Say it out loud <span style={{fontSize:12,color:"var(--ink-3)"}}>· this is the review pass</span></div>
+        {p.triplets.map(n=><TripletCard key={n} n={n} data={data} A={A} dense/>)}
+      </>}
+      {p.practicals.length>0 && <>
+        <div className="seclabel">Practicals</div>
+        <PracticalsPanel data={data} A={A} ids={p.practicals}/>
+      </>}
+      {langForDate(p.date) && <LangChip lang={langForDate(p.date)}/>}
     </>
   );
 }
@@ -1187,11 +1305,11 @@ function Countdown(){
 
 function TodayView({data, A, gcalStatus}){
   const ts=todayStr();
-  const today=PLAN.find(p=>p.date===ts);
+  const sched=useMemo(()=>buildPlan(data, ts), [data, ts]);
+  const today=sched.find(p=>p.date===ts);
   const overdue=data.tasks.filter(t=>!t.done && t.date<ts);
   const todays=data.tasks.filter(t=>t.date===ts);
   const upcoming=data.tasks.filter(t=>t.date>ts).sort((a,b)=> (a.date+ (a.time||"")) < (b.date+(b.time||"")) ? -1:1);
-  const catchUp=PLAN.filter(p=>p.date<ts && !p.exam).flatMap(p=>p.keystones).filter(c=>!data.done[c]);
   const topGoals=data.goals.slice(0,2);
   const gcalOn=gcalStatus==="on";
   const cal=useCalendarFeed(gcalOn);
@@ -1207,21 +1325,15 @@ function TodayView({data, A, gcalStatus}){
         <>
           <div className="seclabel">Today’s study — {today.label}</div><hr className="rule" style={{marginBottom:10}}/>
           <DayBody p={today} data={data} A={A} showNote={true}/>
-          {today.exam && <p style={{fontSize:14,color:SUBJ.physio}}>Exam day — good luck. Nothing new to study.</p>}
+          {today.oral && <p style={{fontSize:14,color:SUBJ.physio}}>Exam day — good luck. Nothing new to study.</p>}
         </>
       ) : (
         <>
           <div className="seclabel">Today’s study</div><hr className="rule" style={{marginBottom:10}}/>
-          <p style={{fontSize:14,color:"var(--ink-2)"}}>No study block scheduled for today. Open <button onClick={()=>A.go("plan")} style={{background:"none",border:0,color:"var(--accent)",padding:0,textDecoration:"underline"}}>the plan</button>, or clear anything in catch-up below.</p>
+          <p style={{fontSize:14,color:"var(--ink-2)"}}>Nothing scheduled — the run-up to the oral covers {fmtShort(PLAN_START)} to {fmtShort(PLAN_END)}. Open <button onClick={()=>A.go("triplets")} style={{background:"none",border:0,color:"var(--accent)",padding:0,textDecoration:"underline"}}>the triplets</button> and rehearse whichever you are least sure of.</p>
         </>
       )}
 
-      {catchUp.length>0 && (
-        <>
-          <div className="seclabel">Catch up <span style={{fontSize:12,color:"var(--ink-3)"}}>({catchUp.length} unfinished)</span></div><hr className="rule" style={{marginBottom:10}}/>
-          {catchUp.map(c=><TopicCard key={c} code={c} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)}/>)}
-        </>
-      )}
 
       <div className="seclabel">Today’s plan</div><hr className="rule" style={{marginBottom:10}}/>
       <CalendarBar status={gcalStatus} onConnect={A.connectGcal} onDisconnect={A.disconnectGcal} busy={A.gcalBusy} sync={A.syncState} onSync={A.syncNow} onReconnect={A.reconnect} email={A.syncEmail} err={A.syncErr} onSwitch={A.switchAccount}/>
@@ -1268,22 +1380,26 @@ function GoalRowMini({g}){
 
 function PlanView({data, A}){
   const ts=todayStr();
+  const sched=useMemo(()=>buildPlan(data, ts), [data, ts]);
+  const cov=tripletCoverage(data);
   return (
     <div>
-      <div className="eyebrow" style={{marginTop:18}}>now → 26 June</div>
+      <div className="eyebrow" style={{marginTop:18}}>{fmtShort(PLAN_START)} → the oral</div>
       <h1 style={{fontSize:28,margin:"2px 0 6px"}}>Physiology plan</h1>
-      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 4px"}}>One keystone deep-dive (~2 h) on weekdays, two on weekends — the rest of each field comes from drilling its deck. Respiratory, circulation and GIT are done, so they appear as question blocks. Round 2 after the test goes deep on everything.</p>
-      {PLAN.map(p=>{
+      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 4px"}}>Nothing here is hand-written — every day below is derived from what you have actually ticked, so it re-flows the moment you tick something and cannot go stale. Up to {DEEP_PER_DAY} deep topics a day (senses first, then kidney), the deprioritised list at definition level, {REHEARSE_PER_DAY} triplets said out loud, and the practicals beside the theory they demonstrate.</p>
+      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 4px"}}>Right now you could answer <strong>{cov.ready} of {cov.total}</strong> draws.</p>
+      {sched.map(p=>{
         const done=p.keystones.filter(c=>data.done[c]).length; const isToday=p.date===ts, past=p.date<ts;
+        const day=parseISO(p.date).toLocaleDateString("en-GB",{weekday:"short"});
         return (
           <div key={p.date} style={{marginTop:18,opacity:past&&!isToday?.7:1}}>
             <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
               {isToday && <span style={{fontSize:10,fontWeight:500,padding:"2px 9px",borderRadius:20,background:SUBJ.physio,color:"#fff"}}>today</span>}
-              <h2 style={{fontSize:18}}>{p.day} {fmtShort(p.date)} — {p.label}</h2>
+              <h2 style={{fontSize:18}}>{day} {fmtShort(p.date)} — {p.label}</h2>
               <span style={{fontSize:12,color:"var(--ink-3)",marginLeft:"auto"}}>{p.est}{p.keystones.length>0?` · ${done}/${p.keystones.length}`:""}</span>
             </div>
             <hr className="rule" style={{marginBottom:10}}/>
-            {p.note && !p.exam && <p style={{fontSize:12.5,color:"var(--ink-2)",margin:"0 0 10px",fontStyle:"italic"}}>{p.note}</p>}
+            {p.note && !p.oral && <p style={{fontSize:12.5,color:"var(--ink-2)",margin:"0 0 10px",fontStyle:"italic"}}>{p.note}</p>}
             <DayBody p={p} data={data} A={A} showNote={false}/>
           </div>
         );
@@ -1336,6 +1452,52 @@ function GoalsView({data, A}){
       <h1 style={{fontSize:28,margin:"2px 0 14px"}}>Goals</h1>
       <div style={{display:"flex",gap:8,marginBottom:18}}><input className="txtin" placeholder="Add a goal…" value={val} onChange={e=>setVal(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")add();}}/><button className="ln-btn" onClick={add}><i className="fa-solid fa-plus" aria-hidden="true"/> Add goal</button></div>
       {data.goals.length===0 ? <p style={{fontSize:14,color:"var(--ink-2)"}}>No goals yet. Add one above — then break it into steps and watch the bar fill.</p> : data.goals.map(g=><GoalCard key={g.id} g={g} A={A}/>)}
+    </div>
+  );
+}
+
+function TripletsView({data, A}){
+  const cov=tripletCoverage(data);
+  const [filter,setFilter]=useState("all");
+  const reh=data.study.reh||{};
+  const nums=TRIPLETS.map((t,i)=>i+1).filter(n=>{
+    const blocked=TRIPLETS[n-1].some(c=>tierOf(c,data)==="deep");
+    if(filter==="ready")   return !blocked;
+    if(filter==="blocked") return blocked;
+    if(filter==="never")   return !(reh[String(n)] && reh[String(n)].count);
+    return true;
+  });
+  const FILTERS=[["all","All"],["ready","Ready"],["blocked","Blocked"],["never","Never rehearsed"]];
+  const rehearsed=TRIPLETS.filter((t,i)=>reh[String(i+1)] && reh[String(i+1)].count).length;
+  return (
+    <div>
+      <div className="eyebrow" style={{marginTop:18}}>41 triplets · one is drawn</div>
+      <h1 style={{fontSize:28,margin:"2px 0 6px"}}>Triplets</h1>
+      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 14px"}}>The oral draws one triplet of three topics plus a practical. Every triplet is known in advance, so this is the whole exam laid out. Saying one out loud, from memory, is the only honest test of whether a topic studied a month ago is still there — and marking a topic shaky sends it back to the top of the deep queue.</p>
+
+      <div style={{display:"flex",alignItems:"center",gap:11,marginBottom:6}}>
+        <ProgressBar pct={cov.pct} color={SUBJ.physio} h={6}/>
+        <span style={{fontSize:12,color:"var(--ink-3)",flex:"none"}}>{cov.ready}/{cov.total} answerable</span>
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:11,marginBottom:16}}>
+        <ProgressBar pct={Math.round(rehearsed/TRIPLETS.length*100)} color="var(--accent)" h={6}/>
+        <span style={{fontSize:12,color:"var(--ink-3)",flex:"none"}}>{rehearsed}/{TRIPLETS.length} rehearsed</span>
+      </div>
+
+      <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:14}}>
+        {FILTERS.map(([id,label])=>(
+          <button key={id} className="chip" aria-pressed={filter===id} onClick={()=>setFilter(id)}
+            style={{fontSize:12,padding:"5px 11px",background:filter===id?SUBJ.physio:"var(--card)",color:filter===id?"#fff":"var(--ink-2)",borderColor:filter===id?SUBJ.physio:"var(--line-2)"}}>{label}</button>
+        ))}
+      </div>
+
+      {nums.length===0 && <p style={{fontSize:13.5,color:"var(--ink-3)"}}>Nothing matches that filter.</p>}
+      {nums.map(n=><TripletCard key={n} n={n} data={data} A={A} dense/>)}
+
+      <div className="seclabel" style={{marginTop:22}}>The 26 practicals</div>
+      <hr className="rule" style={{marginBottom:10}}/>
+      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 10px"}}>One is asked alongside the triplet. Triplet 39 names one outright — “Taste / RBC in hypotonic solution” — so they are cross-examined against the theory, not kept separate.</p>
+      <PracticalsPanel data={data} A={A}/>
     </div>
   );
 }
@@ -1422,224 +1584,6 @@ function ProgressView({data, A}){
       </div>
       <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"12px 0 16px"}}>Tick everything you’ve covered. Anything marked done disappears from Today and the Plan. Use “all done” to mark a whole finished field in one tap.</p>
       {CURRICULUM.map(f=><FieldBlock key={f.key} field={f} data={data} A={A}/>)}
-    </div>
-  );
-}
-
-/* ── health tracker — Today card ─────────────────────────────────── */
-function MetricSlider({m, value, onChange, primary}){
-  const set = typeof value==="number";
-  const col = primary ? SUBJ.health : "var(--ink-2)";
-  // a controlled range parked at 5 fires no change event when you tap dead-centre while unset,
-  // so commit the DOM value on pointer release as well
-  const commitIfUnset = e => { if(!set) onChange(Number(e.currentTarget.value)); };
-  return (
-    <div style={{padding:"10px 0",borderBottom:"0.5px solid var(--line)"}}>
-      <div style={{display:"flex",alignItems:"baseline",gap:8}}>
-        <span style={{fontSize:14,color:"var(--ink)"}}>{m.label}</span>
-        {primary && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:SUBJ.health+"1c",color:SUBJ.health}}>primary</span>}
-        <span className="num" style={{marginLeft:"auto",fontFamily:"var(--serif)",fontSize:23,lineHeight:1,color:set?col:"var(--ink-3)"}}>{set?value:"–"}</span>
-      </div>
-      <input type="range" min="0" max="10" step="1" className={"hslider"+(set?"":" unset")} style={{"--hc":SUBJ.health}}
-        value={set?value:5} onChange={e=>onChange(Number(e.target.value))} onPointerUp={commitIfUnset} onKeyUp={commitIfUnset}
-        aria-label={m.label+" — "+m.help} aria-valuetext={set?String(value):"not scored yet"}/>
-      <div style={{fontSize:11.5,color:"var(--ink-3)"}}>{m.help}</div>
-    </div>
-  );
-}
-
-function WakingsPicker({m, value, onChange}){
-  const set = typeof value==="number";
-  return (
-    <div style={{padding:"10px 0",borderBottom:"0.5px solid var(--line)"}}>
-      <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:7}}>
-        <span style={{fontSize:14,color:"var(--ink)"}}>{m.label}</span>
-        <span className="num" style={{marginLeft:"auto",fontFamily:"var(--serif)",fontSize:23,lineHeight:1,color:set?"var(--ink-2)":"var(--ink-3)"}}>{set?value:"–"}</span>
-      </div>
-      <div style={{display:"flex",gap:6}}>
-        {[0,1,2,3,4,5].map(n=>{
-          const isPlus = n===5;
-          const on = isPlus ? (set && value>=5) : value===n;
-          // tapping 5+ again climbs past 5, so a bad night isn't capped
-          const next = isPlus ? (set && value>=5 ? value+1 : 5) : n;
-          return <button key={n} className="pick" style={{"--hc":SUBJ.health}} aria-pressed={on}
-            onClick={()=>{ haptic(); onChange(next); }}>{isPlus ? (on?value+"+":"5+") : n}</button>;
-        })}
-      </div>
-      <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:6}}>{m.help} Tap 5+ again to climb higher.</div>
-    </div>
-  );
-}
-
-function DoseRow({iv, value, onSet}){
-  const unanswered = typeof value!=="boolean";
-  return (
-    <div style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:"0.5px solid var(--line)",flexWrap:"wrap"}}>
-      <span style={{flex:1,minWidth:120,fontSize:13.5,color:unanswered?"var(--ink-2)":"var(--ink)"}}>{iv.label}</span>
-      <div style={{display:"flex",gap:6,flex:"none"}}>
-        <button className="pick" style={{"--hc":SUBJ.health,flex:"none",padding:"9px 15px"}} aria-pressed={value===true}  onClick={()=>{haptic();onSet(true);}}>Taken</button>
-        <button className="pick" style={{"--hc":"#B45309",flex:"none",padding:"9px 15px"}} aria-pressed={value===false} onClick={()=>{haptic();onSet(false);}}>Missed</button>
-      </div>
-    </div>
-  );
-}
-
-function DayPicker({sel, onSel, entries, ids, minDate}){
-  const t=todayStr();
-  const back=[]; for(let i=HEALTH_EDIT_DAYS-1;i>=0;i--) back.push(addDays(t,-i));
-  // never offer days before the trial opened — there is nothing to log there, and an empty
-  // pre-start day must not be mistaken for a missed one
-  const inTrial=back.filter(d=>!minDate || d>=minDate);
-  const days=inTrial.length?inTrial:[t];
-  return (
-    <div style={{display:"flex",gap:6,overflowX:"auto",padding:"0 0 4px",marginBottom:12}}>
-      {days.map(function(d){
-        const done=entryComplete(entries[d],ids);
-        const isToday=d===t;
-        return (
-          <button key={d} className="daychip" aria-pressed={d===sel} onClick={()=>onSel(d)}
-            aria-label={fmtLong(d)+(done?" — logged":" — not logged")}>
-            <div style={{fontSize:10,color:"var(--ink-3)"}}>{isToday?"today":parseISO(d).toLocaleDateString("en-GB",{weekday:"short"})}</div>
-            <div className="num" style={{fontSize:15,color:"var(--ink)"}}>{parseISO(d).getDate()}</div>
-            <div style={{display:"flex",justifyContent:"center",marginTop:3,height:5}}><Dot size={5} color={done?SUBJ.health:"var(--line-2)"}/></div>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-/* The one screen that has to work: a void trial is stated plainly and is never dressed up
-   as a negative finding. */
-function TrialStrip({exp, st}){
-  if(!exp || !st) return null;
-  if(exp.status==="void" || st.blown){
-    return (
-      <div style={{border:"1px solid #B45309",borderRadius:"var(--r-lg)",background:"#B453090f",padding:"14px 16px",marginBottom:14}}>
-        <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:7}}>
-          <i className="fa-solid fa-triangle-exclamation" style={{color:"var(--warn)"}} aria-hidden="true"/>
-          <span style={{fontFamily:"var(--serif)",fontSize:17,color:"#7A2E12"}}>This trial is void — restart it</span>
-        </div>
-        <p style={{fontSize:13.5,color:"#7A2E12",lineHeight:1.55,margin:0}}>
-          You missed <strong>{st.missed}</strong> {st.missed===1?"day":"days"}; this trial allowed {st.allowedMisses}. Even a perfect run from
-          here can no longer reach {exp.minAdherencePct}% adherence, so whatever the numbers do next, they can’t be read.
-          <br/><strong>This is not a negative result — it is no result.</strong> Start a fresh trial with a new start date.
-        </p>
-      </div>
-    );
-  }
-  if(!st.started){
-    return (
-      <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"12px 15px",marginBottom:14,fontSize:13,color:"var(--ink-2)"}}>
-        <strong style={{color:"var(--ink)"}}>{exp.name}</strong> starts {fmtLong(exp.startDate)}.
-      </div>
-    );
-  }
-  return (
-    <div style={{border:`0.5px solid ${SUBJ.health}33`,borderRadius:"var(--r-lg)",background:SUBJ.health+"0a",padding:"12px 15px",marginBottom:14}}>
-      <div style={{fontSize:14,color:"var(--ink)",marginBottom:3}}>{exp.name}</div>
-      <div style={{display:"flex",flexWrap:"wrap",gap:"2px 14px",fontSize:12.5,color:"var(--ink-2)"}}>
-        <span>Day <span className="num" style={{color:SUBJ.health}}>{st.dayNo}</span> of {st.trialDays}</span>
-        <span>{st.streak} day{st.streak===1?"":"s"} in a row</span>
-        <span style={{color:st.remainingMisses===0?"var(--warn)":"var(--ink-2)"}}>
-          {st.missed} of {st.allowedMisses} missed {st.allowedMisses===1?"day":"days"} used
-        </span>
-      </div>
-      <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:6,display:"flex",alignItems:"center",gap:6}}>
-        <i className="fa-solid fa-lock" style={{fontSize:10}} aria-hidden="true"/>
-        {st.readoutReached
-          ? <span>Readout reached — the comparison is unlocked.</span>
-          : <span>No verdict until {fmtShort(exp.readoutDate)} · {st.daysToReadout} day{st.daysToReadout===1?"":"s"} to go. Keep logging.</span>}
-      </div>
-    </div>
-  );
-}
-
-function HealthView({data, A}){
-  const h=data.health, t=todayStr();
-  const [sel,setSel]=useState(t);
-  const exp = h.experiments.find(e=>e.status==="active") || h.experiments[0] || null;
-  const st  = exp ? expStats(exp,h,t) : null;
-  const ids = st ? st.ids : [];
-  const ivs = h.interventions.filter(i=>ids.indexOf(i.id)>=0);
-  const entry = h.entries[sel] || null;
-  const done = entryComplete(entry,ids);
-  const prog = entryProgress(entry,ids);
-  const isToday = sel===t;
-
-  // once the miss ceiling is breached the verdict is settled — write it down so it survives a reload
-  useEffect(function(){
-    if(exp && st && st.blown && exp.status!=="void") A.voidExperiment(exp.id);
-  },[exp && exp.id, st && st.blown, exp && exp.status]);
-
-  const M = (key,val)=>A.setMetric(sel,key,val);
-
-  return (
-    <div>
-      <div className="eyebrow" style={{marginTop:18}}>n-of-1 self-experiment</div>
-      <h1 style={{fontSize:30,margin:"2px 0 16px"}}>Health</h1>
-
-      <TrialStrip exp={exp} st={st}/>
-
-      <DayPicker sel={sel} onSel={setSel} entries={h.entries} ids={ids} minDate={exp?exp.startDate:null}/>
-
-      <div style={{background:"var(--card)",border:`0.5px solid ${done?SUBJ.health+"66":"var(--line)"}`,borderRadius:"var(--r-lg)",overflow:"hidden"}}>
-        <div style={{display:"flex",alignItems:"center",gap:11,padding:"13px 16px",background:done?SUBJ.health+"12":"var(--paper-2)"}}>
-          <span style={{width:32,height:32,borderRadius:"50%",flex:"none",display:"flex",alignItems:"center",justifyContent:"center",background:done?SUBJ.health:"transparent",border:done?"none":"1.5px dashed var(--line-2)",color:done?"#fff":"var(--ink-3)"}}>
-            <i className={done?"fa-solid fa-check":"fa-regular fa-pen-to-square"} style={{fontSize:13}} aria-hidden="true"/>
-          </span>
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{fontFamily:"var(--serif)",fontSize:17,color:done?SUBJ.health:"var(--ink)",lineHeight:1.25}}>{done?"Logged":"Not logged yet"}</div>
-            <div style={{fontSize:12,color:"var(--ink-3)"}}>
-              {isToday?"Today":fmtLong(sel)} · {done ? "everything scored — saved automatically" : prog.done+" of "+prog.total+" fields"}
-            </div>
-          </div>
-          {!isToday && <span style={{fontSize:10.5,padding:"3px 9px",borderRadius:10,background:"var(--accent-soft)",color:"var(--accent)",flex:"none"}}>catching up</span>}
-        </div>
-
-        <div style={{padding:"2px 16px 16px"}}>
-          {/* doses first: if you bail halfway down the card, adherence is the thing that must survive */}
-          {ivs.length>0 && (
-            <>
-              <div style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em",margin:"12px 0 2px"}}>Doses</div>
-              {ivs.map(iv=><DoseRow key={iv.id} iv={iv} value={entry?entry.doses[iv.id]:undefined} onSet={v=>A.setDose(sel,iv.id,v)}/>)}
-            </>
-          )}
-
-          <div style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em",margin:"16px 0 2px"}}>
-            Symptoms <span style={{textTransform:"none",letterSpacing:0}}>· 0 = no problem, 10 = worst</span>
-          </div>
-          {METRICS.map(m=> m.kind==="count"
-            ? <WakingsPicker key={m.key} m={m} value={entry?entry.metrics[m.key]:undefined} onChange={v=>M(m.key,v)}/>
-            : <MetricSlider  key={m.key} m={m} value={entry?entry.metrics[m.key]:undefined} onChange={v=>M(m.key,v)} primary={exp && exp.primaryEndpoint===m.key}/>
-          )}
-
-          <div style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em",margin:"16px 0 2px"}}>Flags</div>
-          {FLAGS.map(f=>(
-            <label key={f.key} style={{display:"flex",alignItems:"center",gap:11,padding:"10px 0",borderBottom:"0.5px solid var(--line)",cursor:"pointer"}}>
-              <input type="checkbox" className="cb" style={{"--ck":SUBJ.health}} checked={!!(entry&&entry.flags[f.key])} onChange={e=>{haptic();A.setFlag(sel,f.key,e.target.checked);}}/>
-              <span style={{fontSize:13.5,color:"var(--ink)"}}>{f.label}</span>
-            </label>
-          ))}
-
-          <div style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em",margin:"16px 0 6px"}}>Notes <span style={{textTransform:"none",letterSpacing:0}}>· optional</span></div>
-          <textarea className="txtin" rows="2" placeholder="Anything worth remembering about today…"
-            value={entry?entry.notes:""} onChange={e=>A.setEntryNotes(sel,e.target.value)} style={{resize:"vertical"}}/>
-        </div>
-      </div>
-
-      {exp && exp.notes && (
-        <div style={{marginTop:14,padding:"12px 15px",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)"}}>
-          <div style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em",marginBottom:4}}>Why this trial exists</div>
-          <p style={{fontSize:13,color:"var(--ink-2)",lineHeight:1.55,fontStyle:"italic",margin:0}}>{exp.notes}</p>
-          <p style={{fontSize:12.5,color:"var(--ink-3)",lineHeight:1.5,margin:"8px 0 0"}}>{exp.intervention}</p>
-        </div>
-      )}
-
-      <p style={{fontSize:11.5,color:"var(--ink-3)",lineHeight:1.6,marginTop:18}}>
-        A day counts only if every dose is answered. Missed or unanswered days are marked void and dropped from the
-        analysis — that is what keeps the final comparison honest. You can fill in the last {HEALTH_EDIT_DAYS} days from the row above.
-      </p>
     </div>
   );
 }
@@ -1902,7 +1846,7 @@ function ProdTodayStrip({data, A}){
 }
 
 /* ── root ───────────────────────────────────────────────────────── */
-const TABS = [["today","Today"],["plan","Plan"],["progress","Progress"],["goals","Goals"],["health","Health"],["timeline","Timeline"],["prod","Productivity"]];
+const TABS = [["today","Today"],["plan","Plan"],["triplets","Triplets"],["progress","Progress"],["goals","Goals"],["timeline","Timeline"],["prod","Productivity"]];
 
 function App(){
   const [tab,setTab]=useState("today");
@@ -2014,25 +1958,42 @@ function App(){
     } else if(task.time){ syncCreate(task); }
   };
 
-  // health entries save on change, exactly like every tick in the planner
-  const patchEntry = (date,fn)=>mutate(d=>{
-    const cur  = d.health.entries[date] || emptyEntry(date);
-    const next = Object.assign({}, fn(cur), { loggedAt:Date.now() });
-    return {...d, health:{...d.health, entries:{...d.health.entries, [date]:next}}};
-  });
-
   const A = {
     go:setTab,
-
-    setMetric:(date,key,val)=>patchEntry(date,e=>({...e,metrics:{...e.metrics,[key]:val}})),
-    setFlag:(date,key,val)=>patchEntry(date,e=>({...e,flags:{...e.flags,[key]:val}})),
-    setDose:(date,id,val)=>patchEntry(date,e=>({...e,doses:{...e.doses,[id]:val}})),
-    setEntryNotes:(date,v)=>patchEntry(date,e=>({...e,notes:v})),
-    voidExperiment:(id)=>mutate(d=>({...d,health:{...d.health,experiments:d.health.experiments.map(x=>x.id===id?{...x,status:"void"}:x)}})),
-
     gcalBusy, syncState, syncEmail, syncErr,
     // done keeps its exact shape; doneAt runs alongside it so "topics done THIS week" is answerable.
     // Unticking deletes the stamp, otherwise it would leave phantom weekly credit behind.
+    /* Oral-exam actions. Practicals write to study.prac and NEVER to done/doneAt — prodStats
+       counts doneAt for the weekly physiology ring, so 26 practical ticks in there would inflate
+       the ring and corrupt the pace maths. */
+    setTier:(code,tier)=>mutate(d=>{
+      const t={...d.study.tier}; if(tier) t[code]=tier; else delete t[code];
+      return {...d, study:{...d.study, tier:t}};
+    }),
+    cycleTier:(code)=>{ haptic(); mutate(d=>{
+      const cur=d.study.tier[code]||"", next=cur==="" ? "shallow" : cur==="shallow" ? "deep" : "";
+      const t={...d.study.tier}; if(next) t[code]=next; else delete t[code];
+      return {...d, study:{...d.study, tier:t}};
+    }); },
+    /* A rehearsal that exposed decay is the schedule's own evidence — promote and re-queue. */
+    flagShaky:(n,code)=>{ haptic(); mutate(d=>{
+      const k=String(n), cur=d.study.reh[k]||{count:0,last:"",shaky:[]};
+      const shaky=cur.shaky.indexOf(code)>=0 ? cur.shaky.filter(x=>x!==code) : cur.shaky.concat([code]);
+      const t={...d.study.tier};
+      if(shaky.indexOf(code)>=0){ t[code]="deep"; } else { delete t[code]; }
+      return {...d, done:{...d.done,[code]:false},
+              study:{...d.study, tier:t, reh:{...d.study.reh,[k]:{...cur, shaky}}}};
+    }); },
+    logRehearsal:(n)=>{ haptic(); mutate(d=>{
+      const k=String(n), cur=d.study.reh[k]||{count:0,last:"",shaky:[]};
+      return {...d, study:{...d.study, reh:{...d.study.reh,[k]:{count:cur.count+1, last:todayStr(), shaky:cur.shaky}}}};
+    }); },
+    tickPractical:(num)=>{ haptic(); mutate(d=>{
+      const k=String(num), prac={...d.study.prac};
+      if(prac[k]) delete prac[k]; else prac[k]=todayStr();
+      return {...d, study:{...d.study, prac}};
+    }); },
+
     toggleDone:(c)=>{ haptic(); mutate(d=>{
       const on=!d.done[c], doneAt={...(d.doneAt||{})};
       if(on) doneAt[c]=todayStr(); else delete doneAt[c];
@@ -2155,9 +2116,9 @@ function App(){
 
       {tab==="today" && <TodayView data={data} A={A} gcalStatus={gcalStatus}/>}
       {tab==="plan" && <PlanView data={data} A={A}/>}
+      {tab==="triplets" && <TripletsView data={data} A={A}/>}
       {tab==="progress" && <ProgressView data={data} A={A}/>}
       {tab==="goals" && <GoalsView data={data} A={A}/>}
-      {tab==="health" && <HealthView data={data} A={A}/>}
       {tab==="timeline" && <TimelineView/>}
       {tab==="prod" && <ProductivityView data={data} A={A}/>}
 

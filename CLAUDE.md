@@ -70,6 +70,197 @@ PY
 
 ---
 
+## Third year — how the planner models it (2026-09-03)
+
+**The physiology oral is passed. The planner was rebuilt around the 2026/2027 third year of the
+English General Medicine programme at LF Plzeň.** Triplets, practicals, the 122-topic physiology
+curriculum and the projects tracker are all gone from `index.html`.
+
+### Where every fact came from — verify here before changing any of it
+
+| Fact | Source |
+| --- | --- |
+| The eleven courses, their SIS codes, semesters, completion types and credits | Charles University SIS, **study plan `EAVSEOB2023`**, faculty `11140`: `is.cuni.cz/studium/eng/predmety/index.php?do=prohl&fak=11140&oborplan=EAVSEOB2023&skr=2026` |
+| Term and exam-period dates | **Dean's Measure No. 6/2026**, "Schedule of the Academic Year 2026/2027" |
+| Topic lists | The exam-question PDFs attached to each SIS course page, or the SIS syllabus where no question list is published |
+| Exam formats and credit rules | The "Course completion requirements" field of each SIS page, plus departmental PDFs |
+
+**Faculty code 11140 is Plzeň; 11150 is Hradec Králové.** An hour went into this: the plan code
+`FAVSEOB21` looks like the right English General Medicine plan and returns a complete, plausible
+six-year curriculum — for the *wrong faculty*. Pilsen's English plans are prefixed `EA`, and the
+current one is `EAVSEOB2023`. If a subject list ever looks subtly off, check the faculty code first.
+
+**Do not trust a chat summary of the curriculum.** The one that started this work got four things
+wrong that would each have produced a wrong planner: it put Microbiology and Immunology in third
+year (Microbiology is second year, Immunology is fourth), it put Pharmacology I in third year
+(it is second year; third year is Pharmacology II, and its exam covers both), it invented a
+mandatory summer clerkship after third year (Pilsen's practice blocks are second and fourth year),
+and it missed Pathology, Neurobehavioral sciences, Simulation Medicine and Radiological Anatomy
+entirely. Everything above was re-derived from SIS.
+
+### The eleven courses
+
+| Code | Course | Sem | Completion | ECTS |
+| --- | --- | --- | --- | --- |
+| EAP0103500 | Pathology | both | winter credit, **summer exam** | 20 |
+| EAP0103090 | Pathological Physiology II. | winter | **exam** | 5 |
+| EAP0103100 | Pharmacology II. | winter | **exam** | 4 |
+| EAP0103322 | Introduction to Internal Medicine II | winter | **exam** | 7 |
+| EAP0103390 | Medical Psychology and Ethics | both | winter credit, **summer exam** | 5 |
+| EAP0103320 | Internal Medicine I. | summer | credit | 3 |
+| EAP0103400 | Propedeutics of Surgery | summer | credit | 3 |
+| EAP0103091 | Neurobehavioral sciences | summer | credit | 4 |
+| EAP0103430 | Simulation Medicine | both | credit | 3 |
+| EAP0103440 | Radiological Anatomy | summer | credit | 1 |
+| EAP0103050 | Czech for Medical Practice in Hospital | both | credit | 1 |
+
+56 credits, five graded exams, six credits. **The Pathophysiology II and Pharmacology II exams
+examine the second-year half of each course as well** — that is why `SUBJECTS` carries `examEcts`
+(8 and 7) rather than the year-3 credit value.
+
+### 569 topics, and where they came from
+
+`CURRICULUM` is 21 blocks. Where a department publishes a numbered exam-question list, **that list
+is the curriculum**, because it is literally what is examined:
+
+| Subject | Blocks | Topics | Source |
+| --- | --- | --- | --- |
+| Pathology | General 47 / Special 108 / Oncological 69 | **224** | the three exam-question PDFs |
+| Pathophysiology II | 4 oral groups (30/35/35/35) + practical 18 | **153** | oral + practical question PDFs, 2026/27 edition |
+| Intro to Internal Medicine II | Propedeutics 23 / ECG+varia 18 | **41** | exam PDF (2025/26 edition — one year behind) |
+| Pharmacology II | Lectures 13 / Seminars 13 | 26 | SIS syllabus — **no question list is published anywhere public** |
+| Medical Psychology and Ethics | 1 | 20 | SIS syllabus (labels abridged; full text in SIS) |
+| Internal Medicine I | Cardiovascular 10 / Pneumology 4 | 14 | SIS syllabus |
+| Propedeutics of Surgery | 1 | 32 | SIS syllabus |
+| Neurobehavioral sciences | 1 | 24 | SIS syllabus |
+| Simulation Medicine | winter 6 / summer 6 | 12 | SIS syllabus |
+| Radiological Anatomy | 1 | 13 | SIS syllabus |
+| Medical Czech | 1 | 10 | SIS syllabus |
+
+Two staleness warnings worth repeating to the user: the **Internal Medicine I** question PDF in SIS
+is headed 2021/2022 and was therefore *not* used — the current SIS syllabus was used instead. The
+**Intro to Internal Medicine II** list is the 2025/26 edition. Both should be re-checked once the
+department posts 2026/27 files.
+
+**The extractor lives at `<scratchpad>/extract.py`** and asserts an exact topic count per subject,
+because two courses in the source notes carry the byte-identical heading
+`### Syllabus (14 items, verbatim from SIS)` and an unscoped search silently gave Internal
+Medicine I the wrong list. Scope any re-extraction to the course section.
+
+### Hours are derived, never typed
+
+There is no hand-written "this topic takes N hours" anywhere, and there must not be. Per-topic
+cost is `(examEcts || ects) × HOURS_PER_ECTS × share ÷ topics in that subject`, where
+`HOURS_PER_ECTS = 26` (the Bologna convention of 25–30 h per credit) and share is
+`SELF_STUDY_SHARE = 0.55`, or `PRACTICAL_SHARE = 0.25` for the four courses the study plan writes
+as `0/N` — no lectures, so almost all of the workload is contact time. That yields ~806 h of
+private study across the year. **Change the constants, not the eleven numbers.**
+
+### The plan engine
+
+`buildPlan(data, today)` returns a **rolling 14 days from today** plus `.overflow`. The old fixed
+`PLAN_START`/`PLAN_END` pair is what left the app reading "Nothing scheduled" the day after the
+exam; a rolling window cannot go stale, and rendering 300 days through in-browser Babel would
+freeze the page for no benefit.
+
+Four rules that are load-bearing and easy to break:
+
+- **The scheduling unit is a curriculum BLOCK, not a subject.** Pathology's winter blocks are due
+  at the January credit and its summer blocks at the June final. Scheduling per subject made the
+  January credit invisible, which is a genuine way to fail a course.
+- **A block cannot be scheduled before the semester that teaches it** (`SEM_OPEN`). Without this
+  the planner had you studying Propedeutics of Surgery in October, against lectures that happen
+  in March.
+- **A topic costing more than a whole day is capped at the day's budget** in `fillDay`. Pharmacology
+  works out at ~3.75 h a topic against a 3 h teaching day; without the cap those 26 topics were
+  unschedulable forever and sat permanently in overflow.
+- **Blocks are ordered by PRESSURE — remaining hours ÷ hours left before the deadline —
+  recomputed daily**, not by raw deadline. Deadline order starved the biggest course: the two
+  blocks due first ate every day's budget and Pathophysiology went untouched for weeks.
+
+`projectYear()` simulates every remaining day with the same `fillDay` rule and reports what could
+not be placed. **Do not replace it with arithmetic.** The share-of-the-calendar formula that stood
+here first charged the October-to-January days against subjects not examined until May and
+reported 181 h of overflow that did not exist. Simulating means the banner and the visible
+schedule can never contradict each other.
+
+Daily budgets come from `PHASES` and are **the user's own choice**: 3 h on a teaching day, +2 at a
+teaching weekend and on Dean's Day, 8 h inside an exam period, 2 h over the winter break. Look
+phases up with `phaseById()`, never by index.
+
+### Exam dates are booked, not known
+
+The periods are fixed (`EXAM_PERIODS`); the individual date is booked by the student in SIS and
+lives in `data.examDates`, so it syncs. Pacing falls back to the **first day of the period**, which
+can only ever be too tight, never too loose. Booking a date relaxes the plan and shows up on the
+Timeline immediately. Guarantors must publish winter dates by 11 Dec 2026 and summer dates by
+7 May 2027, so nothing can be booked before then.
+
+### Migration out of second year
+
+`migrate()` wipes `done`, `doneAt` and `study` **once**, gated on `schemaV < 3`. The gate is not
+optional: `migrate()` runs on every page load *and* on every Drive adopt, so an ungated wipe would
+erase every third-year tick on the next reload. `schemaV` sits in `DEFAULT_DATA()` as **2, never
+3**, for the same reason the seeding flag cannot live there at all — `Object.assign` hands the
+default to any saved blob lacking the key, so the default must be the OLD value and `migrate()`
+stamps the new one. The goal-seeding flag is `goalsSeededY3`; reusing `goalsSeededOral` would have
+seeded nobody. The user's own old goals are never deleted, only the physiology ticks.
+
+### Productivity
+
+Three rings: **Coursework ×2, Gym ×1, Languages ×1**, plus the combined headline. The projects
+tracker and the physiology ring are gone, at the user's request. `prodStats` now returns `byKey`
+as well as `cats` — the old code read `cats[0]` and `cats[2]` positionally, which breaks silently
+the moment a category is removed. **The language anchor stays at 2026-09-01 and must not be moved
+to the start of term:** re-anchoring it to 1 October switched language practice off for the whole
+of September, which is the one habit that runs through the holiday.
+
+## Staying signed in (2026-09-03)
+
+The user's complaint was having to press Sync, and seeing "Google session expired" constantly.
+Both had the same cause, and it was not the sync code: **auto-sync already worked whenever a token
+was valid.** The token was the problem.
+
+**The hard constraint: Google Identity Services gives a browser-only app an access token lasting
+about an hour and no refresh token, and `requestAccessToken` opens a POPUP even with `prompt:""`.**
+There is no hidden-iframe path in the token model; Google's own documentation says to call it
+"from a user-driven event such as a button press". A popup fired from a bare timer has no user
+activation behind it and is blocked. That is why the old timer-driven refresh still ended at the
+Reconnect banner.
+
+What the rebuild does about it, in order of how much it actually helps:
+
+1. **Renewal rides on the user's own clicks.** A capture-phase `pointerdown`/`keydown` listener
+   calls `ensureFresh()` when the token is within ten minutes of expiry, throttled to once a
+   minute. The gesture supplies the activation, the popup is allowed, and because consent was
+   granted long ago it closes again as a flicker. This is the mechanism that makes the session
+   survive a working session with nothing to press.
+2. **Cold load tries before it despairs.** `restoreToken()` refuses a token with under a minute
+   left, so `_accessToken` is null on any load more than an hour after the last one. The app now
+   goes to a `renewing` state and attempts a silent renewal; only a real failure produces
+   `reconnect`. Previously it went straight to the banner without ever trying.
+3. **The refresh timer is armed whenever an account is remembered**, not only when a live token is
+   held, with backoff `[20 s, 60 s, 3 min, 10 min]` on repeated failure.
+4. **A `storage` listener shares the renewed token** between the planner and both decks on the
+   origin, which all read `sp_gtok`. Whichever tab renews first hands it to the rest.
+5. **Edits no longer surrender.** An edit made while the token is stale queues and flushes after
+   renewal, instead of flipping the UI to "expired".
+
+`appIsInFront()` (`visibilityState` **and** `document.hasFocus()`) still gates every timer-driven
+attempt — see "Focus theft" above; a tab stays "visible" while another app covers it.
+
+**Do not promise the user this is permanent.** Safari's tracking prevention, a signed-out Google
+account, or a browser that blocks the popup will still end in Reconnect, and no client-side code
+can change that. The only complete fix is an authorization-code flow with a server-side refresh
+token, which means a backend — and this project is deliberately backend-free.
+
+**Still whole-blob newest-`updatedAt`-wins.** Two devices editing different things inside the same
+25 s window will still lose one side. That was true before and is unchanged; the flashcard decks
+merge per-card precisely because that rule was not good enough there.
+
+
+---
+
 ## What this project is
 
 Two static files, no build step, no npm, no bundler. React 18 UMD + in-browser Babel from a CDN.
@@ -89,7 +280,7 @@ down. Treat GitHub Pages as the live site.
 
 | File | What it is |
 | --- | --- |
-| `index.html` | the study planner — 7 tabs: Today, Plan, Triplets, Progress, Goals, Timeline, Productivity |
+| `index.html` | the study planner — 7 tabs: Today, Plan, Subjects, Progress, Goals, Timeline, Productivity |
 | `physio_flashcards.html` | 4,440 true/false cards across 9 topics |
 | `physio_flashcards_silvia.html` | **generated** — Silvia's copy of the deck, own progress |
 | `make_silvia_copy.py` | regenerates that copy |
@@ -478,7 +669,14 @@ Do not "simplify" the flashcard merge into the planner's. It is different delibe
 
 ---
 
-## The oral exam — how the planner now models it (2026-08-17)
+## SUPERSEDED (2026-09-03) — the physiology oral. Kept as a record of how the deck was built.
+
+Everything from here to "Dates that go stale" describes second year. The oral was passed on
+2026-08-31 and the planner no longer models triplets, practicals or a single-subject plan. The
+decks themselves are still live and still Silvia's; do not delete them. Read the third-year
+section at the top of this file for how the planner works now.
+
+## The oral exam — how the planner modelled it (2026-08-17, superseded)
 
 **The oral draws ONE triplet of three topics plus one practical.** All 41 triplets are published in
 advance, in `exam structure/physiology tripletes.pdf`. Planning against the 122-topic `CURRICULUM`
@@ -619,7 +817,7 @@ calendar; `DEEP_HOURS` is 2.5 and is a constant so it can be argued with.
 double-weighted AND head their two triplets each, yet sit in `SHALLOW_CODES` at the user's request.
 That was flagged to them; the data reflects their choice, not the recommendation.
 
-## Dates that go stale
+## Dates that go stale (second year — all in the past, kept for context)
 
 - **Computer test: PASSED.** It is no longer in `EXAMS` at all — `Countdown` and `physioPace` both
   pick the next *future* exam, so a past entry is only noise. It survives as a `TIMELINE` milestone.
@@ -764,30 +962,36 @@ Not before the exam.
 
 ---
 
-## Where things stand — 2026-08-17
+## Where things stand — 2026-09-03
 
-**The computer test is passed. The oral is 2026-08-31, fourteen days out.** The planner was rebuilt
-around how the oral is actually assessed:
+**The physiology oral is passed and the planner is a third-year planner.** What shipped today:
 
-- **Health tab removed entirely** — data layer, components, CSS, actions, `SUBJ.health`, the README
-  section, and `delete out.health` in `migrate()` so the dead blob stops syncing to Drive. Nothing
-  outside the tab read it. `index.html` went 2,177 → ~1,880 lines despite everything added.
-- **`TRIPLETS` (41) and `PRACTICALS` (26) are now data**, and a **new Triplets tab** shows the whole
-  exam with a "how many of the 41 draws could you answer today" headline.
-- **The 161-line `PLAN` literal is gone**, replaced by `buildPlan()`. See the section above.
-- Verified in a real browser against a simulated 88-topic tick state: all seven tabs render, no
-  runtime errors, the code-integrity guard is silent, **88 ticks survive migration untouched**, the
-  legacy `health` blob is dropped, the oral goal seeds *alongside* the user's existing goals, and
-  ticking a topic re-flows the schedule on the next render.
+- Every physiology structure removed from `index.html`: `TRIPLETS`, `PRACTICALS`, the 122-topic
+  `CURRICULUM`, `T`, the deck links and maps, `SHALLOW_CODES`/`DEEP_ORDER`, the tier vocabulary,
+  `physioPace`, `tripletCoverage`, the projects tracker and the physiology ring.
+- Eleven third-year courses and 569 real topics in, from SIS plan `EAVSEOB2023`.
+- The Triplets tab is now **Subjects**; Progress groups by subject with a per-topic skip control;
+  the Timeline is the whole academic year with a "you are here" marker.
+- Google sign-in renews itself on user gestures rather than asking you to press Reconnect.
+- Verified in a real browser: all seven tabs render, no console errors, the integrity guards are
+  silent, booking an exam date re-paces the plan and appears on the Timeline, skipping a topic
+  removes it from every count, and a second `migrate()` does not wipe third-year ticks.
 
-### What is NOT done
+### What is NOT done, and what to watch
 
-- **The user has not been asked to confirm which 34 topics are outstanding.** The tier system reads
-  `data.done` live, so it self-corrects, but the 17-topic deep queue above assumes the working
-  hypothesis (all senses + `KI01`-`KI08` + the deprioritised GP/BL). If their real `done` map differs,
-  the plan differs — which is the point of deriving it, but worth confirming on first open.
-- `ProgressView` still counts against all 122 rather than the 110 examinable. Harmless, slightly
-  misleading; `physioPace` was switched to `EXAMINABLE` and is the number that drives pacing.
-- The duplicate `exam structure/Copia di Physiology Triplets tg.pdf` is byte-identical to
-  `physiology tripletes.pdf` and is still untracked. The data now lives in `index.html`, so neither
-  PDF is load-bearing any more.
+- **The decks are untouched and still live.** `physio_flashcards.html` and Silvia's copy are
+  unchanged and still served from GitHub Pages; the planner simply no longer links to them. Do not
+  delete them — the hard rule about flashcard answers still stands, and Silvia still uses hers.
+- **No exam date can be booked yet.** Guarantors publish winter dates by 11 Dec 2026. Until then
+  every subject paces to the first day of its exam period, which is deliberately pessimistic.
+- **Two topic lists are a year behind** (Intro to Internal Medicine II, 2025/26) or were rejected
+  as stale (Internal Medicine I, 2021/22 — the current SIS syllabus was used instead). Re-check
+  both once 2026/27 files appear.
+- **Pharmacology II has no public question list.** SIS says one exists and is downloadable, but no
+  file is attached to any public record and Moodle is login-gated. The 26 syllabus lines are
+  standing in. If the user can download it while logged in, that list should replace them.
+- **The daily budget is 3 h in term and 8 h in an exam block, at the user's request.** At those
+  numbers the year is tight but close to fitting; the overflow banner reports the shortfall per
+  subject rather than hiding it. If it ever reads absurd, check `PHASES` before blaming the maths.
+- `.playwright-mcp/` and the duplicate `exam structure/Copia di Physiology Triplets tg.pdf` are
+  still untracked. Neither PDF is load-bearing any more.

@@ -20,8 +20,8 @@ address has to be on the app's test-user list, and the site's address has to be 
 allowed origins. Without the first you get *"Error 403: access_denied"*; without the second, sign-in
 fails with an origin error. Both are recorded in `CLAUDE.md`.
 
-`physio_flashcards.html` is a separate standalone page that the planner links to. Keep it at the
-same address or the flashcard links break.
+`physio_flashcards.html` is a separate standalone page from second year. The planner no longer
+links to it, but it is still served at the address above and still works — including Silvia's copy.
 
 `physio_flashcards_silvia.html` is Silvia's copy of the same deck — identical cards, explanations and
 features, but its own progress, kept under a different storage key so the two never mix even in the
@@ -39,6 +39,13 @@ Data is saved to the browser's `localStorage` under one key, `study_planner_v2`,
 When Google reminders are switched on, that same blob is also mirrored to a hidden app-data folder
 in your Google Drive so your phone and Mac stay in step. Whichever device edited most recently
 wins — the merge is by timestamp on the whole blob, not per field.
+
+**You should not have to press Sync.** Changes push about a second after you make them, the app
+pulls every 25 seconds and whenever you come back to the tab, and the Google session renews itself
+in the background while you use the app. The Sync button is still there as a manual override, and
+a Reconnect banner appears only if the session genuinely cannot be renewed — which happens when
+you have signed out of Google elsewhere, or your browser blocks the sign-in popup. Everything you
+do is saved on the device either way; syncing only decides whether your other devices see it.
 
 ---
 
@@ -129,69 +136,83 @@ the ~20 KB of app code.
 
 ---
 
-## The oral exam: triplets, tiers and the derived plan
+## The third year
 
-The oral is drawn as **one triplet of three topics plus one practical**, and all 41 triplets are
-published in advance. That, not the 122-topic curriculum, is what the app now plans against.
+The planner is built around the 2026/2027 third year of English General Medicine at LF Plzeň:
+eleven compulsory courses, 56 credits, five graded exams and six credits.
 
-The **Triplets** tab is the whole exam laid out: 41 cards, each showing its three topics with how
-often each can be drawn, and all 26 practicals underneath. The headline number is the only one that
-matters — *how many of the 41 draws you could answer today*.
+Everything factual in it comes from the university, not from guesswork. The courses, their codes,
+semesters, completion types and credit values are transcribed from Charles University's own study
+plan (SIS, plan `EAVSEOB2023`). The term dates, exam periods, holidays and Dean's Day come from
+the Faculty's Dean's Measure 6/2026. The 569 topics come from the exam-question lists each
+department publishes, or from the SIS syllabus where a department publishes no question list.
 
-Rehearsal is the review mechanism. Saying a triplet out loud, from memory, is the only honest test
-of whether something studied a month ago is still there; recognising it on a flashcard is not the
-same thing. Marking a topic **shaky** unticks it and sends it back to the top of the deep queue, so
-the plan repairs itself from evidence rather than from a guess.
+| | |
+| --- | --- |
+| Winter teaching | 1 Oct 2026 – 8 Jan 2027 |
+| Winter exam period | 11 Jan – 14 Feb 2027 |
+| Summer teaching | 15 Feb – 21 May 2027 |
+| Summer exam period | 24 May – 30 Jun 2027 |
+| Resits stay open until | 15 Sep 2027 |
+
+### Subjects
+
+One card per course, grouped by semester. Each shows its SIS code, credits, whether it ends in a
+credit or an exam, how much of its topic list you have covered, and how many days are left. "How
+it is assessed" opens the department's own rules — what the exam consists of, how many questions,
+and what you need for the credit.
+
+**Exam dates are booked by you in SIS, so the planner cannot know them.** Until you set one, a
+subject paces itself to the *first* day of its exam period, which is the pessimistic assumption:
+booking a real date can only ever relax the plan. Set the date on the subject card and the whole
+schedule re-paces around it, and the date appears on the Timeline.
 
 ### The plan is derived, not written
 
-The **Plan** tab used to be 59 hand-written days. It went stale the moment the exam moved. It is now
-computed from what you have actually ticked, every render, so it cannot drift: tick something and
-tomorrow re-flows. Each topic falls into one of four tiers, all derived:
+Nothing in the Plan tab is hand-written. It shows a rolling fourteen days from today, recomputed
+from what you have ticked and how close each deadline is, so it re-flows the moment you tick
+something and it cannot go stale.
 
-| Tier | What it means | Time |
-| --- | --- | --- |
-| **deep** | unticked and examinable | **5 h**, up to 3 a day, senses first then kidney |
-| **shallow** | unticked but deprioritised | 30 min — definition and mechanism sketch only |
-| **review** | already ticked | covered by rehearsing its triplet, not re-studied |
-| **drop** | in no triplet and no practical | never scheduled |
+Days are filled to a budget that follows the academic calendar — three hours on a teaching day,
+five at a teaching weekend, eight inside an exam period, two over the winter break. How long a
+topic takes is derived from its course's credit value rather than guessed: twenty-six hours per
+credit at 55% private study, divided across that course's topics. Courses the study plan writes
+with no lecture hours are counted at 25%, because they are almost entirely contact time.
 
-Days are filled to a **10-hour budget**, item by item, not to a count of items — a triplet is around
-forty pages and takes **two hours to say out loud** even when you are only revising. Whatever does
-not fit is reported on the Plan tab rather than quietly dropped, because only then can you choose
-what to cut. Right now it does not all fit: the fortnight cannot hold eighteen new topics at five
-hours plus forty triplets at two. Marking a block *shallow* in Progress is the lever.
+Three things the scheduler does that are worth knowing:
 
-You can override any topic's tier by hand, and the override is checked first — 123 triplet lines
-were mapped from a PDF, so there had to be a one-tap repair for a line mapped wrong.
+- **It plans by block, not by course.** Pathology's winter blocks are due at the January credit,
+  its summer blocks at the June final. Treating Pathology as one deadline in May would hide the
+  January credit entirely.
+- **It will not schedule a course before the semester that teaches it.** Propedeutics of Surgery
+  is a summer course, so it does not appear in October.
+- **It rebalances every day.** Whichever block is under the most pressure — hours of work left
+  against hours of calendar left — goes first, so no course gets starved by one with a nearer
+  deadline.
 
-A triplet is only scheduled for rehearsal once its deep topics have actually been studied; 23 of the
-41 contain no deep topic at all, which is what keeps the early days busy while the senses are still
-being learned.
+Anything that will not fit before its deadline is reported, per subject, rather than quietly
+dropped. A schedule that silently loses a third of the work is worse than one that admits it does
+not fit, because only the second lets you choose what to cut. The levers are booking a later exam
+date, raising the daily budget, or marking blocks you will not study as skipped.
 
-### Two things worth knowing about the source
+### Progress
 
-Fifteen curriculum topics appear in **no** triplet. Three of them are still scheduled anyway:
-*Clearance* and *Cerebellum* are examined as practicals 26 and 10, and *Adaptation of respiration*
-is the hidden middle line of triplet 38 — set in a nine-glyph subset font that text extraction drops
-silently, leaving what looks like a legitimate two-topic triplet. It is not: 41 × 3 = 123.
+Every topic, grouped by course and then by block, with the block's semester marked. Ticking a
+topic removes it from Today and the Plan, and brings it back once for review three weeks later if
+its exam is close — over a nine-month year nothing else re-exposes what you learned in October.
 
-Practicals are tracked separately from topics, in their own map. They deliberately do **not** count
-toward the `done` ledger, because the weekly physiology ring is computed from that ledger and 26
-practical ticks would inflate it.
-
----
+The ban icon beside a topic skips it: a skipped topic is scheduled nowhere and counted nowhere.
+Use it when a block turns out not to be examinable, rather than pretending you will study it.
 
 ## Productivity
 
-Four weekly rings plus a combined one. Weeks run **Monday–Sunday**, local time.
+Three weekly rings plus a combined one. Weeks run **Monday–Sunday**, local time.
 
 | Ring | Weight | Score |
 | --- | --- | --- |
-| Physiology | 2× | topics ticked this week ÷ weekly target |
-| Gym | 1× | sessions this week ÷ 3 |
+| Coursework | 2× | topics ticked this week ÷ the pace needed across every live subject |
+| Gym | 1× | sessions this week ÷ your target, 3 by default |
 | Languages | 1× | language days hit ÷ language days scheduled |
-| Projects | 0.5× | project-days logged ÷ 3 |
 
 **A category you haven't set up is left out of the average entirely, rather than counted as zero.**
 An unconfigured ring would otherwise drag the headline number down for no reason. "Set up" means
@@ -199,31 +220,29 @@ An unconfigured ring would otherwise drag the headline number down for no reason
 still counts, at 0. If it dropped out on quiet weeks instead, Monday would read 100% off a single
 gym session and then fall as the week filled in.
 
-### Where the physiology number comes from
+### Where the coursework number comes from
 
-Ticking a topic anywhere in the app feeds this ring — there is no separate control. Alongside the
-existing `done` map there is a parallel `doneAt` map recording *when* each topic was ticked, which
-is what makes "this week" answerable. Unticking deletes the stamp, so it can't leave phantom
-credit behind. The 85 topics ticked before `doneAt` existed carry no stamp and count toward no
-week, which is correct — we genuinely don't know when they were done.
+Ticking a topic anywhere in the app feeds this ring — there is no separate control, and no row for
+it in the week grid. Alongside the `done` map there is a parallel `doneAt` map recording *when*
+each topic was ticked, which is what makes "this week" answerable. Unticking deletes the stamp, so
+it cannot leave phantom credit behind.
 
-The pace is derived from the next exam in `EXAMS`, with the deadline set to the **day before** it,
-since exam day is not a study day. On exam morning it rolls on to the next exam, so the figure never
-divides by zero. It counts only the **examinable** topics — the ones that appear in a triplet or a
-practical — because pacing against topics that cannot be drawn would invent work that does not exist.
-
-The weekly target defaults to the pace needed to finish the curriculum and is editable. The daily
-figure — *"3 topics a day to finish by 30 Aug"* — is the one to read: the weekly equivalent is the
-same fact in a form that sounds impossible.
+The target is not a number anyone typed: it is the sum, across every subject whose deadline is
+still ahead, of the topics per week that subject needs to be ready in time. It therefore rises as
+an exam approaches and falls as you get ahead. If nothing is outstanding it is zero and the ring
+drops out of the average rather than sitting at 0%.
 
 ### Logged late
 
-Gym, language and project entries store `tickedAt` — when the box was ticked — separately from the
-day it was ticked *for*. Filling in four days on Sunday is a different fact from doing them daily,
-and without that field the two would be indistinguishable. A day filled in more than a day
-afterwards is marked "late" in the week grid. Physiology has no late mark, and that's deliberate
-rather than an omission: a topic isn't done *for* a date the way a gym session is, so its stamp
-*is* its tick time.
+Gym and language entries store `tickedAt` — when the box was ticked — separately from the day it
+was ticked *for*. Filling in four days on Sunday is a different fact from doing them daily, and
+without that field the two would be indistinguishable. A day filled in more than a day afterwards
+is marked "late" in the week grid. Coursework has no late mark, and that is deliberate rather than
+an omission: a topic is not done *for* a date the way a gym session is, so its stamp *is* its tick
+time.
+
+Language practice alternates Czech and Italian on every other day, half an hour each, and runs
+straight through the holidays rather than pausing for term.
 
 ## Privacy
 

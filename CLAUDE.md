@@ -128,7 +128,7 @@ is the curriculum**, because it is literally what is examined:
 | Pathology | General 47 / Special 108 / Oncological 69 | **224** | the three exam-question PDFs |
 | Pathophysiology II | 4 oral groups (30/35/35/35) + practical 18 | **153** | oral + practical question PDFs, 2026/27 edition |
 | Intro to Internal Medicine II | Propedeutics 23 / ECG+varia 18 | **41** | exam PDF (2025/26 edition — one year behind) |
-| Pharmacology II | Lectures 13 / Seminars 13 | 26 | SIS syllabus — **no question list is published anywhere public** |
+| Pharmacology II | General 26 / Special 131 | **157** | the legacy code `EA0107015` — see below |
 | Medical Psychology and Ethics | 1 | 20 | SIS syllabus (labels abridged; full text in SIS) |
 | Internal Medicine I | Cardiovascular 10 / Pneumology 4 | 14 | SIS syllabus |
 | Propedeutics of Surgery | 1 | 32 | SIS syllabus |
@@ -136,6 +136,8 @@ is the curriculum**, because it is literally what is examined:
 | Simulation Medicine | winter 6 / summer 6 | 12 | SIS syllabus |
 | Radiological Anatomy | 1 | 13 | SIS syllabus |
 | Medical Czech | 1 | 10 | SIS syllabus |
+
+**700 topics across 21 blocks.**
 
 Two staleness warnings worth repeating to the user: the **Internal Medicine I** question PDF in SIS
 is headed 2021/2022 and was therefore *not* used — the current SIS syllabus was used instead. The
@@ -214,6 +216,81 @@ as well as `cats` — the old code read `cats[0]` and `cats[2]` positionally, wh
 the moment a category is removed. **The language anchor stays at 2026-09-01 and must not be moved
 to the start of term:** re-anchoring it to 1 October switched language practice off for the whole
 of September, which is the one habit that runs through the holiday.
+
+## Source freshness — the rule that governs every curriculum change (2026-09-04)
+
+The 2026/27 curricula are **not all published**. Everything in `CURRICULUM` is the most recent list
+that exists, which is not the same as the current one. Every block therefore carries a `src` into
+`SOURCES`, every screen that shows topics shows the age of the list, and the Subjects tab carries
+two panels: `FreshnessPanel` (where each list came from) and `ArchivePanel` (what the student's
+Drive archive gets wrong). **Never add a curriculum block without a `src`.**
+
+### The trap that invalidates naive checking
+
+**SIS attachments are not year-scoped.** The identical `did` is served under `skr=2023`, `2024`,
+`2025` and `2026`. A file appearing on the 2026/27 page is **zero evidence** that it was written
+for 2026/27. Only a year printed in the title, the SIS comment, or the document body dates a file.
+
+The page **body**, by contrast, *is* year-scoped, so an edit stamp under `skr=2026` is real. On
+that test exactly **two** of the eleven records were genuinely edited for 2026/27 — `EAP0103091`
+and `EAP0103090`, both prof. Cendelin.
+
+Two live date traps: `EAP0103320`'s SIS comments say "summer semester 2026" while the documents
+open "summer semester 2025/2026"; and `lectures 3rd year summer 24-25 (003).pdf` actually contains
+the 2025/2026 schedule. **Trust the body, never the filename or the comment.**
+
+And do not diff whole SIS pages when re-checking — every `skr=2026` page differs from `skr=2025`
+in auto-generated fields (capacity, schedule links, teacher rosters). Diff the editorial blocks.
+
+### Pharmacology: the list exists, it is just not where you would look
+
+`EAP0103100` renders **no Files section at any skr**, and SIS says the question list is a Word file
+you download once enrolled. But the legacy LFP code **`EA0107015`** carries a complete
+**157-question list inline, login-free**, in its "Course assessment methods" field —
+26 General + 131 Special, last updated by the current guarantor in November 2020. SIS itself
+declares `Interchangeability: EA0107015` on `EAP0103100` at every skr. That list is what the deck
+now uses, marked `status:"old"`, and it should be replaced with the Word file once Linas is logged
+in. Fetch URL:
+`https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EA0107015&fak=11140&skr=2022`
+
+### Immunology is not a third-year subject and the archive is wrong about it
+
+`EAP0103520 Immunology` has read **"not taught" since skr=2023**; it last ran in 2022/23. The live
+course is `EAP0104520 Clinical Immunology and Allergology`, fourth year, winter. The decisive
+argument is structural, not plan-based: `EAP0104520`'s prerequisites are `EAP0103090` and
+`EAP0103100`, both third-year *winter* courses, and it is itself a winter course — it cannot be
+taken concurrently. **Do not write "on every live plan it is fourth year"**: two archaic plans SIS
+still renders (`EAVSPM11`, `EVSEOB19`) do list it in third year. Say "on every plan that could
+apply to you".
+
+### What to re-check, and when
+
+| When | What |
+| --- | --- |
+| **Immediately, once logged in** | The Pharmacology Word file — SIS `EAP0103100` Files, and Moodle courses 620 and 498. Highest-value single retrieval outstanding. |
+| **Late September 2026** | Pathology's three question PDFs (`did=335822/335828/335830`) — undated, and silently refreshed on 22 Sept 2025, the first week of term. Re-download and re-count 47 / 108 / 69. Also the 2026/27 timetables. |
+| **From ~24 November 2026** | The Introduction to Internal Medicine II question list — last year's went up on that date. |
+| **By 11 December 2026** | Guarantors must publish winter exam dates in SIS (dean's measure 6/2026, Art. 3.1). |
+| **Start of term** | The Pathophysiology WS 2026/2027 practical programme — the department page still links the **2024/2025** file, and the credit condition ("protocols of all experiments") hangs on it. |
+
+One 2026/27 primary source exists **outside** SIS that no SIS page links:
+`lfp.cuni.cz/wp-content/uploads/2025/09/Syllabus-of-Pathological-Physiology-II-2026_27.pdf`.
+Check department websites as well as SIS.
+
+### Two answers worth not re-deriving
+
+- **Internal medicine: two courses, ONE exam.** `EAP0103322` Introduction to Internal Medicine II
+  (3rd, winter, `2/3 C+Ex`, 7 cr) is the only internal-medicine exam of the year, and it examines
+  Introduction to Internal Medicine I from second year as well. `EAP0103320` Internal Medicine I.
+  (3rd, summer, `2/2 C`, 3 cr) is **credit only** — its "Examination process" field is *empty* and
+  the "C" people read out of it belongs to the next row; the free-text "Zapocet, zkouska" on that
+  page is a stale 2020 leftover. The 2021/22 exam PDF still attached is for an exam that no longer
+  exists. Passing 3322 in winter is a **prerequisite** for taking 3320 in the summer.
+  Naming inversion to keep straight: Internal Medicine **I** is taught by the Department of
+  Internal Medicine **II** (14-320), and vice versa.
+- **Pathology dropped the museum station**, deleted from the requirements in September 2025. One
+  slide from a pool of 116 (0-5), then three oral questions (0-10 each), pass 21 of 35, and a zero
+  on any single question is an automatic fail. Gross pathology is still examinable *content*.
 
 ## Staying signed in (2026-09-03)
 

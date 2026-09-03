@@ -463,30 +463,30 @@ const SUBJECTS = [
   { id:"pat", key:"PAT", sis:"EAP0103500", title:"Pathology",
     short:"Pathology", dept:"14-500", ects:20, color:"#8E2C48", sem:"both",
     completion:{ winter:"credit", summer:"credit+exam" }, examId:"pat-s",
-    examFormat:"Practical microscopy exam (1 slide: localisation, diagnosis, differential \u2014 5 points), then an oral with three questions: General, Special and Oncological Pathology. 32\u201335 points is a 1; under 60% or a zero on any question is a fail.",
-    creditRule:"Winter: attendance at practicals. Summer: attendance plus the practical microscopy exam \u2014 no credit, no oral.",
+    examFormat:"One microscopic slide, drawn from a pool of 116: localisation, diagnosis, an optional differential, and the examiner\u2019s questions. Worth 0\u20135. Then an oral of three questions \u2014 General, Special and Oncological \u2014 worth 0\u201310 each. Pass is 21 of 35. A zero on any single oral question fails you outright whatever the total, and grades 1 to 3 each need at least one point on every question. The museum station was removed in September 2025, but gross pathology is still examinable content.",
+    creditRule:"Winter: attendance at practicals. Summer: attendance plus the slide exam, sat at the end of summer teaching \u2014 no credit, no oral. Aim to be slide-ready by the end of teaching, not the week before the oral: the gap between them runs from two weeks to three months depending which term you book.",
     cmd:"/study-first-pass Pathology — " },
   { id:"pfy", key:"PFY", sis:"EAP0103090", title:"Pathological Physiology II.",
     short:"Pathophysiology", dept:"14-90", ects:5, color:"#7A3EA8", sem:"winter",
     completion:{ winter:"credit+exam" }, examId:"pfy-w",
     examEcts:8,   // 5 here + 3 for Pathological Physiology I, which this exam also covers
     note:"the exam covers Pathophysiology I from second year as well — two semesters of material",
-    examFormat:"Practical exam first: one question plus description, diagnosis and analysis of three ECG records \u2014 failing it fails the whole exam. Then an oral of four questions, one from each group, with 30 minutes of preparation. Sufficient knowledge is required in all four.",
+    examFormat:"Practical first: one question drawn from the eighteen practical topics, plus description, diagnosis and pathophysiological analysis of three ECG records. Failing it fails the whole exam, and the two halves cannot be split across terms. Then an oral of four questions with 30 minutes of preparation \u2014 almost certainly one from each of the four groups, though that draw rule is nowhere stated officially. Sufficient knowledge is required in every one of the four.",
     creditRule:"Active attendance at practicals, at most 2 excused absences a semester, excuse by e-mail within a week. All protocols submitted and accepted. Credit in both Pathophysiology I and II is required before you may register.",
     cmd:"/pathophysiology " },
   { id:"pha", key:"PHA", sis:"EAP0103100", title:"Pharmacology II.",
     short:"Pharmacology", dept:"14-100", ects:4, color:"#0F6E56", sem:"winter",
     completion:{ winter:"credit+exam" }, examId:"pha-w",
     examEcts:7,   // 4 here + 3 for Pharmacology I, which this exam also covers
-    note:"the exam covers Pharmacology I from second year as well",
-    examFormat:"A computer test of 50 single-best-answer questions, 35 correct to pass (70%), then an oral of three questions: one general, two special. Covers Pharmacology I and II together.",
-    creditRule:"Mandatory seminar attendance, progress tests, and a final credit test \u2014 one regular and two corrective attempts at the end of the semester.",
+    note:"the exam covers Pharmacology I from second year in full as well",
+    examFormat:"A computer test of 50 single-best-answer questions, four options each, 35 correct to pass. Then an oral where you draw three questions: one general and two special. It covers Pharmacology I in full as well as this year\u2019s. Two rules that bite: fail the test at your FIRST term and you lose the term and are graded 4, and fail the ORAL and you re-sit the computer test too. Neither half banks.",
+    creditRule:"Seminar attendance with exactly one unexcused absence per semester \u2014 more needs a documented excuse plus a make-up. Zero absences if you want an early date. Progress tests plus a final credit test, structurally the last seminar of the winter semester.",
     cmd:"/study-first-pass Pharmacology — " },
   { id:"iim", key:"IIM", sis:"EAP0103322", title:"Introduction to Internal Medicine II",
     short:"Intro to Internal Medicine", dept:"14-320", ects:7, color:"#BE123C", sem:"winter",
     completion:{ winter:"credit+exam" }, examId:"iim-w",
-    examFormat:"Practical exam during the last two weeks of the semester: take a history and examine a patient, or describe an ECG. White coat, stethoscope, pen and the examination record form. Then a theoretical oral of two questions, one from each group, plus one ECG to describe.",
-    creditRule:"Attendance at a minimum of 10 lectures and 9 practical classes, plus the practical exam. Substitutions only by prior agreement with the teacher.",
+    examFormat:"The only internal-medicine exam of the year, and it covers Introduction to Internal Medicine I from second year as well. Practical in the last two weeks of teaching: take a history and examine a patient, or describe an ECG \u2014 white coat, stethoscope, pen and the examination record form. Then an oral of two questions, one from each group, plus an ECG to describe. Disease entities were dropped from the list, but cardiac and respiratory examination and investigation were kept and are certain to come up.",
+    creditRule:"A minimum of 10 lectures and 9 practical classes, plus the practical exam. Substitutions only by prior agreement. Passing this is a prerequisite for taking Internal Medicine I in the summer of the same year.",
     cmd:"/study-first-pass Internal medicine propaedeutics — " },
   { id:"mpe", key:"MPE", sis:"EAP0103390", title:"Medical Psychology and Ethics",
     short:"Psychology & Ethics", dept:"14-390", ects:5, color:"#7C4A1E", sem:"both",
@@ -497,32 +497,33 @@ const SUBJECTS = [
   { id:"im1", key:"IM1", sis:"EAP0103320", title:"Internal Medicine I.",
     short:"Internal Medicine I", dept:"14-320", ects:3, color:"#C2622E", sem:"summer",
     completion:{ summer:"credit" }, examId:null,
-    examFormat:"Credit only. A practical exam \u2014 history and physical examination of a patient, on the examination record form.",
+    examFormat:"No exam. The 2021/22 exam-question PDF still attached in SIS is for a combined exam that no longer exists \u2014 ignore it.",
+    creditRule:"Attendance at 10 practicals, one of which is a separately scheduled cardiology practical at Lochot\u00edn, entrance B. Get the attendance list signed there and hand it to your internal-medicine teacher the following week. Blocked until you have passed the winter Introduction to Internal Medicine II exam.",
     cmd:"/study-first-pass Internal medicine — " },
   { id:"psu", key:"PSU", sis:"EAP0103400", title:"Propedeutics of Surgery",
+    creditRule:"An electronic test, 75% to pass, three attempts.",
     short:"Surgery propedeutics", dept:"14-400", ects:3, color:"#3577C2", sem:"summer",
     completion:{ summer:"credit" }, examId:null,
-    creditRule:"Credit test: 75% to pass, three attempts.",
     cmd:"/study-first-pass Surgical propaedeutics — " },
   { id:"nbs", key:"NBS", sis:"EAP0103091", title:"Neurobehavioral sciences",
+    creditRule:"Seminar attendance, at most three excused absences, plus a credit test.",
     short:"Neurobehavioral", dept:"14-90", ects:4, color:"#4E6E81", sem:"summer",
     completion:{ summer:"credit" }, examId:null, practical:true,
-    creditRule:"Attendance at seminars, at most 3 excused absences, plus a credit test.",
     cmd:"/study-first-pass Neurobehavioral sciences — " },
   { id:"sim", key:"SIM", sis:"EAP0103430", title:"Simulation Medicine",
+    creditRule:"Attendance at every practical, and the e-learning done before each block.",
     short:"Simulation", dept:"14-430", ects:3, color:"#5E7155", sem:"both",
     completion:{ winter:"credit", summer:"credit" }, examId:null, practical:true,
-    creditRule:"Full attendance plus the e-learning component.",
     cmd:"/study-first-pass Simulation medicine — " },
   { id:"rad", key:"RAD", sis:"EAP0103440", title:"Radiological Anatomy",
+    creditRule:"A timed Moodle test needing 23 of 25 points. Miss it and you are examined in person instead.",
     short:"Radiological anatomy", dept:"14-440", ects:1, color:"#A67C00", sem:"summer",
     completion:{ summer:"credit" }, examId:null, practical:true,
-    creditRule:"Moodle test \u2014 23 of 25 to pass.",
     cmd:"/study-first-pass Radiological anatomy — " },
   { id:"cze", key:"CZE", sis:"EAP0103050", title:"Czech for Medical Practice in Hospital",
+    creditRule:"Attendance with two absences allowed, then a credit test: 70%, three attempts, in both semesters.",
     short:"Medical Czech", dept:"14-50", ects:1, color:"#185FA5", sem:"both",
     completion:{ winter:"credit", summer:"credit" }, examId:null, practical:true,
-    creditRule:"A 70% test, three attempts, in both semesters.",
     cmd:"/study-first-pass Medical Czech — " },
 ];
 
@@ -535,13 +536,87 @@ const EXAMS = [
   { id:"mpe-s", subject:"mpe", period:"summer", label:"Medical Psychology and Ethics — exam", place:"Dept. of Psychology" },
 ];
 
+/* ── provenance: where each topic list came from, and how old it is ─────────
+   The 2026/27 curricula are NOT all published yet — several departments post the new edition
+   only once teaching starts in October. Everything in CURRICULUM below is therefore the most
+   recent list that exists, which is not the same thing as the current one.
+
+   Every block carries a `src`, and every screen that shows topics shows the age of the list it
+   is showing. This is not decoration: revising a superseded question list is the single most
+   expensive mistake available here, and the student asked explicitly to be told which material
+   is stale. Statuses, worst to best:
+
+     none     no official topic list is published at all — a syllabus is standing in
+     old      a real question list, but from a previous academic year
+     recent   the current list, with no academic year printed on it
+     current  explicitly the 2026/27 edition                                                  */
+const SOURCES = {
+  "pfy-q":   { label:"Pathophysiology II — oral and practical question lists",
+               edition:"2026/27", status:"current",
+               where:"SIS · EAP0103090 · 135 oral across four groups, 18 practical",
+               note:"The only course of the eleven with a verified 2026/27 file, uploaded 2 July 2026. Its text is identical to the 2025/26, 2024/25 and 2023/24 editions, so older notes keyed to these numbers still line up." },
+  "pat-q":   { label:"Pathology — the three exam-question lists",
+               edition:"undated · uploaded Sept 2025", status:"current",
+               where:"SIS · EAP0103500 · General 47, Special 108, Oncological 69",
+               note:"No academic year is printed on these PDFs, and the department silently refreshed all three on 22 September 2025 — the first week of term. Re-download them in late September and re-count 47 / 108 / 69." },
+  "iim-q":   { label:"Introduction to Internal Medicine II — exam questions",
+               edition:"2025/26", status:"old",
+               where:"SIS · EAP0103322 · 23 propedeutics + 18 ECG and varia",
+               note:"One year behind, and the best that exists. Last year's version went up on 24 November — check for the 2026/27 list from about then." },
+  "pha-q":   { label:"Pharmacology — the 157-question list",
+               edition:"2020/21 · a stand-in", status:"old",
+               where:"SIS · legacy code EA0107015 · General 26 + Special 131",
+               note:"The current list is real but login-gated. This is the last public one, six years old, from the course this one was split out of — so newer drugs are missing and a question may now sit in the other semester's pool. Download the Word file from SIS once you are enrolled and it should replace this." },
+  "im1-syl": { label:"Internal Medicine I — 2020 course syllabus",
+               edition:"2020 · contradicted", status:"stale",
+               where:"SIS · EAP0103320 · 10 cardiovascular + 4 pneumology",
+               note:"The current lecture plan is titled \u201cInternal medicine I: cardiovascular medicine\u201d and has no pneumology lecture at all, so the four pneumology topics here may no longer be taught. They are kept because over-reading four topics is cheaper than missing them. This course has no exam — the 2021/22 exam PDF on its page is for an exam that no longer exists." },
+  "sis-syl": { label:"SIS course syllabus",
+               edition:"current", status:"current",
+               where:"Medical Psychology, Propedeutics of Surgery, Neurobehavioral sciences, Simulation Medicine, Radiological Anatomy, Medical Czech",
+               note:"None of these six has ever had an attachment; the inline syllabus is the whole published scope. For Medical Psychology the 20 topics are the de facto oral-exam list. Their only freshness signal is the \u201clast update\u201d stamp on the SIS page." },
+};
+
+/* ── the student archive ────────────────────────────────────────────────────
+   A shared Drive folder of student-made notes, last edited between 2020 and 2022. Genuinely
+   useful for logistics — which building, how many absences, what examiners actually ask — and
+   genuinely dangerous for anything structural, because it predates the current accreditation.
+   The stale claims are listed rather than deleted: recognising one is what stops you acting on
+   it six weeks from now when you have forgotten where the note came from. */
+const ARCHIVE_YEAR = "2020–2022";
+const ARCHIVE_URL = "https://drive.google.com/drive/folders/1avBJ6U4Egjze5_V2yGSNb1sw39OYLMys";
+const ARCHIVE = {
+  iim: { where:"Bory or Lochotín. Bory: lectures building 4, practicals building 3. Lochotín: lectures entrance Bs — down the stairs past the changing room, right then left, room at the end of the hall.",
+         absences:"Bory 2 a semester; Lochotín at the teacher’s discretion. SIS now states a minimum of 10 lectures and 9 practicals.",
+         bring:"White coat, name tag, indoor shoes, stethoscope. At Bory the changing-room key comes from the secretary on the first floor of building 3, 50 Kč deposit, at your first practical." },
+  im1: { where:"Same departments as Introduction to Internal Medicine — Bory or Lochotín.",
+         bring:"White coat, name tag, indoor shoes, stethoscope.",
+         warn:"Credit needs 10 practicals, one of them a separately scheduled cardiology practical at Lochotín, entrance B. You write an attendance list there, the cardiology teacher signs it, and you hand it to your internal-medicine teacher the following week. Missing that hand-off costs the credit for purely administrative reasons." },
+  mpe: { where:"Lectures at Lochotín, entrance C, left and up to the second floor, then right to the end of the hall. Practicals usually entrance B second floor, or entrance B level −1.",
+         absences:"One absence at lectures and one at practicals; every further one costs an essay.",
+         warn:"A missed practical has to be made up on the same topic, and the group schedules are offset — the archive flags this as genuinely hard to arrange. Do not plan to catch up later." },
+  pat: { where:"The archive says Bory building 9 — that is wrong now. Practicals moved to the faculty at alej Svobody 76, campus room 3.15; lectures are in the Brown lecture hall.",
+         whereStale:true,
+         absences:"Usually 2, at the teacher’s discretion.",
+         warn:"A missed practical must be made up on the same topic. In winter only one of the two weekly lectures is in person — the second is on Moodle." },
+  pfy: { protocols:{ url:"https://docs.google.com/document/d/103gFZ9xvtzpu2pBdkgAqZvJpWwSJ-uZe9aUNywT9kHY/edit",
+                     label:"Exam protocols — what examiners actually asked",
+                     note:"Student write-ups of real orals, entries from January and February 2023, the document itself last touched October 2025. The format description elsewhere in the archive is out of date, but these accounts of what was asked still map onto the current question list." },
+         where:"Lectures in the Biomed blue lecture hall, sometimes PRO first floor in the summer. Practicals Biomed, first floor.",
+         absences:"The archive says one a semester; SIS now says two, excused by e-mail within a week.",
+         warn:"A missed practical must be made up on the same topic, and all protocols must be handed in and accepted." },
+  pha: { where:"Lectures at UNIMEC 2. Practicals Biomed, ground floor.",
+         absences:"One, sometimes at the teacher’s discretion." },
+  sim: { where:"UNIMEC 2, the new building, sixth floor." },
+};
+
 /* ── curriculum ─────────────────────────────────────────────────────────────
    Flat blocks, each tagged with the subject that owns it and the semester whose credit or exam
    examines it. Flat, not nested, so FieldBlock and ProgressView keep working unchanged; tagged,
    so Pathology's winter blocks are paced to the January credit and not to the June final.
    Topic codes are globally unique — that is what lets data.done stay a flat code → bool map. */
 const CURRICULUM = [
-  { key:"PAT-G", subject:"pat", sem:"winter", name:"General pathology", topics:[
+  { key:"PAT-G", src:"pat-q", subject:"pat", sem:"winter", name:"General pathology", topics:[
     ["PAT001","Fundamentals of pathology (definition, classification, methods used in pathology\u2026"],
     ["PAT002","Adaptation"],
     ["PAT003","Cellular death"],
@@ -590,7 +665,7 @@ const CURRICULUM = [
     ["PAT046","Helminthiasis"],
     ["PAT047","HIV infection"],
   ]},
-  { key:"PAT-S", subject:"pat", sem:"summer", name:"Special pathology", topics:[
+  { key:"PAT-S", src:"pat-q", subject:"pat", sem:"summer", name:"Special pathology", topics:[
     ["PAT048","Systemic hypertension"],
     ["PAT049","Degenerative diseases of arteries"],
     ["PAT050","Aneurysms. Aortic dissection"],
@@ -700,7 +775,7 @@ const CURRICULUM = [
     ["PAT154","Birth injuries of the fetus"],
     ["PAT155","Disorders of postnatal adaptation. SIDS"],
   ]},
-  { key:"PAT-O", subject:"pat", sem:"summer", name:"Oncological pathology", topics:[
+  { key:"PAT-O", src:"pat-q", subject:"pat", sem:"summer", name:"Oncological pathology", topics:[
     ["PAT156","Definition of a tumor. Benign and malignant tumors. Tumor initiation and progression"],
     ["PAT157","Tumor spread. Clinical manifestations of tumors. Tumor diagnostics"],
     ["PAT158","Epidemiology and etiology of tumors"],
@@ -771,7 +846,7 @@ const CURRICULUM = [
     ["PAT223","Tumors and pseudotumors of the skin adnexa. Mesenchymal tumors of the skin. Cutaneous lymphomas"],
     ["PAT224","Blastomas of the nervous system, kidney, eye, and liver in childhood"],
   ]},
-  { key:"PFY-1", subject:"pfy", sem:"winter", name:"General pathophysiology", topics:[
+  { key:"PFY-1", src:"pfy-q", subject:"pfy", sem:"winter", name:"General pathophysiology", topics:[
     ["PFY001","Disease and its course"],
     ["PFY002","Terminal states, cell death, death of the individual"],
     ["PFY003","Ageing"],
@@ -803,7 +878,7 @@ const CURRICULUM = [
     ["PFY029","Psychosomatic diseases"],
     ["PFY030","Pathophysiology of wound healing"],
   ]},
-  { key:"PFY-2", subject:"pfy", sem:"winter", name:"Organ systems I", topics:[
+  { key:"PFY-2", src:"pfy-q", subject:"pfy", sem:"winter", name:"Organ systems I", topics:[
     ["PFY031","Mechanisms of circulatory disorders"],
     ["PFY032","Inborn heart defects"],
     ["PFY033","Valvular defects"],
@@ -840,7 +915,7 @@ const CURRICULUM = [
     ["PFY064","Disorders of the urinary efferent pathways"],
     ["PFY065","Pathophysiology of the muscle"],
   ]},
-  { key:"PFY-3", subject:"pfy", sem:"winter", name:"Organ systems II", topics:[
+  { key:"PFY-3", src:"pfy-q", subject:"pfy", sem:"winter", name:"Organ systems II", topics:[
     ["PFY066","Mechanisms of endocrine disorders"],
     ["PFY067","Pathophysiology of the adrenal medulla"],
     ["PFY068","Hypofunction of the adrenal cortex"],
@@ -877,7 +952,7 @@ const CURRICULUM = [
     ["PFY099","Pathophysiology of the intestine"],
     ["PFY100","Diarrhoea, constipation"],
   ]},
-  { key:"PFY-4", subject:"pfy", sem:"winter", name:"Nervous system", topics:[
+  { key:"PFY-4", src:"pfy-q", subject:"pfy", sem:"winter", name:"Nervous system", topics:[
     ["PFY101","General principles, manifestations, causes and mechanisms of nervous system disorders"],
     ["PFY102","Disorders of the peripheral nerves"],
     ["PFY103","Pathophysiology of the spinal cord"],
@@ -914,7 +989,7 @@ const CURRICULUM = [
     ["PFY134","Painful syndromes, endogenous pain modulation, principles of pain treatment"],
     ["PFY135","Pain perception disorders, neuropathic pain"],
   ]},
-  { key:"PFY-P", subject:"pfy", sem:"winter", name:"Practical exam", topics:[
+  { key:"PFY-P", src:"pfy-q", subject:"pfy", sem:"winter", name:"Practical exam", topics:[
     ["PFY136","Gnotobiology and genetics of laboratory animals"],
     ["PFY137","Laboratory animals - main species, principles of use of experimental animals"],
     ["PFY138","Statistics"],
@@ -934,37 +1009,168 @@ const CURRICULUM = [
     ["PFY152","Surgical sewing materials, types of needles, surgical knot"],
     ["PFY153","Surgical knots and sutures"],
   ]},
-  { key:"PHA-L", subject:"pha", sem:"winter", name:"Lectures", topics:[
-    ["PHA001","Antibiotics I"],
-    ["PHA002","Antibiotics II"],
-    ["PHA003","Antifungals, antivirals, antiparasitics. Disinfectants"],
-    ["PHA004","Pharmacotherapy used in dermatology. Pharmacotherapy used in ophthalmology"],
-    ["PHA005","Drugs affecting cardiovascular system \u2013 overview"],
-    ["PHA006","Antihypertensive and lipid-lowering drugs"],
-    ["PHA007","Treatment of heart failure and antidysrhythmic drugs"],
-    ["PHA008","Antithrombotic treatment (anticoagulants, anti-platelet drugs, fibrinolytics)"],
-    ["PHA009","Pharmacotherapy in the treatment of endocrine diseases including diabetes mellitus"],
-    ["PHA010","Substances affecting the immune system (immunosuppression and immunostimulation). Pharmacotherapy in rheumatology"],
-    ["PHA011","Pharmacotherapy of osteoarthrosis and osteoporosis"],
-    ["PHA012","Anticancer drugs. Contrast agents and radiopharmaceuticals"],
-    ["PHA013","Acute pharmacotherapy"],
+  { key:"PHA-G", src:"pha-q", subject:"pha", sem:"winter", name:"General pharmacology", topics:[
+    ["PHA001","Pharmacology and its subdivisions, origins and sources of drugs, names of drugs"],
+    ["PHA002","Preclinical drug evaluation, clinical trials (phases)"],
+    ["PHA003","Routes of administration of drugs, advantages, disadvantages, dosage forms"],
+    ["PHA004","Drug transport through biological membranes \u2013 passive, carrier-mediated"],
+    ["PHA005","Basic pharmacokinetic parameters and processes, first order and zero order kinetics, saturation kinetics"],
+    ["PHA006","Absorption of drugs, Bateman function, bioavailability, determination of bioavailability, AUC"],
+    ["PHA007","Distribution, of drugs, volume of distribution, redistribution, binding to plasma proteins, tissue barriers"],
+    ["PHA008","Elimination, elimination half-life (\u03b1, \u03b2 phase), elimination rate constant, clearance"],
+    ["PHA009","Dosage regimens, continuous and intermittent administration of drugs, accumulation, accumulation index"],
+    ["PHA010","Biotransformation of drugs, phases, examples"],
+    ["PHA011","The role of the liver in drug metabolism, first pass effect"],
+    ["PHA012","Induction and inhibition of enzymes, clinical significance"],
+    ["PHA013","Renal and extrarenal excretion of drugs"],
+    ["PHA014","General principles of drug action, molecular mechanisms of drug action, the importance of placebo and nocebo"],
+    ["PHA015","Specific effect of drugs - targets of drug action, receptor theory - types of receptors"],
+    ["PHA016","Dose-response relationship, therapeutic index, therapeutic window, therapeutic risk"],
+    ["PHA017","Factors influencing pharmacokinetics and pharmacodynamics of drugs, adherence, compliance"],
+    ["PHA018","Drug interactions, synergism, antagonism"],
+    ["PHA019","Pharmacogenetics, genetic polymorphism"],
+    ["PHA020","Tolerance, tachyphylaxis, resistance"],
+    ["PHA021","Influence of diseases on the effect of drugs, polypharmacy"],
+    ["PHA022","Adverse drug reactions"],
+    ["PHA023","Drug induced allergic (hypersensitivity) reactions, idiosyncratic drug reactions"],
+    ["PHA024","Carcinogenic and mutagenic effects"],
+    ["PHA025","Drugs in pregnancy, teratogenic effect, drugs in lactation"],
+    ["PHA026","Drug therapy in infants and children, drug therapy in the elderly"],
   ]},
-  { key:"PHA-S", subject:"pha", sem:"winter", name:"Seminars", topics:[
-    ["PHA014","Phytotherapy and phytotoxicology"],
-    ["PHA015","Introduction of toxicology. Toxic metals. Antidotes"],
-    ["PHA016","Animal toxicology"],
-    ["PHA017","Pharmacotherapy of respiratory diseases"],
-    ["PHA018","Pharmacotherapy of gastrointestinal diseases"],
-    ["PHA019","Hormonal substitution treatment and contraceptives"],
-    ["PHA020","Drugs in the treatment of benign prostatic hyperplasia"],
-    ["PHA021","Drug addiction"],
-    ["PHA022","Antidiabetics"],
-    ["PHA023","Anticancer drugs"],
-    ["PHA024","Drug interaction"],
-    ["PHA025","Total repetition"],
-    ["PHA026","Credit test"],
+  { key:"PHA-S", src:"pha-q", subject:"pha", sem:"winter", name:"Special pharmacology", topics:[
+    ["PHA027","Cholinergic neurotransmission, effects of drugs on cholinergic transmission\u2026"],
+    ["PHA028","Reversible and irreversible anticholinesterase agents"],
+    ["PHA029","Antimuscarinic agents \u2013 alkaloids and their derivatives, synthetic anticholinergic drugs, antispasmodics"],
+    ["PHA030","Neurotransmission in autonomic ganglia, drugs acting on autonomic ganglia, ganglion-blocking drugs, nicotine\u2026"],
+    ["PHA031","Adrenergic neurotransmission, effects of drug on adrenergic transmission, adrenoceptors\u2026"],
+    ["PHA032","Catecholamines, synthesis, biotransformation, uptake, adrenaline, noradrenaline, isoprenaline, dopamine, dobutamine"],
+    ["PHA033","Alpha-adrenoceptor agonists, selective alpha-1 and alpha-2 agonists"],
+    ["PHA034","Ephedrine, amphetamines"],
+    ["PHA035","Beta-adrenoceptor agonists (\u03b21, \u03b22)"],
+    ["PHA036","Alpha-adrenoceptor antagonists, classification, clinical use"],
+    ["PHA037","Ergot alkaloids and their derivatives, serotonin (5-HT), 5-HT receptors and drugs acting on them"],
+    ["PHA038","Beta-adrenoceptor antagonists (\u03b2-blockers)"],
+    ["PHA039","Drugs used in ophthalmology"],
+    ["PHA040","Nitric oxide (NO)"],
+    ["PHA041","Neuromuscular-blocking agents, classification, depolarizing and nondepolarizing agents, antidotes, clinical use\u2026"],
+    ["PHA042","Dantrolene, Botulinum toxin type A, centrally acting muscle relaxants"],
+    ["PHA043","Local anaesthetics \u2013 chemical structure, pharmacokinetics, effects, types of local anaesthesia\u2026"],
+    ["PHA044","Adverse effects and intoxications of local anaesthetics, prevention and therapy"],
+    ["PHA045","Cocaine"],
+    ["PHA046","General anaesthesia, stages, inhalation anaesthetics in general, volatile inhalation anaesthetics\u2026"],
+    ["PHA047","Intravenous general anaesthetics, neuroleptanalgesia, combined anaesthesia"],
+    ["PHA048","Risks of general anaesthesia, premedication, drug interactions with general anaesthetics\u2026"],
+    ["PHA049","Hypnotics, principles of use, barbiturates and their effects, clinical use, current significance"],
+    ["PHA050","Benzodiazepines as hypnotics and Z-hypnotics"],
+    ["PHA051","Ethanol \u2013 acute effects, clinical use, methanol and therapy of methanol intoxication, alcoholism, effects on health\u2026"],
+    ["PHA052","Antiepileptic drugs, principles of use, adverse effects, \u201cclassic\u201d antiepileptic drugs"],
+    ["PHA053","\u201cNewer\u201d antiepileptic drugs"],
+    ["PHA054","Drug treatment of Parkinson\u2019s disease \u2013 classification, mechanism of action, adverse effects\u2026"],
+    ["PHA055","Classification of psychiatric medication"],
+    ["PHA056","Typical and atypical antipsychotics"],
+    ["PHA057","Antidepressants \u2013 tricyclic"],
+    ["PHA058","Antidepressants \u2013 monoamine oxidase inhibitors"],
+    ["PHA059","Antidepressants \u2013 SSRI, SNRI and atypical antidepressants"],
+    ["PHA060","Mood stabilizers"],
+    ["PHA061","Anxiolytics (tranquilizers)"],
+    ["PHA062","Psychostimulants, CNS stimulants, anorectic drugs"],
+    ["PHA063","Drugs used in Alzheimer\u2019s disease. Nootropics and related drugs"],
+    ["PHA064","Psychoactive agents (hallucinogens)"],
+    ["PHA065","Cannabinoids, endocannabinoids: receptors, role in organism, possible use"],
+    ["PHA066","Substance (drug) dependence"],
+    ["PHA067","Opium and its alkaloids, endogenous opioids, morphine, morphine intoxication, morphine dependence"],
+    ["PHA068","Derivatives and substitutes of morphine, opioid antagonists and dualists"],
+    ["PHA069","Eicosanoids, significance, methods of influencing the eicosanoid synthesis, inflammatory cytokine inhibitors"],
+    ["PHA070","Analgesic-antipyretics, classification, adverse effects"],
+    ["PHA071","Nonsteroidal anti-inflammatory drugs \u2013 classification, clinical use, adverse effects, cyclooxygenase I and II"],
+    ["PHA072","Pharmacotherapy of migraine"],
+    ["PHA073","Anti-rheumatic drugs \u2013 disease-modifying drugs, monoclonal antibodies"],
+    ["PHA074","Drugs used in gout"],
+    ["PHA075","Immunomodulation, immunosuppressive drugs, immunostimulant drugs"],
+    ["PHA076","Inotropic agents, digoxin and related drugs"],
+    ["PHA077","Antiarrhythmic drugs \u2013 mechanism of action, classification, overview"],
+    ["PHA078","Antiarrhythmic drugs \u2013 characteristics and representatives of individual groups, unclassified drugs"],
+    ["PHA079","Vasoconstrictor drugs"],
+    ["PHA080","Methylxanthines and their derivatives"],
+    ["PHA081","Angiotensin-converting enzyme inhibitors and angiotensin receptor blockers"],
+    ["PHA082","Aldosterone antagonists, drugs affecting natriuretic peptides"],
+    ["PHA083","Diuretics in general \u2013 sites of action, classification by mechanism of action, osmotic diuretics and aquaretics"],
+    ["PHA084","Thiazides, sulphonamide diuretics, carbonic anhydrase inhibitors"],
+    ["PHA085","Loop diuretics, use, risks, potassium-sparing diuretics"],
+    ["PHA086","Overview of vasodilator drugs (+ mechanism of action), direct vasodilator drugs (potassium channel openers\u2026"],
+    ["PHA087","Calcium channel blockers"],
+    ["PHA088","Nitrites and nitrates"],
+    ["PHA089","Overview of drugs used in heart failure"],
+    ["PHA090","Overview of drugs used in coronary artery disease"],
+    ["PHA091","Antihypertensive drugs and their clinical use, adverse effects, contraindications"],
+    ["PHA092","Drugs used in atherosclerosis and drugs affecting lipid metabolism"],
+    ["PHA093","Drugs affecting blood coagulation \u2013 Overview of mechanisms of action"],
+    ["PHA094","Parenteral anticoagulants \u2013 indirect thrombin inhibitors (heparin)"],
+    ["PHA095","Parenteral anticoagulants \u2013 indirect factor Xa inhibitors (low molecular weight heparins and pentasaccharides)"],
+    ["PHA096","Direct oral anticoagulants: thrombin inhibitors (gatrans), factor Xa inhibitors (xabans)"],
+    ["PHA097","Antivitamins K"],
+    ["PHA098","Antidote for anticoagulants"],
+    ["PHA099","Fibrinolytics, thrombolytics"],
+    ["PHA100","Drugs affecting platelet aggregation"],
+    ["PHA101","Agents that reduce increased bleeding, haemostatic agents"],
+    ["PHA102","Drugs used in anaemia"],
+    ["PHA103","Antitussives, expectorants"],
+    ["PHA104","Histamine and antihistamines H1"],
+    ["PHA105","Antiasthmatics, drugs used in obstructive lung disease"],
+    ["PHA106","Intestinal adsorbents, disinfectants, laxatives, antidiarrheal drugs, antiinfectives, antiflatulent agents"],
+    ["PHA107","Acids and antacids, pancreatic and proteolytic enzymes"],
+    ["PHA108","Drugs used in peptic ulcer disease"],
+    ["PHA109","Prokinetics, probiotics"],
+    ["PHA110","Emetics, antiemetics"],
+    ["PHA111","Intestinal anti-inflammatory drugs and monoclonal antibodies (idiopathic inflammatory bowel diseases)"],
+    ["PHA112","Substances with hepatoprotective effect, cholagogues, dissolution of gallstones"],
+    ["PHA113","Hormones of the hypothalamus, hormones of the adenohypophysis and neurohypophysis, their analogues and clinical use"],
+    ["PHA114","Thyroid and parathyroid hormones, iodine, iodides and antithyroid drugs"],
+    ["PHA115","Mineralocorticoids, their antagonists, substitution therapy"],
+    ["PHA116","Insulin and glucagon"],
+    ["PHA117","Pharmacotherapy of diabetes, overview, oral antidiabetics, and their significant side effects"],
+    ["PHA118","Glucocorticoids"],
+    ["PHA119","Androgens, anabolic steroids"],
+    ["PHA120","Oestrogens, progestogens: clinical use"],
+    ["PHA121","Contraceptives, side effects, main contraindications"],
+    ["PHA122","Uterotonics, tocolytics"],
+    ["PHA123","Hormone antagonists"],
+    ["PHA124","Drugs in the treatment of benign prostatic hyperplasia"],
+    ["PHA125","Antibacterial agents: classification, mechanisms of action, pharmacokinetics, indications, resistance\u2026"],
+    ["PHA126","\u03b2-lactam antibiotics: penicillins. Beta-lactamase inhibitors"],
+    ["PHA127","\u03b2-lactam antibiotics: cephalosporins, carbapenems, monobactams"],
+    ["PHA128","Aminoglycosides, quinolones"],
+    ["PHA129","Glycopeptides, lipopeptides polypeptides, macrolides and azalides, lincosamides oxazolidinones"],
+    ["PHA130","Tetracyclines and glycylcyclines, rifamycins, nitroimidazoles, sulphonamides"],
+    ["PHA131","Chloramphenicol, fidaxomycin, fosfomycin, nitrofurantoin, fusidic acid, mupirocin\u2026"],
+    ["PHA132","Antituberculosis and antileprosy drugs"],
+    ["PHA133","Antifungals"],
+    ["PHA134","Antivirals in general, drugs used in hepatitis B and C, herpes infections and influenza; ribavirin"],
+    ["PHA135","Antiretrovirals, HIV therapy"],
+    ["PHA136","Antiparasitic drugs"],
+    ["PHA137","Anticancer drugs - general overview, mechanism of action"],
+    ["PHA138","Anticancer drugs - principles of therapy, combinations, adverse effects, resistance\u2026"],
+    ["PHA139","Anticancer drugs - alkylating agents"],
+    ["PHA140","Anticancer drugs - antimetabolites"],
+    ["PHA141","Intercalating agents + topoisomerase inhibitors"],
+    ["PHA142","Mitosis inhibitors"],
+    ["PHA143","Anticancer drugs with combined mechanisms of action, monoclonal antibodies"],
+    ["PHA144","Hormones and antihormones in cancer treatment"],
+    ["PHA145","Platinum derivatives"],
+    ["PHA146","X-ray contrast agents and their adverse effects"],
+    ["PHA147","Disinfectants, antiseptics"],
+    ["PHA148","Drugs used for local action on the skin and mucous membranes (excluding disinfectants)"],
+    ["PHA149","Antagonists and specific antidotes for poisoning and overdose"],
+    ["PHA150","Antidotes for metal poisoning in general, intoxication with mercury, arsenic and lead compounds, and their therapy"],
+    ["PHA151","Calcium, magnesium, potassium"],
+    ["PHA152","Zinc, selenium, antioxidants"],
+    ["PHA153","Vitamins A, E, K"],
+    ["PHA154","Vitamin D and hormones affecting Ca metabolism"],
+    ["PHA155","Substances used in the treatment of osteoporosis"],
+    ["PHA156","Vitamin C, B vitamins"],
+    ["PHA157","Phytotherapy, alternative medicine (principles, significance)"],
   ]},
-  { key:"IIM-1", subject:"iim", sem:"winter", name:"Propedeutics of internal medicine", topics:[
+  { key:"IIM-1", src:"iim-q", subject:"iim", sem:"winter", name:"Propedeutics of internal medicine", topics:[
     ["IIM001","Approach to the patient. Medical history - structure and importance"],
     ["IIM002","Principles of physical examination (inspection, palpation, percussion, auscultation), general and regional examination"],
     ["IIM003","Overall condition of the patient, level of consciousness, examination of the skin\u2026"],
@@ -989,7 +1195,7 @@ const CURRICULUM = [
     ["IIM022","Icterus \u2013 classification, causes, examination methods"],
     ["IIM023","Oedemas and the accumulation of fluid in body cavities \u2013 causes, pathophysiologic mechanisms"],
   ]},
-  { key:"IIM-2", subject:"iim", sem:"winter", name:"ECG and varia", topics:[
+  { key:"IIM-2", src:"iim-q", subject:"iim", sem:"winter", name:"ECG and varia", topics:[
     ["IIM024","Electrocardiography \u2013 electrophysiological principles, ECG recording, description of normal ECG curve\u2026"],
     ["IIM025","ECG \u2013 deviation of heart axis, left and right ventricle hypertrophy"],
     ["IIM026","ECG patterns in coronary heart disease"],
@@ -1009,7 +1215,7 @@ const CURRICULUM = [
     ["IIM040","Neurological problems in internal medicine"],
     ["IIM041","Psychiatric problems in internal medicine"],
   ]},
-  { key:"MPE-1", subject:"mpe", sem:"both", name:"Psychology, communication and ethics", topics:[
+  { key:"MPE-1", src:"sis-syl", subject:"mpe", sem:"both", name:"Psychology, communication and ethics", topics:[
     ["MPE001","A complex view of a patient: the biopsycholosocial model of disease\u2026"],
     ["MPE002","The relationship between the doctor and the patient: contribution of M\u2026"],
     ["MPE003","Basic communication skills: listening, empathy, understanding, interpretation\u2026"],
@@ -1031,7 +1237,7 @@ const CURRICULUM = [
     ["MPE019","Addiction: alcoholism and drug addiction, sociocultural and psychological factors, treatment and prevention programmes"],
     ["MPE020","Normal versus abnormal behaviour: classification of abnormal behaviour (anxiety, somatoform disorder\u2026"],
   ]},
-  { key:"IM1-C", subject:"im1", sem:"summer", name:"Cardiovascular disease", topics:[
+  { key:"IM1-C", src:"im1-syl", subject:"im1", sem:"summer", name:"Cardiovascular disease", topics:[
     ["IM1001","Ischemic heart disease I - acute forms"],
     ["IM1002","Ischemic heart disease II - chronic forms; cardiovascular pharmacotherapy overview"],
     ["IM1003","Acute and chronic heart failure; classification, pathophysiology, clinical presentation, diagnostics, treatment"],
@@ -1043,13 +1249,13 @@ const CURRICULUM = [
     ["IM1009","Venous and lymphatic diseases; DVT, chronic venous insufficiency, lymphedema"],
     ["IM1010","Pulmonary embolism, pulmonary hypertension"],
   ]},
-  { key:"IM1-P", subject:"im1", sem:"summer", name:"Pneumology", topics:[
+  { key:"IM1-P", src:"im1-syl", subject:"im1", sem:"summer", name:"Pneumology", topics:[
     ["IM1011","Introduction to pneumology; respiratory disease significance, congenital lung/bronchi defects, cystic fibrosis\u2026"],
     ["IM1012","Tuberculosis, mycobacteriosis; etiopathogenesis, diagnostics, clinical presentations, treatment, complications"],
     ["IM1013","Interstitial lung processes: fibrotic inflammation, sarcoidosis, Wegener granulomatosis; pleural syndrome, pleurisy"],
     ["IM1014","Bronchial diseases; acute/chronic bronchitis, bronchiectasis, COPD\u2026"],
   ]},
-  { key:"PSU-1", subject:"psu", sem:"summer", name:"Surgical propaedeutics", topics:[
+  { key:"PSU-1", src:"sis-syl", subject:"psu", sem:"summer", name:"Surgical propaedeutics", topics:[
     ["PSU001","Surgery \u2013 history and future"],
     ["PSU002","Asepsis, anti-sepsis, disinfection, sterilisation"],
     ["PSU003","Wounds \u2013 classification, healing, healing disorders, temporary and definite treatment"],
@@ -1083,7 +1289,7 @@ const CURRICULUM = [
     ["PSU031","General issues of oncosurgery"],
     ["PSU032","Transplantology"],
   ]},
-  { key:"NBS-1", subject:"nbs", sem:"summer", name:"Neurobehavioral sciences", topics:[
+  { key:"NBS-1", src:"sis-syl", subject:"nbs", sem:"summer", name:"Neurobehavioral sciences", topics:[
     ["NBS001","Microscopic anatomy of the brain"],
     ["NBS002","Brain anatomy with a focus on functional systems"],
     ["NBS003","Functional anatomy of the spinal cord and the spinal channel"],
@@ -1109,7 +1315,7 @@ const CURRICULUM = [
     ["NBS023","Neurotransmitters and behavior"],
     ["NBS024","Basic terms in psychiatry"],
   ]},
-  { key:"SIM-W", subject:"sim", sem:"winter", name:"Winter block", topics:[
+  { key:"SIM-W", src:"sis-syl", subject:"sim", sem:"winter", name:"Winter block", topics:[
     ["SIM001","Introduction to simulation medicine"],
     ["SIM002","Airway management"],
     ["SIM003","Vascular access, infusion and transfusion therapy"],
@@ -1117,7 +1323,7 @@ const CURRICULUM = [
     ["SIM005","Advanced Life Support"],
     ["SIM006","ABCDE approach, basic monitoring, patient handover"],
   ]},
-  { key:"SIM-S", subject:"sim", sem:"summer", name:"Summer block", topics:[
+  { key:"SIM-S", src:"sis-syl", subject:"sim", sem:"summer", name:"Summer block", topics:[
     ["SIM007","Approach to a patient in shock"],
     ["SIM008","Approach to a trauma patient"],
     ["SIM009","Approach to a patient with impaired consciousness"],
@@ -1125,7 +1331,7 @@ const CURRICULUM = [
     ["SIM011","Approach to a patient with chest pain"],
     ["SIM012","Approach to a critically ill child"],
   ]},
-  { key:"RAD-1", subject:"rad", sem:"summer", name:"Radiological anatomy", topics:[
+  { key:"RAD-1", src:"sis-syl", subject:"rad", sem:"summer", name:"Radiological anatomy", topics:[
     ["RAD001","Radiological anatomy of the intracranial space, neurocranium and base of the skull"],
     ["RAD002","Radiological anatomy of the facial bones, orbits, temporal bones and oral cavity"],
     ["RAD003","Radiological anatomy of the neck"],
@@ -1140,7 +1346,7 @@ const CURRICULUM = [
     ["RAD012","Radiological anatomy of the spine"],
     ["RAD013","Test"],
   ]},
-  { key:"CZE-1", subject:"cze", sem:"both", name:"Case histories", topics:[
+  { key:"CZE-1", src:"sis-syl", subject:"cze", sem:"both", name:"Case histories", topics:[
     ["CZE001","Cardiology"],
     ["CZE002","Gastroenterology"],
     ["CZE003","Urology and Gynaecology"],
@@ -2330,6 +2536,178 @@ function GoalsView({data, A}){
   );
 }
 
+const ARCHIVE_STALE = [
+  { claim:"Immunology is a third-year subject, winter written exam plus two oral questions.",
+    now:"Not this year. The third-year code has read “not taught” since 2023; it last ran in 2022/23. The live course is Clinical Immunology and Allergology in fourth year, and it lists your two winter exams as prerequisites, so it cannot be taken alongside them. Keep the immunology content notes for next year, but bin the old 83-item question list — the fourth-year list is a restructured 39 items." },
+  { claim:"Third-year pharmacology is one credit test at the end of the semester, with the exam in fourth year.",
+    now:"Wrong now and wrong then. Pharmacology II ends in a graded exam this winter: a 50-question computer test needing 35 correct, then an oral where you draw one general and two special questions. It examines Pharmacology I in full as well. The archive is describing Pharmacology I, the second-year credit." },
+  { claim:"The Pathology exam is five museum specimens, two slides and an oral on three topics.",
+    now:"The museum station is gone — it was deleted from the requirements in September 2025. It is now one microscopic slide worth up to 5 points, drawn from a pool of 116, sat at the end of summer teaching as the credit gate; then an oral of three questions worth up to 10 each. Pass is 21 of 35, and a zero on any single oral question fails you outright whatever the total. Gross pathology is still examinable content, just not a separate station." },
+  { claim:"Pathology is taught at Bory, building 9, the red one.",
+    now:"It moved. Practicals are now at the faculty on alej Svobody 76, campus room 3.15, and lectures are in the Brown lecture hall. In winter only one of the two weekly lectures is in person; the other is on Moodle." },
+  { claim:"The Pathophysiology exam starts with a written computer test.",
+    now:"There has never been one at this department — the same wording “the exam consists of a practical exam and oral exam” was already in SIS in 2019. Treat the archive’s exam-format notes as unreliable in kind, not merely out of date." },
+  { claim:"The Pathophysiology exam is in the summer semester.",
+    now:"It moved to winter when the course was split in two. The archive was right for its own year: until 2021/22 this was one two-semester third-year course examined in the summer. Your exam period is 11 January to 14 February 2027." },
+  { claim:"The Pathophysiology practical is one topic plus surgical knots plus three ECGs.",
+    now:"Half right. Three ECGs, described, diagnosed and analysed — not just read. But surgical knots are items 16 to 18 of the eighteen drawable practical topics, so they only come up if you draw them, rather than being a fixed station." },
+  { claim:"Internal Medicine I ends in an exam — its page still carries an exam-question list.",
+    now:"Credit only. That PDF is the 2021/22 list for a combined exam that no longer exists, and it predates your study plan. Your one internal-medicine exam this year is Introduction to Internal Medicine II, in the winter." },
+  { claim:"Microbiology is a third-year subject.",
+    now:"Second year, and you have already passed it. The 2020 copy of the archive predates the current accreditation by two revisions." },
+];
+
+/* ── where each topic list came from, and how old it is ─────────────────────
+   The full 2026/27 curricula are not published yet — some departments post the new edition only
+   in October. Everything in CURRICULUM is therefore the most recent list that exists, which is
+   not the same as the current one. Each block carries a `src`, and every screen that shows
+   topics shows the age of the list it is showing, so a stale list can never be revised by
+   accident. Statuses, worst to best:
+
+     none     no official topic list is published at all — a syllabus is standing in
+     old      a real question list, but from a previous academic year
+     recent   the current list, with no academic year printed on it
+     current  explicitly the 2026/27 edition
+*/
+const SRC_STATUS = {
+  current: { label:"2026/27",        tone:"#0F6E56", bg:"#0F6E5614" },
+  recent:  { label:"current",        tone:"#6E6757", bg:"var(--paper-2)" },
+  old:     { label:"a year behind",  tone:"#B45309", bg:"#B4530914" },
+  none:    { label:"no official list", tone:"#B45309", bg:"#B4530914" },
+  stale:   { label:"contradicted",   tone:"#B0203A", bg:"#B0203A14" },
+};
+
+function SourceBadge({src, compact}){
+  const s = SOURCES[src]; if(!s) return null;
+  const t = SRC_STATUS[s.status] || SRC_STATUS.recent;
+  return (
+    <span title={s.label+" · "+s.where+(s.note?" — "+s.note:"")}
+      style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:t.bg,color:t.tone,whiteSpace:"nowrap"}}>
+      {compact ? t.label : "list: "+t.label}
+    </span>
+  );
+}
+
+/* The worst status across a subject's blocks — a subject is only as trustworthy as its weakest
+   topic list, and that is the one worth surfacing on the card. */
+const SRC_RANK = { stale:0, none:1, old:2, recent:3, current:4 };
+function worstSource(subjectId){
+  const blocks = BLOCKS_OF[subjectId]||[];
+  let worst = null;
+  blocks.forEach(function(b){
+    const s = SOURCES[b.src]; if(!s) return;
+    if(!worst || SRC_RANK[s.status] < SRC_RANK[worst.status]) worst = s;
+  });
+  return worst;
+}
+
+/* One panel, on Subjects, that says plainly what is trustworthy and what is not. It is not
+   dismissible: the whole point is that it is still there in January. */
+function FreshnessPanel(){
+  const [open,setOpen]=useState(false);
+  const rows = Object.keys(SOURCES).map(function(k){ return Object.assign({key:k}, SOURCES[k]); })
+    .sort(function(a,b){ return SRC_RANK[a.status]-SRC_RANK[b.status]; });
+  const bad = rows.filter(function(r){ return r.status==="none" || r.status==="old"; });
+  return (
+    <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"12px 15px",marginBottom:16}}>
+      <button onClick={()=>setOpen(o=>!o)} style={{background:"none",border:0,padding:0,textAlign:"left",width:"100%",display:"flex",alignItems:"center",gap:9}}>
+        <i className="fa-regular fa-clock" style={{color:"var(--ink-3)",fontSize:13}} aria-hidden="true"/>
+        <span style={{flex:1,fontSize:13.5,color:"var(--ink)"}}>How current is all this?</span>
+        <span style={{fontSize:11.5,color:bad.length?"var(--warn)":"var(--ink-3)"}}>
+          {bad.length ? bad.length+" list"+(bad.length>1?"s":"")+" to replace" : "all current"}
+        </span>
+        <i className={"fa-solid fa-chevron-"+(open?"up":"down")} style={{fontSize:10,color:"var(--ink-3)"}} aria-hidden="true"/>
+      </button>
+      {open && (
+        <div style={{marginTop:11}}>
+          <p style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.55,margin:"0 0 10px"}}>
+            The 2026/27 curricula are not all published yet — several departments post the new
+            edition only once teaching starts. Everything here is the most recent list that
+            exists, which is not always the current one. Check this panel again in October.
+          </p>
+          {rows.map(function(r){
+            const t=SRC_STATUS[r.status]||SRC_STATUS.recent;
+            return (
+              <div key={r.key} style={{padding:"8px 0",borderTop:"0.5px solid var(--line)"}}>
+                <div style={{display:"flex",alignItems:"baseline",gap:8,flexWrap:"wrap"}}>
+                  <span style={{fontSize:12.5,color:"var(--ink)",flex:1,minWidth:150}}>{r.label}</span>
+                  <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:t.bg,color:t.tone,whiteSpace:"nowrap"}}>{r.edition}</span>
+                </div>
+                <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2}}>{r.where}</div>
+                {r.note && <div style={{fontSize:11.5,color:"var(--warn)",marginTop:3,lineHeight:1.5}}>{r.note}</div>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* What the 2020–2022 student archive gets wrong. Shown as a list of struck-through claims with
+   the correction beside each, because recognising the stale claim is the thing that stops you
+   revising it. */
+function ArchivePanel(){
+  const [open,setOpen]=useState(false);
+  return (
+    <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"12px 15px",marginBottom:16}}>
+      <button onClick={()=>setOpen(o=>!o)} style={{background:"none",border:0,padding:0,textAlign:"left",width:"100%",display:"flex",alignItems:"center",gap:9}}>
+        <i className="fa-solid fa-box-archive" style={{color:"var(--ink-3)",fontSize:13}} aria-hidden="true"/>
+        <span style={{flex:1,fontSize:13.5,color:"var(--ink)"}}>The student archive · {ARCHIVE_YEAR}</span>
+        <span style={{fontSize:11.5,color:"var(--warn)"}}>{ARCHIVE_STALE.length} claims outdated</span>
+        <i className={"fa-solid fa-chevron-"+(open?"up":"down")} style={{fontSize:10,color:"var(--ink-3)"}} aria-hidden="true"/>
+      </button>
+      {open && (
+        <div style={{marginTop:11}}>
+          <p style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.55,margin:"0 0 10px"}}>
+            The shared Drive archive is worth reading for logistics — which building, how many
+            absences, what examiners actually ask. It predates the current accreditation, so
+            anything structural in it is suspect. These claims are wrong now:
+          </p>
+          {ARCHIVE_STALE.map(function(x,i){
+            return (
+              <div key={i} style={{padding:"8px 0",borderTop:"0.5px solid var(--line)"}}>
+                <div style={{fontSize:12.5,color:"var(--ink-3)",textDecoration:"line-through"}}>{x.claim}</div>
+                <div style={{fontSize:12.5,color:"var(--ink)",marginTop:3,lineHeight:1.5}}>
+                  <i className="fa-solid fa-arrow-right" style={{fontSize:9,marginRight:6,color:"var(--warn)"}} aria-hidden="true"/>{x.now}
+                </div>
+              </div>
+            );
+          })}
+          <a className="ln-btn" href={ARCHIVE_URL} target="_blank" rel="noopener noreferrer" style={{marginTop:11,fontSize:12}}>
+            <i className="fa-brands fa-google-drive" aria-hidden="true"/> Open the archive
+            <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/>
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Logistics for one subject, from the archive. Year-stamped, because a room can move and an
+   absence limit can change, and the student should know they are reading old notes. */
+function ArchiveNote({id}){
+  const a = ARCHIVE[id]; if(!a) return null;
+  return (
+    <div style={{marginTop:8,padding:"9px 11px",background:"var(--paper-2)",borderRadius:"var(--r-md)"}}>
+      <div style={{fontSize:10.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".05em",marginBottom:4}}>
+        student archive · {ARCHIVE_YEAR} · verify
+      </div>
+      {a.where    && <div style={{fontSize:12,color:a.whereStale?"var(--warn)":"var(--ink-2)",lineHeight:1.5}}><strong style={{color:"var(--ink)"}}>Where.</strong> {a.where}</div>}
+      {a.absences && <div style={{fontSize:12,color:"var(--ink-2)",lineHeight:1.5,marginTop:4}}><strong style={{color:"var(--ink)"}}>Absences.</strong> {a.absences}</div>}
+      {a.bring    && <div style={{fontSize:12,color:"var(--ink-2)",lineHeight:1.5,marginTop:4}}><strong style={{color:"var(--ink)"}}>Bring.</strong> {a.bring}</div>}
+      {a.warn     && <div style={{fontSize:12,color:"var(--warn)",lineHeight:1.5,marginTop:4}}>{a.warn}</div>}
+      {a.protocols && <div style={{marginTop:7}}>
+        <a className="ln-btn" href={a.protocols.url} target="_blank" rel="noopener noreferrer" style={{fontSize:12}}>
+          <i className="fa-regular fa-comments" aria-hidden="true"/> {a.protocols.label}
+          <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/>
+        </a>
+        <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:4,lineHeight:1.5}}>{a.protocols.note}</div>
+      </div>}
+    </div>
+  );
+}
+
 function SubjectCard({s, data, A, today, over}){
   const cov=coverageOf(s.id, data);
   const pace=paceOf(s, data, today);
@@ -2338,6 +2716,8 @@ function SubjectCard({s, data, A, today, over}){
   const due=deadlineOf(s, data);
   const d=daysUntil(w?w.iso:due);
   const blocks=BLOCKS_OF[s.id]||[];
+  const worst=worstSource(s.id);
+  const worstKey=worst ? Object.keys(SOURCES).filter(function(k){ return SOURCES[k]===worst; })[0] : null;
   const [rules,setRules]=useState(false);
   // behind = this subject is in the overflow list, i.e. the year projection could not place
   // all of it before its deadline. One source of truth, shared with the banner.
@@ -2355,6 +2735,7 @@ function SubjectCard({s, data, A, today, over}){
             <span style={{fontSize:10,padding:"1px 8px",borderRadius:10,background:"var(--paper-2)",color:"var(--ink-3)"}}>{s.ects} credits</span>
             {s.sem!=="summer" && s.completion.winter && <CompletionBadge kind={s.completion.winter} color={s.color}/>}
             {s.sem!=="winter" && s.completion.summer && <CompletionBadge kind={s.completion.summer} color={s.color}/>}
+            {worst && <SourceBadge src={worstKey}/>}
           </div>
         </div>
         <div style={{textAlign:"right",flex:"none"}}>
@@ -2388,12 +2769,17 @@ function SubjectCard({s, data, A, today, over}){
             <i className={"fa-solid fa-chevron-"+(rules?"up":"down")} style={{fontSize:9,marginRight:6}} aria-hidden="true"/>
             How it is assessed
           </button>
-          {rules && <div style={{marginTop:6,padding:"9px 11px",background:"var(--paper-2)",borderRadius:"var(--r-md)"}}>
-            {s.examFormat && <div style={{fontSize:12,color:"var(--ink-2)",lineHeight:1.5}}>
-              <strong style={{color:"var(--ink)"}}>Exam.</strong> {s.examFormat}</div>}
-            {s.creditRule && <div style={{fontSize:12,color:"var(--ink-2)",lineHeight:1.5,marginTop:s.examFormat?6:0}}>
-              <strong style={{color:"var(--ink)"}}>Credit.</strong> {s.creditRule}</div>}
-          </div>}
+          {rules && <>
+            <div style={{marginTop:6,padding:"9px 11px",background:"var(--paper-2)",borderRadius:"var(--r-md)"}}>
+              {s.examFormat && <div style={{fontSize:12,color:"var(--ink-2)",lineHeight:1.5}}>
+                <strong style={{color:"var(--ink)"}}>Exam.</strong> {s.examFormat}</div>}
+              {s.creditRule && <div style={{fontSize:12,color:"var(--ink-2)",lineHeight:1.5,marginTop:s.examFormat?6:0}}>
+                <strong style={{color:"var(--ink)"}}>Credit.</strong> {s.creditRule}</div>}
+              {worst && <div style={{fontSize:11.5,color:worst.note?"var(--warn)":"var(--ink-3)",lineHeight:1.5,marginTop:6}}>
+                <strong style={{color:"var(--ink)"}}>Topic list.</strong> {worst.label} · {worst.edition}. {worst.where}.{worst.note?" "+worst.note:""}</div>}
+            </div>
+            <ArchiveNote id={s.id}/>
+          </>}
         </div>
       )}
 
@@ -2437,6 +2823,9 @@ function SubjectsView({data, A}){
       <div style={{fontSize:12,color:"var(--ink-3)",marginBottom:16}}>
         {booked} of {graded.length} exam dates booked
       </div>
+
+      <FreshnessPanel/>
+      <ArchivePanel/>
 
       {GROUPS.map(function(g){
         const list=SUBJECTS.filter(g[2]);
@@ -2516,8 +2905,9 @@ function FieldBlock({field, data, A, color, startOpen}){
         <button onClick={()=>setOpen(o=>!o)} style={{flex:1,minWidth:0,textAlign:"left",background:"none",border:0,padding:0,display:"flex",alignItems:"center",gap:11}}>
           <i className={"fa-solid fa-chevron-"+(open?"down":"right")} style={{fontSize:11,color:"var(--ink-3)",flex:"none"}} aria-hidden="true"/>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{fontSize:14.5,color:"var(--ink)"}}>{field.name}
-              {field.sem && <span style={{fontSize:10,marginLeft:8,padding:"1px 7px",borderRadius:10,background:"var(--paper-2)",color:"var(--ink-3)"}}>{field.sem==="winter"?"winter":field.sem==="summer"?"summer":"both"}</span>}
+            <div style={{fontSize:14.5,color:"var(--ink)",display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>{field.name}
+              {field.sem && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"var(--paper-2)",color:"var(--ink-3)"}}>{field.sem==="winter"?"winter":field.sem==="summer"?"summer":"both"}</span>}
+              {field.src && <SourceBadge src={field.src} compact/>}
             </div>
             {skipped
               ? <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:5}}>skipped — not scheduled and not counted</div>
@@ -2573,6 +2963,11 @@ function ProgressView({data, A, focus}){
         and resurfaces once for review three weeks later if its exam is close. Use “all done” for a
         finished block, or the ban icon to skip a topic entirely — a skipped topic is scheduled
         nowhere and counted nowhere.
+      </p>
+      <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"0 0 16px",lineHeight:1.55}}>
+        Each block is tagged with the age of the list it came from. The 2026/27 curricula are not
+        all out yet, so some of these are the most recent edition rather than the current one —
+        <button onClick={()=>A.go("subjects")} style={{background:"none",border:0,padding:0,color:"var(--accent)",font:"inherit",textDecoration:"underline",marginLeft:4}}>the full provenance is on Subjects</button>.
       </p>
       {groups.length===0 && <p style={{fontSize:13.5,color:"var(--ink-3)"}}>No topic lists have been loaded yet.</p>}
       {groups.map(function(s){

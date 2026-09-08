@@ -124,6 +124,11 @@ let _tokenClient = null, _accessToken = null, _tokenExpiry = 0, _tokenPromise = 
    "genuinely signed out". Before this existed the app showed "session expired" the instant the
    hour was up, without ever having tried to renew. */
 let _silentTries = 0, _silentDead = false, _renewPromise = null;
+/* Whether the user actually has sync switched on. Gating background auth on _gaccount alone was
+   wrong: gcalForget() deliberately keeps sp_gaccount, so after "Turn off" the app went on trying
+   to authenticate on timers and on every tap. */
+let _syncEnabled = false;
+let _tokenReject = null, _tokenInteractive = false;
 const _tokenListeners = [];
 function onTokenChange(fn){ _tokenListeners.push(fn); return function(){ const i=_tokenListeners.indexOf(fn); if(i>=0) _tokenListeners.splice(i,1); }; }
 function emitToken(){ _tokenListeners.slice().forEach(function(fn){ try{ fn(); }catch(e){} }); }
@@ -154,19 +159,30 @@ function waitForGis(ms){
 }
 function getToken(opts){
   opts = opts || {};
+  const interactive = !!opts.interactive;
   if(!opts.force && _accessToken && Date.now() < _tokenExpiry - 60000) return Promise.resolve(_accessToken);
-  if(_tokenPromise) return _tokenPromise;
+  if(_tokenPromise){
+    /* A background attempt must never satisfy — or stall — an explicit one. The user's click
+       carries the browser's transient activation, and that activation is the only reason a popup
+       is allowed to open at all. Queueing the click behind an in-flight silent request spends it
+       on the wrong window, and the account chooser then never appears. */
+    if(!interactive || _tokenInteractive) return _tokenPromise;
+    try{ if(_tokenReject) _tokenReject(new Error("superseded by an explicit sign-in")); }catch(e){}
+    _tokenPromise=null; _tokenReject=null;
+  }
   const tc=ensureTokenClient();
   if(!tc) return Promise.reject(new Error("Google sign-in is still loading. Wait a moment and tap Connect again."));
+  _tokenInteractive = interactive;
   _tokenPromise = new Promise(function(resolve,reject){
+    _tokenReject = reject;
     tc.callback=function(resp){
-      _tokenPromise=null;
+      _tokenPromise=null; _tokenReject=null;
       if(resp && resp.access_token){ _accessToken=resp.access_token; _tokenExpiry=Date.now()+((resp.expires_in||3600)*1000);
         _silentTries=0; _silentDead=false; persistToken(); scheduleRefresh(); emitToken(); resolve(_accessToken); }
       else { reject(resp||new Error("No access token")); }
     };
-    tc.error_callback=function(err){ _tokenPromise=null; reject(err||new Error("Sign-in was cancelled")); };
-    try{ tc.requestAccessToken({ prompt: opts.prompt || "" }); }catch(e){ _tokenPromise=null; reject(e); }
+    tc.error_callback=function(err){ _tokenPromise=null; _tokenReject=null; reject(err||new Error("Sign-in was cancelled")); };
+    try{ tc.requestAccessToken({ prompt: opts.prompt || "" }); }catch(e){ _tokenPromise=null; _tokenReject=null; reject(e); }
   });
   return _tokenPromise;
 }
@@ -192,11 +208,15 @@ const RENEW_BACKOFF = [20000, 60000, 180000, 600000];
    is genuinely gone and a real sign-in gesture is needed. */
 function ensureFresh(opts){
   opts = opts || {};
-  if(tokenValid()) return Promise.resolve(_accessToken);
-  if(!_gaccount && !opts.interactive) return Promise.reject(new Error("not connected"));
+  /* `force` is what makes PRE-EMPTIVE renewal possible. Without it this returned early on any
+     still-valid token, so the whole "renew before it lapses" mechanism was dead code: it could
+     only ever run once the token had already expired, which is precisely when a silent request
+     cannot succeed and a popup does harm. */
+  if(!opts.force && tokenValid()) return Promise.resolve(_accessToken);
+  if(!_gaccount) return Promise.reject(new Error("not connected"));
   if(_renewPromise) return _renewPromise;
   _renewPromise = waitForGis(10000)
-    .then(function(){ return getToken({ force:true, prompt: opts.interactive && !_gaccount ? "select_account" : "" }); })
+    .then(function(){ return getToken({ force:true, prompt:"" }); })
     .then(function(t){ _renewPromise=null; return t; })
     .catch(function(e){
       _renewPromise=null; _silentTries++; _silentDead=true;
@@ -211,7 +231,7 @@ function ensureFresh(opts){
    to renew — it just showed the Reconnect banner. */
 function scheduleRefresh(){
   try{ clearTimeout(_refreshTimer); }catch(e){}
-  if(!_gaccount) return;
+  if(!_gaccount || !_syncEnabled) return;
   const dueIn = tokenValid()
     ? Math.max(15000, _tokenExpiry - Date.now() - RENEW_LEAD)
     : RENEW_BACKOFF[Math.min(_silentTries, RENEW_BACKOFF.length-1)];
@@ -224,16 +244,27 @@ function scheduleRefresh(){
   _refreshTimer=setTimeout(attempt, dueIn);
 }
 function refreshIfStale(){
-  if(!_gaccount || !appIsInFront()) return Promise.resolve(null);
+  if(!_gaccount || !_syncEnabled || !appIsInFront()) return Promise.resolve(null);
   if(tokenValid() && Date.now() < _tokenExpiry - RENEW_LEAD) return Promise.resolve(_accessToken);
-  return ensureFresh().catch(function(){ return null; });
+  return ensureFresh({force:true}).catch(function(){ return null; });
 }
-async function acquireToken(){
-  // Returning users: silent token for the saved account (no picker). First connect, or a dropped
-  // session, falls back to the account chooser once.
-  await waitForGis(10000);
-  if(_gaccount){ try{ return await getToken({force:true, prompt:""}); }catch(e){} }
-  return await getToken({force:true, prompt:"select_account"});
+/* Connect / Reconnect / Switch account all land here, and they open the account chooser
+   IMMEDIATELY, synchronously inside the click.
+
+   This used to try a silent token first and fall back to the chooser only after that failed. It
+   read as a courtesy — no picker for returning users — and it made reconnecting IMPOSSIBLE on
+   exactly the dead session it existed to repair. Two awaits stand between the click and the
+   fallback: waitForGis, and a failed network round trip to Google. By the time the chooser is
+   requested the browser's transient activation is long gone, so its popup is blocked and the user
+   sees "Couldn't connect to Google" no matter how many times they press the button.
+
+   Silent-first belongs in the background paths, where there is no activation to spend. When
+   somebody deliberately taps Reconnect, showing them the chooser is both correct and reliable. */
+function acquireToken(){
+  if(!gisReady()) return Promise.reject(new Error("Google sign-in is still loading — give it a second and tap again."));
+  _silentDead=false; _silentTries=0;
+  try{ clearTimeout(_refreshTimer); }catch(e){}
+  return getToken({force:true, prompt:"select_account", interactive:true});
 }
 /* ── the part that actually keeps you signed in ───────────────────────────
    Google Identity Services opens a POPUP for requestAccessToken, even with prompt:"" — there is
@@ -252,12 +283,15 @@ async function acquireToken(){
 let _lastGestureRenew = 0;
 const GESTURE_RENEW_GAP = 60*1000;
 function renewOnGesture(){
-  if(!_gaccount) return;
+  if(!_syncEnabled || !_gaccount) return;
   if(Date.now() - _lastGestureRenew < GESTURE_RENEW_GAP) return;
-  const stale = !tokenValid() || Date.now() > _tokenExpiry - RENEW_LEAD;
-  if(!stale) return;
+  /* Only ever EXTEND a session that is still alive. Firing on an already-dead token turned every
+     tap into a blocked popup, and worse, spent the activation that the Connect button needs.
+     Reviving a dead session is the button's job, not a side effect of scrolling. */
+  const aging = tokenValid() && Date.now() > _tokenExpiry - RENEW_LEAD;
+  if(!aging) return;
   _lastGestureRenew = Date.now();
-  ensureFresh().catch(function(){});
+  ensureFresh({force:true}).catch(function(){});
 }
 try{
   ["pointerdown","keydown"].forEach(function(ev){
@@ -3248,6 +3282,7 @@ function App(){
     if(first.current){ first.current=false; return; }
     saveData(data);
     if(skipPush.current){ skipPush.current=false; return; }
+    _syncEnabled = !!data.gcalEnabled;
     if(data.gcalEnabled){ dirty.current=true; schedulePush(); }
   },[data]);
 
@@ -3264,6 +3299,8 @@ function App(){
 
   // on load: a saved token (kept across reloads) lets us sync straight away; otherwise show reconnect
   useEffect(()=>{
+    _syncEnabled = !!dataRef.current.gcalEnabled;
+    scheduleRefresh();     // module load ran before the saved setting was known, so arm it now
     /* Cold load. Do NOT declare the session dead just because the stored token has aged out —
        try a silent renewal first. This single line is the difference between opening the app in
        the morning and finding "session expired", and it just working. */
@@ -3434,6 +3471,7 @@ function App(){
       setGcalBusy(true);
       try{
         await acquireToken();
+        _syncEnabled = true;
         setData(d=>({...d,gcalEnabled:true}));
         setGcalStatus("on");
         await initialSync();
@@ -3442,13 +3480,14 @@ function App(){
       }catch(e){ alert("Couldn't connect to Google.\n\n"+(e && e.message?e.message:"Please try again.")); setGcalStatus(s=>s==="on"?"on":"off"); }
       setGcalBusy(false);
     },
-    disconnectGcal:()=>{ gcalForget(); _driveFileId=null; dirty.current=false; setData(d=>({...d,gcalEnabled:false})); setGcalStatus("off"); setSyncState("idle"); },
+    disconnectGcal:()=>{ gcalForget(); _syncEnabled=false; try{ clearTimeout(_refreshTimer); }catch(e){} _driveFileId=null; dirty.current=false; setData(d=>({...d,gcalEnabled:false})); setGcalStatus("off"); setSyncState("idle"); },
     // reconnect after the token expired — refresh, then MERGE by timestamp so offline edits are pushed, not lost
     reconnect:async ()=>{
       if(IS_FILE){ alert("Open the live app to reconnect:\n\n"+LIVE_URL); return; }
       setGcalBusy(true);
       try{
         await acquireToken();
+        _syncEnabled = true;
         setGcalStatus("on");
         await resync();
         const pending=dataRef.current.tasks.filter(t=>t.time && !t.gcalId && !t.done);
@@ -3462,7 +3501,8 @@ function App(){
       try{
         try{ localStorage.removeItem("sp_gaccount"); }catch(e){}
         _gaccount=null; _tokenClient=null; _accessToken=null; _tokenExpiry=0;
-        await getToken({force:true, prompt:"select_account"});
+        await acquireToken();
+        _syncEnabled = true;
         setData(d=>({...d,gcalEnabled:true}));
         setGcalStatus("on");
         await resync();

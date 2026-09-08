@@ -326,6 +326,44 @@ What the rebuild does about it, in order of how much it actually helps:
 `appIsInFront()` (`visibilityState` **and** `document.hasFocus()`) still gates every timer-driven
 attempt — see "Focus theft" above; a tab stays "visible" while another app covers it.
 
+### The regression this caused, and the two rules that came out of it (2026-09-08)
+
+Shipping the above **broke signing in altogether**, and it is worth understanding exactly how,
+because both mistakes look reasonable on the page.
+
+**1. A background auth attempt spends the activation the button needs.** A popup may only open
+while the page holds *transient user activation*, and the FIRST popup of a gesture consumes it.
+`renewOnGesture` fired on capture-phase `pointerdown` — i.e. **before** the click handler — and on
+a dead session it launched a silent request that cannot possibly succeed. By the time
+`acquireToken` asked for the account chooser, there was no activation left, the popup was blocked,
+and Reconnect failed every single time. Proven with a stubbed token client that models the
+one-popup-per-gesture rule:
+
+```text
+OLD: [{prompt:"(silent)", gesture:true}, {prompt:"select_account", gesture:false}]  → FAILED
+NEW: [{prompt:"select_account", gesture:true}]                                       → connected
+```
+
+So: **an explicit Connect / Reconnect / Switch account goes straight to `prompt:"select_account"`,
+synchronously inside the click.** No silent-first, no `await waitForGis` before it, and no second
+popup chained behind a failed network round trip — every one of those spends the activation.
+Silent-first belongs only in the background paths, where there is no activation to protect.
+Relatedly, `getToken` must never coalesce an interactive request onto an in-flight silent one.
+
+**2. `ensureFresh()` returned early on any valid token, so pre-emptive renewal was dead code.**
+The whole "renew on the user's clicks" mechanism could only ever run once the token had already
+expired — precisely when a silent request fails and a popup does harm. It needs
+`ensureFresh({force:true})` to renew a token that is still valid but aging; `renewOnGesture` and
+`refreshIfStale` both pass it now.
+
+Two smaller things fixed alongside: gesture renewal now only ever EXTENDS a live token (a dead one
+is the button's job), and background auth is gated on `_syncEnabled`, not on `_gaccount` — because
+`gcalForget()` deliberately keeps `sp_gaccount`, so "Turn off" used to leave the app still trying
+to authenticate on timers and on every tap.
+
+**Test any change here against the activation rule, not just against a happy path.** A stub that
+resolves instantly will pass while the real thing is unusable.
+
 **Do not promise the user this is permanent.** Safari's tracking prevention, a signed-out Google
 account, or a browser that blocks the popup will still end in Reconnect, and no client-side code
 can change that. The only complete fix is an authorization-code flow with a server-side refresh

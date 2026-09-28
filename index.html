@@ -370,8 +370,9 @@ async function gcalListEvents(){
     const desc=it.description||"";                              // full description (briefing summary lives here)
     const sm=desc.match(/Source:\s*(@[\w.]+)/i);                // Instagram handle, unchanged
     const um=desc.match(/https?:\/\/[^\s)<>"']+/i);             // first URL, e.g. the Instagram post link
-    return { id:it.id, title:it.summary||"(untitled)", start:start, allDay:allDay, location:it.location||"", colorId:it.colorId||"", description:desc, source:sm?sm[1]:"", postUrl:um?um[0]:"", htmlLink:it.htmlLink||"" };
-  }).filter(function(e){ return e.start; });
+    return { id:it.id, title:it.summary||"(untitled)", start:start, allDay:allDay, location:it.location||"", colorId:it.colorId||"", description:desc, source:sm?sm[1]:"", postUrl:um?um[0]:"", htmlLink:it.htmlLink||"",
+             isClass:/\[planner:class\]/.test(desc) };
+  }).filter(function(e){ return e.start && !e.isClass; });   // classes come from TIMETABLE, not the feed
 }
 
 /* ── Google Drive sync — a hidden app-data file, invisible in your normal Drive ── */
@@ -570,6 +571,95 @@ const EXAMS = [
   { id:"mpe-s", subject:"mpe", period:"summer", label:"Medical Psychology and Ethics — exam", place:"Dept. of Psychology" },
 ];
 
+/* ── the timetable ──────────────────────────────────────────────────────────
+   Winter 2026/27, group 3.AVSEOB20-5, transcribed from Linas's SIS timetable on 2026-09-28.
+   Lectures are the whole year group; practicals and seminars are group 5. `weeks` is ISO
+   calendar-week parity — that is what Charles University's timetable module means by
+   sudý/lichý týden, and Linas confirmed it. The same slots were written into his Google
+   Calendar as recurring events, so the planner and the phone agree.
+
+   THE WEEK-53 TRAP: 2026 has 53 ISO weeks, so week 53 (28 Dec–3 Jan) and week 1 of 2027
+   (4–10 Jan) are both odd. Strict parity therefore puts the MPE seminar on Thu 7 Jan and NOT
+   Simulation Medicine on Wed 6 Jan; a naive 14-day cadence says the opposite. The two agree on
+   every other date. Those two January dates are flagged until confirmed in SIS.
+
+   Summer slots are added when Linas has that timetable (mid-February 2027). */
+const TERMS = {
+  winter: { from:"2026-10-01", to:"2027-01-08", breaks:[["2026-12-21","2027-01-01"]], label:"Winter teaching" },
+  summer: { from:"2027-02-15", to:"2027-05-21", breaks:[["2027-05-12","2027-05-12"]], label:"Summer teaching" },
+};
+const TIMETABLE = [
+  { id:"pfy-prac", term:"winter", day:1, start:"08:00", end:"10:30", subject:"pfy", kind:"practical", room:"UPF-J",        teacher:"Purkartová Zdeňka, MUDr., Ph.D.",        weeks:"all" },
+  { id:"pha-lec",  term:"winter", day:1, start:"11:00", end:"13:30", subject:"pha", kind:"lecture",   room:"P-HNĚDÁ",      teacher:"Kučera Radek, prof. PharmDr., Ph.D.",    weeks:"all" },
+  { id:"iim-prac", term:"winter", day:2, start:"08:00", end:"10:30", subject:"iim", kind:"practical", room:"",             teacher:"Mlíková Seidlerová Jitka, prof. MUDr.",  weeks:"all" },
+  { id:"iim-lec",  term:"winter", day:2, start:"11:00", end:"12:40", subject:"iim", kind:"lecture",   room:"P4",           teacher:"Mlíková Seidlerová Jitka, prof. MUDr.",  weeks:"all" },
+  { id:"sim-prac", term:"winter", day:3, start:"07:30", end:"09:10", subject:"sim", kind:"practical", room:"USIM5.21A",    teacher:"Smékalová Olga, MUDr.",                  weeks:"even" },
+  { id:"pfy-lec",  term:"winter", day:3, start:"11:15", end:"12:55", subject:"pfy", kind:"lecture",   room:"P-HNĚDÁ",      teacher:"Barcal Jan, MUDr., Ph.D.",               weeks:"all" },
+  { id:"cze-sem",  term:"winter", day:3, start:"13:30", end:"15:10", subject:"cze", kind:"seminar",   room:"USL4.21",      teacher:"Kopřivová Tamara, PhD",                  weeks:"all" },
+  { id:"pha-prac", term:"winter", day:4, start:"08:00", end:"10:30", subject:"pha", kind:"practical", room:"U2.5",         teacher:"Dědečková Eva, PharmDr. Bc., Ph.D.",     weeks:"all" },
+  { id:"mpe-sem",  term:"winter", day:4, start:"11:00", end:"12:40", subject:"mpe", kind:"seminar",   room:"",             teacher:"Vevera Jan, prof. MUDr.",                weeks:"odd" },
+  { id:"pat-lec",  term:"winter", day:4, start:"13:10", end:"15:40", subject:"pat", kind:"lecture",   room:"P-HNĚDÁ",      teacher:"Skálová Alena, prof. MUDr., CSc.",       weeks:"all" },
+  { id:"pat-prac", term:"winter", day:5, start:"08:00", end:"10:30", subject:"pat", kind:"practical", room:"U3.15",        teacher:"Daumová Magdaléna, MUDr., Ph.D.",        weeks:"all" },
+  { id:"mpe-lec",  term:"winter", day:5, start:"11:15", end:"13:45", subject:"mpe", kind:"lecture",   room:"P-MODRÁ",      teacher:"Vevera Jan, prof. MUDr., Ph.D.; Fiala…", weeks:"all" },
+];
+/* One-off changes. Cancelled: date → slot ids. Confirm: dates the parity rule is unsure about. */
+const TIMETABLE_CANCELLED = { "2026-10-16":["mpe-lec"] };
+const TIMETABLE_CONFIRM   = { "2027-01-06":"sim-prac", "2027-01-07":"mpe-sem" };
+const TIMETABLE_EXTRA     = { "2027-01-06":["sim-prac"] };   // forced on, flagged — see the week-53 note
+/* Room codes decoded into places, filled in as they are confirmed. A code with no entry is shown
+   as-is — a wrong building costs a missed class, so nothing here is guessed. */
+/* Decoded from the public SIS room registry (roz_ucebna_macro.php, WS 2026/27) on 2026-09-28,
+   cross-checked against the faculty's Kontakty directory. The building is NOT encoded in a code:
+   "U2.5" is building U1, floor 2, door 2.5. `P4` is the one that bites — it is at the Bory
+   hospital, a trolleybus ride from campus, not a campus lecture hall. */
+const ROOMS = {
+  "P-HNĚDÁ":  "Brown lecture hall · UniMeC U1, 1st floor, door 1.1",
+  "P-MODRÁ":  "Blue lecture hall · UniMeC U2 (the older building), entrance level",
+  "P4":       "FN Bory hospital, Dr. E. Beneše 13 · 2nd Int. Med. classroom, 1st floor, door 02.3417 — NOT on campus",
+  "UPF-J":    "Pathophysiology classroom South · UniMeC U2, 2nd floor",
+  "U2.5":     "Practical room 2.5 · UniMeC U1, 2nd floor",
+  "U3.15":    "Pathology microscopy room 3.15 · UniMeC U1, 3rd floor",
+  "USIM5.21A":"Simulation Centre, briefing room 5.21a · UniMeC U1, 5th floor",
+  "USL4.21":  "Practical room 4.21 (Social Medicine) · UniMeC U1, 4th floor",
+};
+
+function isoWeek(iso){
+  const d=parseISO(iso);
+  const t=new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dn=t.getUTCDay()||7;
+  t.setUTCDate(t.getUTCDate()+4-dn);
+  const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));
+  return Math.ceil((((t-y0)/86400000)+1)/7);
+}
+function termOf(iso){
+  for(const k in TERMS){ const t=TERMS[k];
+    if(iso>=t.from && iso<=t.to && !t.breaks.some(function(b){ return iso>=b[0] && iso<=b[1]; })) return k; }
+  return null;
+}
+const hm = s => { const p=s.split(":"); return parseInt(p[0],10)*60+parseInt(p[1],10); };
+function classesOn(iso){
+  const term=termOf(iso); if(!term) return [];
+  const dow=parseISO(iso).getDay();
+  const parity=isoWeek(iso)%2===0 ? "even" : "odd";
+  const cancelled=TIMETABLE_CANCELLED[iso]||[];
+  const extra=TIMETABLE_EXTRA[iso]||[];
+  return TIMETABLE
+    .filter(function(s){ return s.term===term && s.day===dow && (s.weeks==="all" || s.weeks===parity || extra.indexOf(s.id)>=0); })
+    .map(function(s){ return Object.assign({}, s, {
+      cancelled: cancelled.indexOf(s.id)>=0,
+      confirm:   TIMETABLE_CONFIRM[iso]===s.id,
+      place:     ROOMS[s.room] || s.room }); })
+    .sort(function(a,b){ return a.start<b.start?-1:1; });
+}
+function classHours(iso){
+  return classesOn(iso).filter(function(s){ return !s.cancelled; })
+    .reduce(function(a,s){ return a + (hm(s.end)-hm(s.start))/60; }, 0);
+}
+function classSpan(iso){
+  const l=classesOn(iso).filter(function(s){ return !s.cancelled; });
+  return l.length ? l[0].start+"–"+l[l.length-1].end : "";
+}
+
 /* ── provenance: where each topic list came from, and how old it is ─────────
    The 2026/27 curricula are NOT all published yet — several departments post the new edition
    only once teaching starts in October. Everything in CURRICULUM below is therefore the most
@@ -641,7 +731,7 @@ const ARCHIVE = {
          warn:"A missed practical must be made up on the same topic, and all protocols must be handed in and accepted." },
   pha: { where:"Lectures at UNIMEC 2. Practicals Biomed, ground floor.",
          absences:"One, sometimes at the teacher’s discretion." },
-  sim: { where:"UNIMEC 2, the new building, sixth floor." },
+  sim: { where:"The archive says “UNIMEC 2, sixth floor” — that was the 2022 building’s old name. It is today’s U1, Simulation Centre on floors 5–6; your briefing room is 5.21a." },
 };
 
 /* ── curriculum ─────────────────────────────────────────────────────────────
@@ -2336,6 +2426,140 @@ function TaskItem({task, A, gcalOn}){
 }
 
 /* ── views ───────────────────────────────────────────────────────── */
+/* ── classes ──────────────────────────────────────────────────────────────── */
+const KIND_LABEL = { lecture:"lecture", practical:"practical", seminar:"seminar" };
+function nowMinutes(){ const d=new Date(); return d.getHours()*60+d.getMinutes(); }
+
+function ClassRow({s, isToday, dense}){
+  const subj=SUBJECT[s.subject]; if(!subj) return null;
+  const nm=nowMinutes();
+  const live = isToday && !s.cancelled && nm>=hm(s.start) && nm<hm(s.end);
+  const past = isToday && nm>=hm(s.end);
+  const next = isToday && !s.cancelled && !live && !past;
+  return (
+    <div style={{display:"flex",alignItems:"flex-start",gap:10,padding:dense?"6px 0":"8px 0",borderTop:"0.5px solid var(--line)",opacity:(s.cancelled||past)?.55:1}}>
+      <span className="num" style={{fontFamily:"var(--mono)",fontSize:11.5,color:"var(--ink-2)",flex:"none",width:88,paddingTop:2}}>{s.start}–{s.end}</span>
+      <span style={{marginTop:5}}><Dot color={subj.color} size={8}/></span>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:13.5,color:"var(--ink)",display:"flex",alignItems:"center",gap:7,flexWrap:"wrap",textDecoration:s.cancelled?"line-through":"none"}}>
+          {subj.short}
+          <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:s.kind==="lecture"?subj.color+"18":"var(--paper-2)",color:s.kind==="lecture"?subj.color:"var(--ink-3)"}}>{KIND_LABEL[s.kind]||s.kind}</span>
+          {live && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:UI.accent,color:"#fff"}}>now</span>}
+          {s.cancelled && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"#B0203A14",color:"#B0203A"}}>cancelled</span>}
+          {s.confirm && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"#B4530914",color:"var(--warn)"}}>confirm in SIS</span>}
+          {s.weeks!=="all" && !dense && <span style={{fontSize:10,color:"var(--ink-3)"}}>{s.weeks} weeks</span>}
+        </div>
+        <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:1}}>
+          {s.place ? s.place : "room not shown"}{!dense && s.teacher ? " · "+s.teacher : ""}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* Today's classes, next one first in your eye. Sits under the countdown because on a teaching day
+   it is the thing you actually need to know at 07:40. */
+function ClassesToday({today}){
+  const list=classesOn(today);
+  const term=termOf(today);
+  const total=classHours(today);
+  const nm=nowMinutes();
+  const upcoming=list.filter(function(s){ return !s.cancelled && nm<hm(s.start); });
+  const nextIn = upcoming.length ? hm(upcoming[0].start)-nm : null;
+  return (
+    <div style={{background:"var(--card)",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",padding:"12px 15px",marginTop:10}}>
+      <div style={{display:"flex",alignItems:"baseline",gap:8,flexWrap:"wrap"}}>
+        <span style={{fontSize:13.5,color:"var(--ink)"}}>Today’s classes</span>
+        <span style={{fontSize:11.5,color:"var(--ink-3)",flex:1}}>
+          {!term ? "no teaching" : list.length ? Math.round(total*10)/10+" h · week "+isoWeek(today)+" ("+(isoWeek(today)%2===0?"even":"odd")+")" : "none"}
+        </span>
+        {nextIn!==null && <span style={{fontSize:11.5,color:UI.accent}}>next in {nextIn>=60?Math.floor(nextIn/60)+" h "+(nextIn%60)+" min":nextIn+" min"}</span>}
+      </div>
+      {!term && <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"6px 0 0"}}>
+        {today<TERMS.winter.from ? "Winter teaching opens "+fmtLong(TERMS.winter.from)+"." : "Outside the teaching weeks."}
+      </p>}
+      {term && !list.length && <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"6px 0 0"}}>Nothing timetabled today.</p>}
+      {list.length>0 && <div style={{marginTop:6}}>{list.map(function(s){ return <ClassRow key={s.id} s={s} isToday={true}/>; })}</div>}
+    </div>
+  );
+}
+
+/* One compact line per day on the Plan tab, so the study budget is read next to the contact
+   hours it has to fit around. */
+function ClassLine({date}){
+  const list=classesOn(date).filter(function(s){ return !s.cancelled; });
+  if(!list.length) return null;
+  const subs=[]; list.forEach(function(s){ const n=SUBJECT[s.subject].short; if(subs.indexOf(n)<0) subs.push(n); });
+  return (
+    <div style={{fontSize:11.5,color:"var(--ink-3)",margin:"-4px 0 10px",display:"flex",gap:8,flexWrap:"wrap"}}>
+      <i className="fa-regular fa-clock" style={{fontSize:10,marginTop:4}} aria-hidden="true"/>
+      <span>classes {classSpan(date)} · {Math.round(classHours(date)*10)/10} h · {subs.join(", ")}</span>
+    </div>
+  );
+}
+
+function ClassesView(){
+  const today=todayStr();
+  const [offset,setOffset]=useState(0);                 // weeks from this week
+  const monday=addDays(weekStartOf(today), offset*7);
+  const days=dateRange(monday, addDays(monday,4));
+  const wk=isoWeek(monday);
+  const total=days.reduce(function(a,d){ return a+classHours(d); },0);
+  const term=termOf(days[2]);
+  return (
+    <div>
+      <div className="eyebrow" style={{marginTop:18}}>group 3.AVSEOB20-5 · winter 2026/27</div>
+      <h1 style={{fontSize:28,margin:"2px 0 6px"}}>Classes</h1>
+      <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px",lineHeight:1.55}}>
+        Your SIS timetable, with every class also in your Google Calendar with a 30-minute
+        reminder. Lectures are the whole year; practicals and seminars are group 5. Two run
+        fortnightly by calendar-week parity.
+      </p>
+
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+        <button className="iconbtn" onClick={()=>setOffset(o=>o-1)} aria-label="Previous week"><i className="fa-solid fa-chevron-left" style={{fontSize:11}} aria-hidden="true"/></button>
+        <div style={{flex:1,textAlign:"center"}}>
+          <div style={{fontSize:14,color:"var(--ink)"}}>{fmtShort(days[0])} – {fmtShort(days[4])}</div>
+          <div style={{fontSize:11.5,color:"var(--ink-3)"}}>week {wk} · {wk%2===0?"even":"odd"}{term?" · "+Math.round(total*10)/10+" h of classes":" · no teaching"}</div>
+        </div>
+        <button className="iconbtn" onClick={()=>setOffset(o=>o+1)} aria-label="Next week"><i className="fa-solid fa-chevron-right" style={{fontSize:11}} aria-hidden="true"/></button>
+        {offset!==0 && <button className="iconbtn" style={{fontSize:11}} onClick={()=>setOffset(0)}>this week</button>}
+      </div>
+
+      {days.map(function(d){
+        const list=classesOn(d); const isT=d===today;
+        return (
+          <div key={d} style={{border:"0.5px solid "+(isT?UI.accent+"66":"var(--line)"),borderRadius:"var(--r-lg)",background:"var(--card)",padding:"10px 14px 4px",marginBottom:8}}>
+            <div style={{display:"flex",alignItems:"baseline",gap:8}}>
+              <span style={{fontSize:14,color:"var(--ink)",fontFamily:"var(--serif)"}}>{parseISO(d).toLocaleDateString("en-GB",{weekday:"long"})}</span>
+              <span style={{fontSize:11.5,color:"var(--ink-3)"}}>{fmtShort(d)}{isT?" · today":""}</span>
+              <span style={{fontSize:11.5,color:"var(--ink-3)",marginLeft:"auto"}}>{list.length?Math.round(classHours(d)*10)/10+" h":""}</span>
+            </div>
+            {list.length
+              ? <div style={{marginTop:4}}>{list.map(function(s){ return <ClassRow key={s.id} s={s} isToday={isT}/>; })}</div>
+              : <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"4px 0 6px"}}>{termOf(d)?"free":"no teaching"}</p>}
+          </div>
+        );
+      })}
+
+      <div style={{marginTop:14,padding:"11px 14px",background:"var(--card)",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)"}}>
+        <div style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.6}}>
+          <strong style={{color:"var(--ink)"}}>Fortnightly.</strong> Simulation Medicine on even weeks, the Psychology seminar on odd
+          weeks, by ISO calendar-week number. 2026 has 53 weeks, so the last week of December and the first of January
+          are <em>both</em> odd — that puts the Psychology seminar on <strong>7 Jan</strong> and leaves Wednesday
+          <strong> 6 Jan</strong> without Simulation Medicine. Confirm both in SIS before the break; they are marked above.
+        </div>
+        <div style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.6,marginTop:6}}>
+          <strong style={{color:"var(--ink)"}}>Cancelled.</strong> Psychology lecture, Fri 16 Oct.
+        </div>
+        <div style={{fontSize:12.5,color:"var(--ink-3)",lineHeight:1.6,marginTop:6}}>
+          Summer timetable: not published yet — add it here in February.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* The date you book in SIS. Until it is set, everything paces to the first day of the period. */
 function ExamDateEditor({exam, data, A, compact}){
   const w=examWhen(exam,data);
@@ -2416,6 +2640,7 @@ function TodayView({data, A, gcalStatus}){
       <h1 style={{fontSize:30,margin:"2px 0 16px"}}>Today</h1>
       <BriefingCard gcalOn={gcalOn} events={cal.events}/>
       <Countdown data={data} A={A}/>
+      <ClassesToday today={ts}/>
       <PhaseStrip today={ts}/>
       <OverflowBanner sched={sched} A={A} compact/>
       <ProdTodayStrip data={data} A={A}/>
@@ -2514,6 +2739,7 @@ function PlanView({data, A}){
               <span style={{fontSize:12,color:"var(--ink-3)",marginLeft:"auto"}}>{p.est}{p.items.length>0?` · ${done}/${p.items.length}`:""}</span>
             </div>
             <hr className="rule" style={{marginBottom:10}}/>
+            <ClassLine date={p.date}/>
             <DayBody p={p} data={data} A={A} showNote={false}/>
           </div>
         );
@@ -3257,7 +3483,7 @@ function ProdTodayStrip({data, A}){
 }
 
 /* ── root ───────────────────────────────────────────────────────── */
-const TABS = [["today","Today"],["plan","Plan"],["subjects","Subjects"],["progress","Progress"],["goals","Goals"],["timeline","Timeline"],["prod","Productivity"]];
+const TABS = [["today","Today"],["plan","Plan"],["classes","Classes"],["subjects","Subjects"],["progress","Progress"],["goals","Goals"],["timeline","Timeline"],["prod","Productivity"]];
 
 function App(){
   const [tab,setTab]=useState("today");
@@ -3544,6 +3770,7 @@ function App(){
 
       {tab==="today" && <TodayView data={data} A={A} gcalStatus={gcalStatus}/>}
       {tab==="plan" && <PlanView data={data} A={A}/>}
+      {tab==="classes" && <ClassesView/>}
       {tab==="subjects" && <SubjectsView data={data} A={A}/>}
       {tab==="progress" && <ProgressView data={data} A={A} focus={focus}/>}
       {tab==="goals" && <GoalsView data={data} A={A}/>}

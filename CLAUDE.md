@@ -1077,6 +1077,105 @@ Not before the exam.
 
 ---
 
+## Where things stand — 2026-09-28
+
+Three days before the year opens. This section is the **session log**: it is appended to as work
+happens, so the chat can be cleared at any point. Newest entries at the bottom.
+
+### State on arrival
+
+- Planner live on GitHub Pages with the third-year rebuild, the 700-topic curriculum, source
+  freshness badges, and the sign-in fix of 2026-09-08 (Connect/Reconnect open the account chooser
+  synchronously inside the click). **Linas has not yet confirmed that Connect works for him
+  since that fix** — if sync still fails, that is the first thing to re-test, on the Mac first.
+- Nothing has been ticked yet; the year has not started.
+
+### The winter timetable — group 3.AVSEOB20-5 (from Linas's SIS screenshot, 2026-09-28)
+
+Lectures are the whole year group (`3.AVSEOB20`); practicals/seminars are **group 5**
+(`3.AVSEOB20-5`). Room names ending in `-?` were cut off in the screenshot. Times are Europe/Prague.
+
+| Day | Time | Course | Kind | Room | Teacher | Weeks |
+| --- | --- | --- | --- | --- | --- | --- |
+| Mon | 08:00–10:30 | Pathological Physiology II. | practical | UPF-J | Purkartová Zdeňka, MUDr., Ph.D. | all |
+| Mon | 11:00–13:30 | Pharmacology II. | lecture | P-HNĚDÁ | Kučera Radek, prof. PharmDr., Ph.D. | all |
+| Tue | 08:00–10:30 | Introduction to Internal Medicine II | practical | — (not shown) | Mlíková Seidlerová Jitka, prof. MUDr. | all |
+| Tue | 11:00–12:40 | Introduction to Internal Medicine II | lecture | P4 | Mlíková Seidlerová Jitka | all |
+| Wed | 07:30–09:10 | Simulation Medicine | practical | USIM5.21A-? | Smékalová Olga, MUDr. | **even** |
+| Wed | 11:15–12:55 | Pathological Physiology II. | lecture | P-HNĚDÁ | Barcal Jan, MUDr., Ph.D. | all |
+| Wed | 13:30–15:10 | Czech for Medical Practice | seminar | USL4.21-? | Kopřivová Tamara, PhD | all |
+| Thu | 08:00–10:30 | Pharmacology II. | practical | U2.5.-PRAKT | Dědečková Eva, PharmDr. Bc., Ph.D. | all |
+| Thu | 11:00–12:40 | Medical Psychology and Ethics | seminar | — (not shown) | Vevera Jan, prof. MUDr. | **odd** |
+| Thu | 13:10–15:40 | Pathology | lecture | P-HNĚDÁ | Skálová Alena, prof. MUDr., CSc. | all |
+| Fri | 08:00–10:30 | Pathology | practical | U3.15-PRAKT | Daumová Magdaléna, MUDr., Ph.D. | all |
+| Fri | 11:15–13:45 | Medical Psychology and Ethics | lecture | P-MODRÁ | Vevera Jan, prof. MUDr., Ph.D.; Fiala… | all; **16.10.2026 cancelled** ("due to the r…", cut off) |
+
+Cross-checks against the audit of 2026-09-04, all consistent: `P-HNĚDÁ` is the Brown lecture hall
+the audit said Pathology lectures moved to; `U3.15-PRAKT` is "campus room 3.15"; the MPE seminar
+being fortnightly matches SIS's "two-lessons block once in two weeks". Contact load is roughly
+**22–26 h a week**, heaviest on Thursday. The four summer courses (Internal Medicine I,
+Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are absent, as expected.
+
+**Open — must be answered before the calendar events are created:**
+
+1. **Even/odd weeks: calendar-week parity or semester-week parity?** They give different dates.
+   1 Oct 2026 is a Thursday in ISO week 40 (even). By calendar parity, the first Simulation
+   Medicine session is Wed **14 Oct** and the first MPE seminar Thu **8 Oct**; by semester-week
+   parity (week 1 = 28 Sep–4 Oct), they are Wed **7 Oct** and Thu **1 Oct**. Charles University's
+   timetable module normally means *calendar* week (sudý/lichý týden), which is the working
+   assumption — confirm against the first Simulation Medicine session.
+2. The two truncated room names and the Friday cancellation reason.
+3. Reminder lead time for the calendar events, and whether they go into the primary calendar or a
+   separate "Classes" calendar.
+
+### Plan for the timetable (agreed direction, not yet built)
+
+- `TIMETABLE` constant in `index.html`: weekly slots `{day, start, end, subject, kind, room,
+  teacher, weeks:"all"|"even"|"odd"}`, valid for winter teaching **1 Oct 2026 – 8 Jan 2027**,
+  excluding **21 Dec – 1 Jan**. Summer timetable to be added when Linas has it (Feb 2027).
+- Today tab shows today's classes with the next one highlighted; a compact week view elsewhere.
+- **Push notifications = Google Calendar reminders.** A backend-free static page cannot send web
+  push (that needs a push server), so the honest mechanism is recurring Calendar events with popup
+  reminders — the Google Calendar app on the phone delivers those as push. Events are created
+  directly through the Calendar connector (not through the app's own token), as recurring weekly
+  events with `UNTIL=20270108`, `EXDATE`s for the holiday fortnight and 16 Oct, and fortnightly
+  ones with `INTERVAL=2` from the correct first date.
+- The planner's calendar feed must **exclude** class events from "Upcoming" (they would flood it)
+  — tag their descriptions with a marker and filter on it.
+- The daily study budget (`PHASES`) stays at Linas's 3 h; class hours are displayed, not
+  subtracted, unless he asks.
+
+### Session log
+
+- 2026-09-28 · Memory note added: keep this log as work happens, save before he clears, and tell
+  him when the session is long enough to clear.
+- 2026-09-28 · Timetable transcribed from the screenshot (table above).
+- 2026-09-28 · Calendar connector verified: writes to the primary calendar
+  `kadzidrogalinas@gmail.com` (tz Europe/Berlin, same offset as Prague), default reminder is a
+  **30-min popup**, and there is only one writable calendar — no "Classes" calendar can be created
+  through the connector, so events go into primary. No class events exist for October yet.
+- 2026-09-28 · Questions 1–3 above put to Linas, plus whether Connect works since the 09-08 fix.
+- 2026-09-28 · **Answers.** (1) Even/odd = **ISO calendar-week parity**. (2) Reminder **30 min
+  popup**. (3) Use the visible room codes, but try to decode them into real locations (building,
+  floor, room) — an agent is on it; fall back to the raw code. (4) **Sync works on both devices**
+  since the 09-08 fix — confirmed by Linas.
+- 2026-09-28 · **The ISO week-53 trap.** 2026 has 53 ISO weeks (1 Jan 2026 was a Thursday), so
+  week 53 (28 Dec–3 Jan) and week 1 of 2027 (4–10 Jan) are BOTH odd. Under strict ISO parity the
+  fortnightly classes therefore fall as: Simulation Medicine (even) 14 Oct, 28 Oct, 11 Nov,
+  25 Nov, 9 Dec — and NOT 6 Jan; MPE seminar (odd) 8 Oct, 22 Oct, 5 Nov, 19 Nov, 3 Dec, 17 Dec,
+  and 7 Jan. A plain 14-day cadence would instead give Sim Med on 6 Jan and no MPE on 7 Jan.
+  The two conventions agree through December and differ only on **6/7 January** — those two
+  dates are flagged in the events and must be confirmed in SIS.
+- 2026-09-28 · **Timetable built into `index.html`**: `TERMS`, `TIMETABLE` (12 winter slots),
+  `TIMETABLE_CANCELLED`, `TIMETABLE_CONFIRM`, `ROOMS`, and helpers `isoWeek` / `termOf` /
+  `classesOn` / `classHours` / `classSpan`. New **Classes** tab (week view with prev/next),
+  `ClassesToday` card on Today under the countdown, `ClassLine` per day on Plan. The calendar
+  feed now drops events whose description carries `[planner:class]`, so the Calendar copies of
+  the classes never flood "Upcoming". Node-verified: week 41 = 24.2 h, week 42 = 21.7 h of
+  classes; fortnightly dates as listed above; 16 Oct lecture cancelled; holidays empty.
+
+---
+
 ## Where things stand — 2026-09-03
 
 **The physiology oral is passed and the planner is a third-year planner.** What shipped today:

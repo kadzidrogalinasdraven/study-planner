@@ -1173,6 +1173,50 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   feed now drops events whose description carries `[planner:class]`, so the Calendar copies of
   the classes never flood "Upcoming". Node-verified: week 41 = 24.2 h, week 42 = 21.7 h of
   classes; fortnightly dates as listed above; 16 Oct lecture cancelled; holidays empty.
+- 2026-09-28 · **Rooms decoded** from the public SIS room registry
+  (`is.cuni.cz/studium/rozvrhng/roz_ucebna_macro.php?skr=2026&sem=1&fak=11140`, per-room pages
+  `…&ucebna=<id>`), cross-checked against the faculty Kontakty directory. All eight in `ROOMS`.
+  How to read a code: `P-<colour>` = campus lecture hall (Green/Brown/Azure in U1, Blue in U2);
+  bare `P1`/`P4` = hospital lecture rooms; `U<inst><floor>.<room>` = classroom, door number =
+  floor.room, **building not encoded** (U2.5 is U1 floor 2). **`P4` is at FN Bory, Dr. E.
+  Beneše 13 — across town**, trolleybus 16 to Nemocnice Bory, right after an 08:00 practical.
+  U1 = the 2022 building ("UniMeC 1"), U2 = the 2014 one; the archive's "UNIMEC 2, 6th floor"
+  for simulation meant today's U1 (sim centre floors 5–6, briefing room 5.21a).
+- 2026-09-28 · The two parity-ambiguous January sessions (Sim Med 6 Jan, MPE seminar 7 Jan) are
+  **shown and flagged, not dropped** — `TIMETABLE_EXTRA` forces Sim Med on 6 Jan. A missed
+  Simulation Medicine practical costs the credit (attendance at every one is required).
+- 2026-09-28 · **Twelve recurring events created in the primary Google Calendar** through the
+  connector, each with a 30-min popup reminder, per-subject colour, location = decoded room,
+  and `[planner:class <subject>]` in the description (which the planner's feed filters on).
+  Weekly ones: `RRULE:FREQ=WEEKLY;UNTIL=20270108T235959Z` + EXDATEs for 21 Dec–1 Jan.
+  Sim Med: `INTERVAL=2` from 14 Oct, EXDATE 23 Dec (so 6 Jan IS included, flagged in the text).
+  MPE seminar: `INTERVAL=2` from 8 Oct, EXDATE 31 Dec, **RDATE 7 Jan**. MPE lecture: EXDATE
+  16 Oct as well. Event ids: pfy-prac `notrimnmb859v5e1efes70hc9c`, pha-lec
+  `jjdmrju2uqg7jju4v5h74d73lc`, iim-prac `o80u6mq6n8sc7gumie2fcbqd4o`, iim-lec
+  `842qrr7buf69ghc8phgsdu2qe8`, sim-prac `ev2fhs1vs1o7q4ad1rhvcqirj8`, pfy-lec
+  `ipvknnl054h6hn6lp3ovrrf30g`, cze-sem `r9mfu8ntk0e7uv3m6oouuhr3us`, pha-prac
+  `0ba3b28nor7g2ss3mdp3shsgb8`, mpe-sem `fnk9khjrmeq3u3cfjlnrcmvq7g`, pat-lec
+  `dqvike3svmgrluhocr9p327b50`, pat-prac `v8fkeqp5e0objcl23n9ak8e64s`, mpe-lec
+  `gm5og0cg2847r73imho61s43pk`. **To change the whole series, update the event by id; to change
+  one date, edit that instance in Calendar.** When the summer timetable arrives, create a second
+  set the same way and add the slots to `TIMETABLE` with `term:"summer"`.
+- 2026-09-28 · Deployed as `e721f98`. The built-in browser pane is blocked by a stale Google
+  sign-in popup from localhost (origin_mismatch — expected; localhost is not and must not be an
+  authorised origin). Visual check moved to Chrome at Linas's request.
+- 2026-09-28 · **Calendar expansion verified on Google's side** by listing 12–16 Oct and
+  21 Dec–11 Jan: Sim Med on 14 Oct and no MPE seminar that week (even week ✓); MPE lecture absent
+  on 16 Oct ✓; nothing at all 21 Dec–3 Jan ✓; 6 Jan Sim Med present (flagged) ✓; 7 Jan MPE
+  seminar present via RDATE ✓; nothing after 8 Jan ✓. Every instance carries the 30-min popup.
+- 2026-09-28 · **Visual pass done in Chrome on the live site**: eight tabs, "Signed in · syncing
+  automatically", Today card reads "Winter teaching opens Thursday 1 October", Plan days carry
+  class lines, Classes tab shows week 41 with every decoded room. No console errors.
+- 2026-09-28 · **Session state is complete; safe to clear.** Open items for the next session:
+  (a) confirm the 6/7 Jan fortnightly sessions in SIS once the department posts January dates;
+  (b) the Tuesday practical and Thursday seminar rooms are not in the SIS timetable — ask at the
+  first class and fill `TIMETABLE[].room` + edit the two Calendar series; (c) summer timetable in
+  February — add `term:"summer"` slots and a second set of Calendar series; (d) the standing
+  re-check list under "Source freshness" (Pathology PDFs late Sept, IM II list ~24 Nov,
+  Pharmacology Word file once logged in). Nothing is half-done.
 
 ---
 

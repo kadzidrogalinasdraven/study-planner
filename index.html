@@ -521,13 +521,13 @@ const SUBJECTS = [
     short:"Intro to Internal Medicine", dept:"14-320", ects:7, color:"#BE123C", sem:"winter",
     completion:{ winter:"credit+exam" }, examId:"iim-w",
     examFormat:"The only internal-medicine exam of the year, and it covers Introduction to Internal Medicine I from second year as well. Practical in the last two weeks of teaching: take a history and examine a patient, or describe an ECG \u2014 white coat, stethoscope, pen and the examination record form. Then an oral of two questions, one from each group, plus an ECG to describe. Disease entities were dropped from the list, but cardiac and respiratory examination and investigation were kept and are certain to come up.",
-    creditRule:"A minimum of 10 lectures and 9 practical classes, plus the practical exam. Substitutions only by prior agreement. Passing this is a prerequisite for taking Internal Medicine I in the summer of the same year.",
+    creditRule:"The 2026/27 rules ask for “a minimum of 10 classes, 9 practical classes and a practical exam”. Only 11 Tuesdays are taught — 17 November is a public holiday — so count on one absence at most. The practical exam is sat in class time in the last two weeks (15 December or 5 January), with the parallel group’s teacher if possible. A missed practical can be substituted only by agreement with the teacher, asked for in advance. A lecture with fewer than three students may be cancelled. Questions go to the department secretary, not to the teachers. Passing this is a prerequisite for taking Internal Medicine I in the summer of the same year.",
     cmd:"/study-first-pass Internal medicine propaedeutics — " },
   { id:"mpe", key:"MPE", sis:"EAP0103390", title:"Medical Psychology and Ethics",
     short:"Psychology & Ethics", dept:"14-390", ects:5, color:"#7C4A1E", sem:"both",
     completion:{ winter:"credit", summer:"credit+exam" }, examId:"mpe-s",
     examFormat:"Final oral exam, taken only after both credits are in hand.",
-    creditRule:"Winter: attendance at the practical seminars (one absence allowed) plus an essay. Summer: the same, plus an essay or participation in a student research survey.",
+    creditRule:"Winter: attendance at the practical seminars (compulsory, one absence a semester allowed) plus an essay — the essays are evaluated at the last seminar, 7 January. Summer: the same, plus an essay or participation in a student research survey. Lectures run in the winter only, and what is said in them is examined.",
     cmd:"/study-first-pass Medical psychology and ethics — " },
   { id:"im1", key:"IM1", sis:"EAP0103320", title:"Internal Medicine I.",
     short:"Internal Medicine I", dept:"14-320", ects:3, color:"#C2622E", sem:"summer",
@@ -573,15 +573,23 @@ const EXAMS = [
 
 /* ── the timetable ──────────────────────────────────────────────────────────
    Winter 2026/27, group 3.AVSEOB20-5, transcribed from Linas's SIS timetable on 2026-09-28.
-   Lectures are the whole year group; practicals and seminars are group 5. `weeks` is ISO
-   calendar-week parity — that is what Charles University's timetable module means by
-   sudý/lichý týden, and Linas confirmed it. The same slots were written into his Google
-   Calendar as recurring events, so the planner and the phone agree.
+   Lectures are the whole year group; practicals and seminars are group 5. The same slots were
+   written into his Google Calendar as recurring events, so the planner and the phone agree.
 
-   THE WEEK-53 TRAP: 2026 has 53 ISO weeks, so week 53 (28 Dec–3 Jan) and week 1 of 2027
-   (4–10 Jan) are both odd. Strict parity therefore puts the MPE seminar on Thu 7 Jan and NOT
-   Simulation Medicine on Wed 6 Jan; a naive 14-day cadence says the opposite. The two agree on
-   every other date. Those two January dates are flagged until confirmed in SIS.
+   `weeks` IS THE PARITY OF THE TEACHING WEEK, NOT OF THE CALENDAR WEEK. SIS spells it out on
+   the room page for the simulation centre: "3.AVSEOB20-5 even (odd numbered in calendar)".
+   Teaching week 1 is the week of 28 Sep (ISO week 40), so every SIS label is the opposite of
+   the ISO parity until Christmas. This was built the wrong way round on 2026-09-28 and caught
+   on 2026-09-30, when the Psychology department's own schedule put group 5 — "odd" in SIS —
+   on 1 Oct. Simulation Medicine therefore starts on Wed 7 Oct, not 14 Oct.
+
+   The break is not counted: 4–8 Jan is teaching week 13, which is how the Psychology schedule
+   numbers it (group 5, week 13, 7 Jan). By the same count Simulation Medicine ("even") does not
+   run on Wed 6 Jan — but SIS's own gloss, "odd numbered in calendar", would put it there, and
+   a missed practical costs the credit. So 6 Jan stays on, flagged, until the department says.
+
+   A slot with `dates` follows that list and nothing else: the department published the actual
+   sessions, and one of them was moved (12 Nov → 19 Nov).
 
    Summer slots are added when Linas has that timetable (mid-February 2027). */
 const TERMS = {
@@ -591,21 +599,46 @@ const TERMS = {
 const TIMETABLE = [
   { id:"pfy-prac", term:"winter", day:1, start:"08:00", end:"10:30", subject:"pfy", kind:"practical", room:"UPF-J",        teacher:"Purkartová Zdeňka, MUDr., Ph.D.",        weeks:"all" },
   { id:"pha-lec",  term:"winter", day:1, start:"11:00", end:"13:30", subject:"pha", kind:"lecture",   room:"P-HNĚDÁ",      teacher:"Kučera Radek, prof. PharmDr., Ph.D.",    weeks:"all" },
-  { id:"iim-prac", term:"winter", day:2, start:"08:00", end:"10:30", subject:"iim", kind:"practical", room:"",             teacher:"Mlíková Seidlerová Jitka, prof. MUDr.",  weeks:"all" },
+  { id:"iim-prac", term:"winter", day:2, start:"08:00", end:"10:30", subject:"iim", kind:"practical", room:"FN-2IK",       teacher:"5A doc. Hirmerová · 5B Dr. Nussbaumerová", weeks:"all",
+    note:"Bring a white coat, slippers, a stethoscope and a visible ID card." },
   { id:"iim-lec",  term:"winter", day:2, start:"11:00", end:"12:40", subject:"iim", kind:"lecture",   room:"P4",           teacher:"Mlíková Seidlerová Jitka, prof. MUDr.",  weeks:"all" },
   { id:"sim-prac", term:"winter", day:3, start:"07:30", end:"09:10", subject:"sim", kind:"practical", room:"USIM5.21A",    teacher:"Smékalová Olga, MUDr.",                  weeks:"even" },
   { id:"pfy-lec",  term:"winter", day:3, start:"11:15", end:"12:55", subject:"pfy", kind:"lecture",   room:"P-HNĚDÁ",      teacher:"Barcal Jan, MUDr., Ph.D.",               weeks:"all" },
   { id:"cze-sem",  term:"winter", day:3, start:"13:30", end:"15:10", subject:"cze", kind:"seminar",   room:"USL4.21",      teacher:"Kopřivová Tamara, PhD",                  weeks:"all" },
   { id:"pha-prac", term:"winter", day:4, start:"08:00", end:"10:30", subject:"pha", kind:"practical", room:"U2.5",         teacher:"Dědečková Eva, PharmDr. Bc., Ph.D.",     weeks:"all" },
-  { id:"mpe-sem",  term:"winter", day:4, start:"11:00", end:"12:40", subject:"mpe", kind:"seminar",   room:"",             teacher:"Vevera Jan, prof. MUDr.",                weeks:"odd" },
+  { id:"mpe-sem",  term:"winter", day:4, start:"11:00", end:"12:40", subject:"mpe", kind:"seminar",   room:"PSY-SEM",      teacher:"Vevera Jan, prof. MUDr.",                weeks:"odd",
+    dates:["2026-10-01","2026-10-15","2026-10-29","2026-11-19","2026-11-26","2026-12-10","2027-01-07"] },
   { id:"pat-lec",  term:"winter", day:4, start:"13:10", end:"15:40", subject:"pat", kind:"lecture",   room:"P-HNĚDÁ",      teacher:"Skálová Alena, prof. MUDr., CSc.",       weeks:"all" },
   { id:"pat-prac", term:"winter", day:5, start:"08:00", end:"10:30", subject:"pat", kind:"practical", room:"U3.15",        teacher:"Daumová Magdaléna, MUDr., Ph.D.",        weeks:"all" },
   { id:"mpe-lec",  term:"winter", day:5, start:"11:15", end:"13:45", subject:"mpe", kind:"lecture",   room:"P-MODRÁ",      teacher:"Vevera Jan, prof. MUDr., Ph.D.; Fiala…", weeks:"all" },
 ];
-/* One-off changes. Cancelled: date → slot ids. Confirm: dates the parity rule is unsure about. */
+/* One-off changes. Cancelled: date → slot ids. Confirm: a date the week rule is unsure about. */
 const TIMETABLE_CANCELLED = { "2026-10-16":["mpe-lec"] };
-const TIMETABLE_CONFIRM   = { "2027-01-06":"sim-prac", "2027-01-07":"mpe-sem" };
-const TIMETABLE_EXTRA     = { "2027-01-06":["sim-prac"] };   // forced on, flagged — see the week-53 note
+const TIMETABLE_CONFIRM   = { "2027-01-06":"sim-prac" };
+const TIMETABLE_EXTRA     = { "2027-01-06":["sim-prac"] };   // forced on, flagged — see the note above
+/* What the department's own schedule says about one session. Psychology: "Practicals schedules
+   groups 1 - 5 GM.pdf", group 5. Internal medicine: "Rules general medicine 3rd year winter
+   26-27.pdf" — the practical exam is sat in class time "in the last two weeks of semester". */
+const TIMETABLE_NOTES = {
+  "2026-10-01": { "mpe-sem":"Introduction to medical psychology." },
+  "2026-10-06": { "iim-prac":"First class: go to the Clinic Office (Secretariat) — your teacher meets you there." },
+  "2026-10-15": { "mpe-sem":"Doctor–patient relationship. Chronic patient, acute patient. Joined with group 1." },
+  "2026-10-29": { "mpe-sem":"Communication with an agitated or aggressive patient. Anxious patient." },
+  "2026-11-19": { "mpe-sem":"Handicapped patient. Moved here from 12 Nov." },
+  "2026-11-26": { "mpe-sem":"Pain — acute, chronic. Pharmacotherapy. Placebo, nocebo. Psychological preparation for painful procedures." },
+  "2026-12-10": { "mpe-sem":"Communication with elderly patients. Important aspects of senior age." },
+  "2026-12-15": { "iim-prac":"Practical exam window: it is sat in class time in the last two weeks, with the parallel group’s teacher if possible." },
+  "2027-01-05": { "iim-prac":"Practical exam window: it is sat in class time in the last two weeks, with the parallel group’s teacher if possible." },
+  "2027-01-07": { "mpe-sem":"Evaluation of essays." },
+};
+/* Czech public holidays that fall on a teaching weekday: no classes. Not in TERMS.breaks,
+   because a break week is skipped when teaching weeks are counted and a single day is not. */
+const PUBLIC_HOLIDAYS = {
+  "2026-10-28":"Independent Czechoslovak State Day",
+  "2026-11-17":"Struggle for Freedom and Democracy Day",
+  "2027-03-26":"Good Friday",
+  "2027-03-29":"Easter Monday",
+};
 /* Room codes decoded into places, filled in as they are confirmed. A code with no entry is shown
    as-is — a wrong building costs a missed class, so nothing here is guessed. */
 /* Decoded from the public SIS room registry (roz_ucebna_macro.php, WS 2026/27) on 2026-09-28,
@@ -616,6 +649,8 @@ const ROOMS = {
   "P-HNĚDÁ":  "Brown lecture hall · UniMeC U1, 1st floor, door 1.1",
   "P-MODRÁ":  "Blue lecture hall · UniMeC U2 (the older building), entrance level",
   "P4":       "FN Bory hospital, Dr. E. Beneše 13 · 2nd Int. Med. classroom, 1st floor, door 02.3417 — NOT on campus",
+  "FN-2IK":   "FN Bory hospital, Dr. E. Beneše 13 · 2nd Dept. of Internal Medicine, on the wards — NOT on campus",
+  "PSY-SEM":  "Dept. of Psychiatry, FN Lochotín · seminar room, 1st floor",
   "UPF-J":    "Pathophysiology classroom South · UniMeC U2, 2nd floor",
   "U2.5":     "Practical room 2.5 · UniMeC U1, 2nd floor",
   "U3.15":    "Pathology microscopy room 3.15 · UniMeC U1, 3rd floor",
@@ -623,31 +658,39 @@ const ROOMS = {
   "USL4.21":  "Practical room 4.21 (Social Medicine) · UniMeC U1, 4th floor",
 };
 
-function isoWeek(iso){
-  const d=parseISO(iso);
-  const t=new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const dn=t.getUTCDay()||7;
-  t.setUTCDate(t.getUTCDate()+4-dn);
-  const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));
-  return Math.ceil((((t-y0)/86400000)+1)/7);
-}
 function termOf(iso){
   for(const k in TERMS){ const t=TERMS[k];
     if(iso>=t.from && iso<=t.to && !t.breaks.some(function(b){ return iso>=b[0] && iso<=b[1]; })) return k; }
   return null;
 }
 const hm = s => { const p=s.split(":"); return parseInt(p[0],10)*60+parseInt(p[1],10); };
+/* The 1-based teaching week of the term `iso` falls in — what SIS means by odd and even. A week
+   lying wholly inside a break is not counted, so 4–8 Jan 2027 is week 13, not 15. */
+function teachWeek(iso){
+  const term=termOf(iso); if(!term) return null;
+  const t=TERMS[term]; let n=0;
+  for(let m=weekStartOf(t.from); m<=iso; m=addDays(m,7)){
+    const fri=addDays(m,4);
+    if(!t.breaks.some(function(b){ return m>=b[0] && fri<=b[1]; })) n++;
+  }
+  return n;
+}
 function classesOn(iso){
-  const term=termOf(iso); if(!term) return [];
+  const term=termOf(iso); if(!term || PUBLIC_HOLIDAYS[iso]) return [];
   const dow=parseISO(iso).getDay();
-  const parity=isoWeek(iso)%2===0 ? "even" : "odd";
+  const parity=teachWeek(iso)%2===0 ? "even" : "odd";
   const cancelled=TIMETABLE_CANCELLED[iso]||[];
   const extra=TIMETABLE_EXTRA[iso]||[];
+  const notes=TIMETABLE_NOTES[iso]||{};
   return TIMETABLE
-    .filter(function(s){ return s.term===term && s.day===dow && (s.weeks==="all" || s.weeks===parity || extra.indexOf(s.id)>=0); })
+    .filter(function(s){
+      if(s.term!==term || s.day!==dow) return false;
+      if(s.dates) return s.dates.indexOf(iso)>=0;
+      return s.weeks==="all" || s.weeks===parity || extra.indexOf(s.id)>=0; })
     .map(function(s){ return Object.assign({}, s, {
       cancelled: cancelled.indexOf(s.id)>=0,
       confirm:   TIMETABLE_CONFIRM[iso]===s.id,
+      today:     notes[s.id] || "",
       place:     ROOMS[s.room] || s.room }); })
     .sort(function(a,b){ return a.start<b.start?-1:1; });
 }
@@ -678,15 +721,15 @@ const SOURCES = {
   "pfy-q":   { label:"Pathophysiology II — oral and practical question lists",
                edition:"2026/27", status:"current",
                where:"SIS · EAP0103090 · 135 oral across four groups, 18 practical",
-               note:"The only course of the eleven with a verified 2026/27 file, uploaded 2 July 2026. Its text is identical to the 2025/26, 2024/25 and 2023/24 editions, so older notes keyed to these numbers still line up." },
+               note:"One of two courses with a verified 2026/27 file — the other is Introduction to Internal Medicine II. Uploaded 2 July 2026. Its text is identical to the 2025/26, 2024/25 and 2023/24 editions, so older notes keyed to these numbers still line up." },
   "pat-q":   { label:"Pathology — the three exam-question lists",
                edition:"undated · uploaded Sept 2025", status:"current",
                where:"SIS · EAP0103500 · General 47, Special 108, Oncological 69",
                note:"No academic year is printed on these PDFs, and the department silently refreshed all three on 22 September 2025 — the first week of term. Re-download them in late September and re-count 47 / 108 / 69." },
   "iim-q":   { label:"Introduction to Internal Medicine II — exam questions",
-               edition:"2025/26", status:"old",
-               where:"SIS · EAP0103322 · 23 propedeutics + 18 ECG and varia",
-               note:"One year behind, and the best that exists. Last year's version went up on 24 November — check for the 2026/27 list from about then." },
+               edition:"2026/27", status:"current",
+               where:"SIS · EAP0103322 · 24 propedeutics + 18 ECG and varia",
+               note:"Headed “academic year 2026/2027” and read on 30 September 2026. One question more than last year’s list: I.18, Examination of bone metabolism. The second group is printed as “III. ECG + varia” — there is no group II. The oral is one question from each group plus an ECG to describe." },
   "pha-q":   { label:"Pharmacology — the 157-question list",
                edition:"2020/21 · a stand-in", status:"old",
                where:"SIS · legacy code EA0107015 · General 26 + Special 131",
@@ -1301,17 +1344,20 @@ const CURRICULUM = [
     ["IIM004","Physical examination of the head and neck"],
     ["IIM005","Medical history in respiratory disease, physical examination of the chest and lungs. Pulmonary syndromes"],
     ["IIM006","Medical history in cardiac diseases, physical examination of the heart"],
-    ["IIM007","Physical examination of the heart \u2013 pathologic findings"],
-    ["IIM008","Medical history in abdominal diseases, physical examination of the abdomen and abdominal organs"],
+    ["IIM007","Pathologic findings in heart disease"],
+    ["IIM008","Medical history related to diseases of the abdominal organs; physical examination of the abdomen and abdominal organs"],
     ["IIM009","Medical history in rheumatic disease. Physical examination of the upper and lower limbs and spine\u2026"],
     ["IIM010","Medical history in the diseases of peripheral vessels, physical examination of peripheral vessels\u2026"],
     ["IIM011","Measurement of blood pressure and heart rate, home blood pressure measurement\u2026"],
-    ["IIM012","Noninvasive cardiac tests \u2013 the basics of echocardiography, cardiac exercise stress testing\u2026"],
+    ["IIM012","Non-invasive cardiac tests \u2013 the basics of echocardiography, cardiac exercise stress testing, HUTT, 6-MWT. Laboratory tests in cardiology"],
     ["IIM013","Invasive cardiac tests \u2013 coronary angiography, left heart ventriculography, right heart catheterisation\u2026"],
     ["IIM014","Laboratory, functional and imaging tests in pneumology"],
-    ["IIM015","Examination in diabetology - basic types of diabetes, laboratory tests in diabetology\u2026"],
+    ["IIM015","Examination in diabetology - types of diabetes, laboratory tests in diabetology, diagnosis of organ complications of diabetes"],
     ["IIM016","Examination in nephrology - medical history, physical examination, laboratory and imaging tests in nephrology"],
     ["IIM017","Examination in endocrinology - symptoms and signs of the most common endocrine diseases\u2026"],
+    /* New in the 2026/27 list as question I.18. Codes are tick keys, not question numbers: it
+       takes the next free code rather than renumbering 18\u201341, which would move existing ticks. */
+    ["IIM042","Examination of bone metabolism \u2013 subjective and objective symptoms of skeletal diseases, laboratory and imaging tests"],
     ["IIM018","Examination in gastroenterology - laboratory and imaging tests in gastroenterology, endoscopic examination"],
     ["IIM019","Laboratory and imaging tests in the diseases of the liver, gallbladder, biliary tract and pancreas"],
     ["IIM020","Chest pain \u2013 causes, examination methods"],
@@ -1325,8 +1371,8 @@ const CURRICULUM = [
     ["IIM026","ECG patterns in coronary heart disease"],
     ["IIM027","ECG \u2013 Arrhythmias"],
     ["IIM028","Principles of laboratory investigation in clinical medicine\u2026"],
-    ["IIM029","Haematological laboratory methods, examination in clinical haematology"],
-    ["IIM030","Skiagraphy and skiascopy \u2013 indications in internal medicine, examination process"],
+    ["IIM029","Haematological laboratory methods, other diagnostic methods in clinical haematology"],
+    ["IIM030","Conventional X-ray diagnostics, skiagraphy, and fluoroscopy (skiascopy) - indications in internal medicine and the examination procedure"],
     ["IIM031","Ultrasonography and dopplerometry - indications in internal medicine, examination process"],
     ["IIM032","Computer tomography (CT) and magnetic resonance imaging (MRI) \u2013 indications in internal medicine, examination process"],
     ["IIM033","Angiography and interventional radiology techniques \u2013 indications in internal medicine, examination process"],
@@ -2554,11 +2600,13 @@ function ClassRow({s, isToday, dense}){
           {live && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:UI.accent,color:"#fff"}}>now</span>}
           {s.cancelled && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"#B0203A14",color:"#B0203A"}}>cancelled</span>}
           {s.confirm && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"#B4530914",color:"var(--warn)"}}>confirm in SIS</span>}
-          {s.weeks!=="all" && !dense && <span style={{fontSize:10,color:"var(--ink-3)"}}>{s.weeks} weeks</span>}
+          {s.weeks!=="all" && !dense && <span style={{fontSize:10,color:"var(--ink-3)"}}>every second week</span>}
         </div>
+        {s.today && !s.cancelled && <div style={{fontSize:12,color:"var(--ink-2)",marginTop:2,lineHeight:1.45}}>{s.today}</div>}
         <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:1}}>
           {s.place ? s.place : "room not shown"}{!dense && s.teacher ? " · "+s.teacher : ""}
         </div>
+        {s.note && !dense && !s.cancelled && <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:1}}>{s.note}</div>}
       </div>
     </div>
   );
@@ -2578,14 +2626,16 @@ function ClassesToday({today}){
       <div style={{display:"flex",alignItems:"baseline",gap:8,flexWrap:"wrap"}}>
         <span style={{fontSize:13.5,color:"var(--ink)"}}>Today’s classes</span>
         <span style={{fontSize:11.5,color:"var(--ink-3)",flex:1}}>
-          {!term ? "no teaching" : list.length ? Math.round(total*10)/10+" h · week "+isoWeek(today)+" ("+(isoWeek(today)%2===0?"even":"odd")+")" : "none"}
+          {!term ? "no teaching" : list.length ? Math.round(total*10)/10+" h · teaching week "+teachWeek(today)+" ("+(teachWeek(today)%2===0?"even":"odd")+")" : "none"}
         </span>
         {nextIn!==null && <span style={{fontSize:11.5,color:UI.accent}}>next in {nextIn>=60?Math.floor(nextIn/60)+" h "+(nextIn%60)+" min":nextIn+" min"}</span>}
       </div>
       {!term && <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"6px 0 0"}}>
         {today<TERMS.winter.from ? "Winter teaching opens "+fmtLong(TERMS.winter.from)+"." : "Outside the teaching weeks."}
       </p>}
-      {term && !list.length && <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"6px 0 0"}}>Nothing timetabled today.</p>}
+      {term && !list.length && <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"6px 0 0"}}>
+        {PUBLIC_HOLIDAYS[today] ? "Public holiday — "+PUBLIC_HOLIDAYS[today]+". No classes." : "Nothing timetabled today."}
+      </p>}
       {list.length>0 && <div style={{marginTop:6}}>{list.map(function(s){ return <ClassRow key={s.id} s={s} isToday={true}/>; })}</div>}
     </div>
   );
@@ -2610,9 +2660,9 @@ function ClassesView(){
   const [offset,setOffset]=useState(0);                 // weeks from this week
   const monday=addDays(weekStartOf(today), offset*7);
   const days=dateRange(monday, addDays(monday,4));
-  const wk=isoWeek(monday);
   const total=days.reduce(function(a,d){ return a+classHours(d); },0);
-  const term=termOf(days[2]);
+  const term=termOf(days[4]);                           // Friday: the opening week starts on a Thursday
+  const wk=term ? teachWeek(days[4]) : null;
   return (
     <div>
       <div className="eyebrow" style={{marginTop:18}}>group 3.AVSEOB20-5 · winter 2026/27</div>
@@ -2620,14 +2670,14 @@ function ClassesView(){
       <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px",lineHeight:1.55}}>
         Your SIS timetable, with every class also in your Google Calendar with a 30-minute
         reminder. Lectures are the whole year; practicals and seminars are group 5. Two run
-        fortnightly by calendar-week parity.
+        every second week.
       </p>
 
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
         <button className="iconbtn" onClick={()=>setOffset(o=>o-1)} aria-label="Previous week"><i className="fa-solid fa-chevron-left" style={{fontSize:11}} aria-hidden="true"/></button>
         <div style={{flex:1,textAlign:"center"}}>
           <div style={{fontSize:14,color:"var(--ink)"}}>{fmtShort(days[0])} – {fmtShort(days[4])}</div>
-          <div style={{fontSize:11.5,color:"var(--ink-3)"}}>week {wk} · {wk%2===0?"even":"odd"}{term?" · "+Math.round(total*10)/10+" h of classes":" · no teaching"}</div>
+          <div style={{fontSize:11.5,color:"var(--ink-3)"}}>{term ? "teaching week "+wk+" · "+(wk%2===0?"even":"odd")+" · "+Math.round(total*10)/10+" h of classes" : "no teaching"}</div>
         </div>
         <button className="iconbtn" onClick={()=>setOffset(o=>o+1)} aria-label="Next week"><i className="fa-solid fa-chevron-right" style={{fontSize:11}} aria-hidden="true"/></button>
         {offset!==0 && <button className="iconbtn" style={{fontSize:11}} onClick={()=>setOffset(0)}>this week</button>}
@@ -2644,17 +2694,21 @@ function ClassesView(){
             </div>
             {list.length
               ? <div style={{marginTop:4}}>{list.map(function(s){ return <ClassRow key={s.id} s={s} isToday={isT}/>; })}</div>
-              : <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"4px 0 6px"}}>{termOf(d)?"free":"no teaching"}</p>}
+              : <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"4px 0 6px"}}>{!termOf(d) ? "no teaching" : PUBLIC_HOLIDAYS[d] ? "public holiday — "+PUBLIC_HOLIDAYS[d] : "free"}</p>}
           </div>
         );
       })}
 
       <div style={{marginTop:14,padding:"11px 14px",background:"var(--card)",border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)"}}>
         <div style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.6}}>
-          <strong style={{color:"var(--ink)"}}>Fortnightly.</strong> Simulation Medicine on even weeks, the Psychology seminar on odd
-          weeks, by ISO calendar-week number. 2026 has 53 weeks, so the last week of December and the first of January
-          are <em>both</em> odd — that puts the Psychology seminar on <strong>7 Jan</strong> and leaves Wednesday
-          <strong> 6 Jan</strong> without Simulation Medicine. Confirm both in SIS before the break; they are marked above.
+          <strong style={{color:"var(--ink)"}}>Every second week.</strong> SIS counts <em>teaching</em> weeks, and week 1 is the
+          week of 1 October — so its “even” is an odd calendar week. Simulation Medicine (even) runs on
+          <strong> 7 and 21 Oct, 4 and 18 Nov, 2 and 16 Dec</strong>. The Psychology seminar follows the department’s own
+          list: <strong>1, 15 and 29 Oct, 19 and 26 Nov, 10 Dec, 7 Jan</strong>. Wednesday 6 Jan is the one open date:
+          by the week count there is no Simulation Medicine, by SIS’s calendar note there is. It is marked above — ask.
+        </div>
+        <div style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.6,marginTop:6}}>
+          <strong style={{color:"var(--ink)"}}>No classes.</strong> Wed 28 Oct and Tue 17 Nov are public holidays.
         </div>
         <div style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.6,marginTop:6}}>
           <strong style={{color:"var(--ink)"}}>Cancelled.</strong> Psychology lecture, Fri 16 Oct.

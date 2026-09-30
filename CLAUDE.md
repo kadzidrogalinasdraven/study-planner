@@ -127,7 +127,7 @@ is the curriculum**, because it is literally what is examined:
 | --- | --- | --- | --- |
 | Pathology | General 47 / Special 108 / Oncological 69 | **224** | the three exam-question PDFs |
 | Pathophysiology II | 4 oral groups (30/35/35/35) + practical 18 | **153** | oral + practical question PDFs, 2026/27 edition |
-| Intro to Internal Medicine II | Propedeutics 23 / ECG+varia 18 | **41** | exam PDF (2025/26 edition — one year behind) |
+| Intro to Internal Medicine II | Propedeutics 24 / ECG+varia 18 | **42** | exam PDF, **2026/27 edition** (`did=357554`, read 2026-09-30) |
 | Pharmacology II | General 26 / Special 131 | **157** | the legacy code `EA0107015` — see below |
 | Medical Psychology and Ethics | 1 | 20 | SIS syllabus (labels abridged; full text in SIS) |
 | Internal Medicine I | Cardiovascular 10 / Pneumology 4 | 14 | SIS syllabus |
@@ -137,12 +137,17 @@ is the curriculum**, because it is literally what is examined:
 | Radiological Anatomy | 1 | 13 | SIS syllabus |
 | Medical Czech | 1 | 10 | SIS syllabus |
 
-**700 topics across 21 blocks.**
+**701 topics across 21 blocks.**
 
-Two staleness warnings worth repeating to the user: the **Internal Medicine I** question PDF in SIS
-is headed 2021/2022 and was therefore *not* used — the current SIS syllabus was used instead. The
-**Intro to Internal Medicine II** list is the 2025/26 edition. Both should be re-checked once the
-department posts 2026/27 files.
+One staleness warning worth repeating to the user: the **Internal Medicine I** question PDF in SIS
+is headed 2021/2022 and was therefore *not* used — the current SIS syllabus was used instead.
+
+The **Intro to Internal Medicine II** list was replaced on 2026-09-30 with the 2026/27 edition,
+which went up in September, two months earlier than last year's. One question was added — I.18,
+*Examination of bone metabolism* — and six were reworded (I.7, I.8, I.12, I.15, III.6, III.7).
+**The new question has the code `IIM042` although it sits eighteenth in its block.** Codes are
+tick keys, not question numbers: renumbering 18–41 would have moved any existing tick onto the
+wrong question. The PDF prints the second group as "III. ECG + varia"; there is no group II.
 
 **The extractor lives at `<scratchpad>/extract.py`** and asserts an exact topic count per subject,
 because two courses in the source notes carry the byte-identical heading
@@ -278,7 +283,7 @@ He asked for "just the weekly amount of topics I have to study", as found in the
 is now `weekPlan().total`, and `prodStats` returns `plan` instead of `need`.
 
 **The gap between 21 and 39 is real and has not gone away.** It is the overflow — 71 h on an
-untouched year — and it is reported by the banner on Today and Plan. Do not move it back into
+untouched year, 74 h since the 42nd internal-medicine question — and it is reported by the banner on Today and Plan. Do not move it back into
 this ring, and do not read a 100% coursework week as "on track for the exams".
 
 The week grid carries the coursework under Gym and Languages: one row per course, one
@@ -380,7 +385,6 @@ apply to you".
 | --- | --- |
 | **Immediately, once logged in** | The Pharmacology Word file — SIS `EAP0103100` Files, and Moodle courses 620 and 498. Highest-value single retrieval outstanding. |
 | **Late September 2026** | Pathology's three question PDFs (`did=335822/335828/335830`) — undated, and silently refreshed on 22 Sept 2025, the first week of term. Re-download and re-count 47 / 108 / 69. Also the 2026/27 timetables. |
-| **From ~24 November 2026** | The Introduction to Internal Medicine II question list — last year's went up on that date. |
 | **By 11 December 2026** | Guarantors must publish winter exam dates in SIS (dean's measure 6/2026, Art. 3.1). |
 | **Start of term** | The Pathophysiology WS 2026/2027 practical programme — the department page still links the **2024/2025** file, and the credit condition ("protocols of all experiments") hangs on it. |
 
@@ -1276,6 +1280,31 @@ happens, so the chat can be cleared at any point. Newest entries at the bottom.
 
 ### The winter timetable — group 3.AVSEOB20-5 (from Linas's SIS screenshot, 2026-09-28)
 
+> **CORRECTED 2026-09-30 — read this before anything below about odd and even weeks.**
+> SIS's odd/even is the parity of the **teaching week**, not of the calendar week. SIS says so
+> itself, on the room page for the simulation centre (`roz_ucebna_macro.php?…&ucebna=150015546`):
+> *"3.AVSEOB20-5 even (odd numbered in calendar)"*. Teaching week 1 is the week of 28 Sep
+> (ISO week 40), so until Christmas every SIS label is the opposite of the ISO parity. The
+> planner and the Calendar were built the wrong way round on 09-28 — on Linas's answer, which
+> was a guess — and would have sent him to the first Simulation Medicine practical a week late.
+> **The room pages in the public SIS registry print the week rule and the group; check there,
+> not in a screenshot.** The break is not counted: 4–8 Jan is teaching week 13.
+>
+> | | Was (wrong) | Is |
+> | --- | --- | --- |
+> | Simulation Medicine, Wed 07:30 | 14 Oct, 28 Oct, 11 Nov, 25 Nov, 9 Dec | **7 Oct, 21 Oct, 4 Nov, 18 Nov, 2 Dec, 16 Dec** |
+> | Psychology seminar, Thu 11:00 | 8 Oct, 22 Oct, 5 Nov, 19 Nov, 3 Dec, 17 Dec, 7 Jan | **1 Oct, 15 Oct, 29 Oct, 19 Nov, 26 Nov, 10 Dec, 7 Jan** |
+>
+> The Psychology dates are the department's own list (group 5; 12 Nov was moved to 19 Nov), so
+> that slot carries `dates` and ignores the week rule. **Wed 6 Jan is the one open date:** by the
+> teaching-week count group 5 has no Simulation Medicine (week 13 is odd), by SIS's "odd numbered
+> in calendar" it has (ISO week 1). It stays on and flagged. Six sessions also matches the six
+> winter topics in the syllabus, which argues for "no".
+>
+> **Public holidays were missing too:** Wed 28 Oct and Tue 17 Nov have no classes
+> (`PUBLIC_HOLIDAYS`). They are deliberately not in `TERMS.breaks` — a break week is skipped when
+> teaching weeks are counted, a single day is not.
+
 Lectures are the whole year group (`3.AVSEOB20`); practicals/seminars are **group 5**
 (`3.AVSEOB20-5`). Room names ending in `-?` were cut off in the screenshot. Times are Europe/Prague.
 
@@ -1302,7 +1331,8 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 
 **Open — must be answered before the calendar events are created:**
 
-1. **Even/odd weeks: calendar-week parity or semester-week parity?** They give different dates.
+1. **Even/odd weeks: calendar-week parity or semester-week parity?** *(Answered wrongly on 09-28;
+   it is semester-week parity — see the correction above.)* They give different dates.
    1 Oct 2026 is a Thursday in ISO week 40 (even). By calendar parity, the first Simulation
    Medicine session is Wed **14 Oct** and the first MPE seminar Thu **8 Oct**; by semester-week
    parity (week 1 = 28 Sep–4 Oct), they are Wed **7 Oct** and Thu **1 Oct**. Charles University's
@@ -1351,7 +1381,7 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   The two conventions agree through December and differ only on **6/7 January** — those two
   dates are flagged in the events and must be confirmed in SIS.
 - 2026-09-28 · **Timetable built into `index.html`**: `TERMS`, `TIMETABLE` (12 winter slots),
-  `TIMETABLE_CANCELLED`, `TIMETABLE_CONFIRM`, `ROOMS`, and helpers `isoWeek` / `termOf` /
+  `TIMETABLE_CANCELLED`, `TIMETABLE_CONFIRM`, `ROOMS`, and helpers `isoWeek` (removed 09-30) / `termOf` /
   `classesOn` / `classHours` / `classSpan`. New **Classes** tab (week view with prev/next),
   `ClassesToday` card on Today under the countdown, `ClassLine` per day on Plan. The calendar
   feed now drops events whose description carries `[planner:class]`, so the Calendar copies of
@@ -1484,6 +1514,45 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   not say whether Chrome's pop-up default was already on "allow" before today, so that question
   is still open, and with it whether the default should go back to "Don't allow". (2) No comment
   on Today holding still; treat it as accepted unless he raises it.
+- 2026-09-30 · **Documents from other students, read and built in.** Two emails, two PDFs:
+  the Psychology department's seminar schedule for groups 1–5, and the 2nd Dept. of Internal
+  Medicine's rules and practicals schedule for winter 2026/27. What they changed:
+  - **The odd/even rule was backwards** — see the correction box under "The winter timetable".
+    `classesOn` now uses `teachWeek()`; `isoWeek()` is gone. The Psychology seminar slot has
+    `dates`; `TIMETABLE_NOTES` holds what each session is about (seminar topics, the first
+    internal-medicine class, the practical-exam window); a slot may carry a standing `note`.
+  - **Internal medicine practical, Tue 08:00:** at the Bory hospital like the lecture; first
+    class starts at the Clinic Office (Secretariat); bring a white coat, slippers, stethoscope,
+    visible ID card. Group 5 is split into **5A doc. Hirmerová / 5B Dr. Nussbaumerová** —
+    **Linas has not yet said which he is in**; the slot shows both until he does. The practical
+    exam is sat in class time in the last two weeks: Tue 15 Dec or Tue 5 Jan.
+  - **The credit wording changed.** 2026/27: "a minimum of 10 classes, 9 practical classes and a
+    practical exam". The 09-04 audit had "10 lectures". 11 Tuesdays are taught (17 Nov is a
+    holiday). `creditRule` quotes the new sentence rather than interpreting it.
+  - **The 2026/27 internal-medicine question list is already in SIS** and replaced the 2025/26
+    one: 42 topics, 701 in all. Found only because the SIS page was opened to check the credit
+    wording — four new files are attached there (`did=358386` practicals, `358387` rules,
+    `357554` questions, `336406` application form for the practical exam).
+  - **Psychology:** seminars are in the Dept. of Psychiatry's seminar room, 1st floor; the last
+    one (7 Jan) is "Evaluation of essays". The email gives a Moodle enrolment key — **it is
+    deliberately not in this repo, which is public.** He has the email.
+- 2026-09-30 · **Calendar, and what the connector can and cannot do.** `update_event` has no
+  recurrence field, so a series' rule cannot be changed. Both fortnightly series were fixed by
+  **moving each instance seven days earlier** (an instance id is `<series id>_<original start in
+  UTC>`, e.g. `…_20261014T053000Z`), which needs no deletion. So in Calendar these two series now
+  consist entirely of exceptions, and the masters' own rules are still the old wrong ones — never
+  "reset" them. Simulation Medicine on 16 Dec had no instance to move and is a **single event**,
+  id `kkrpjufj98pf6kpa2itvkvs6to`. The four class instances on 28 Oct and 17 Nov were retitled
+  "NO CLASS — public holiday", reminders removed, marked free — not deleted, because deleting
+  needs his say-so. Both internal-medicine masters got new descriptions.
+- 2026-09-30 · Verified in the running app: Simulation Medicine on 7 Oct … 16 Dec plus 6 Jan
+  flagged; the seminar on the department's seven dates; 11 internal-medicine Tuesdays; nothing
+  on 28 Oct or 17 Nov; 701 topics, no integrity warnings. In Calendar: 7 Oct shows the practical
+  and 14 Oct does not.
+- 2026-09-30 · **Open, for him:** (1) 5A or 5B; (2) whether to delete the four "NO CLASS"
+  entries; (3) ask at a Simulation Medicine practical whether 6 Jan runs; (4) still from before:
+  does Reconnect appear after an hour. **Due and not done:** the late-September re-download of
+  Pathology's three question PDFs (see "What to re-check, and when").
 
 ---
 

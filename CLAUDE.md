@@ -384,7 +384,7 @@ apply to you".
 | When | What |
 | --- | --- |
 | **Immediately, once logged in** | The Pharmacology Word file — SIS `EAP0103100` Files, and Moodle courses 620 and 498. Highest-value single retrieval outstanding. |
-| **Late September 2026** | Pathology's three question PDFs (`did=335822/335828/335830`) — undated, and silently refreshed on 22 Sept 2025, the first week of term. Re-download and re-count 47 / 108 / 69. Also the 2026/27 timetables. |
+| ~~Late September 2026~~ **done 2026-09-30** | Pathology's three question PDFs (`did=335822/335828/335830`) re-downloaded and compared question by question with `CURRICULUM`: all 224 identical. The same page now carries the department's 2026/27 lecture and practical schedules (`did=357295`, `357296`, dated 8 Sept 2026) — those are in `TIMETABLE_NOTES`. |
 | **By 11 December 2026** | Guarantors must publish winter exam dates in SIS (dean's measure 6/2026, Art. 3.1). |
 | **Start of term** | The Pathophysiology WS 2026/2027 practical programme — the department page still links the **2024/2025** file, and the credit condition ("protocols of all experiments") hangs on it. |
 
@@ -1554,6 +1554,30 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   does Reconnect appear after an hour. **Due and not done:** the late-September re-download of
   Pathology's three question PDFs (see "What to re-check, and when").
 - 2026-09-30 · **Deployed as `1e8ae83`.** Live `index.html` matched the commit 40 s after the push.
+- 2026-09-30 · **His answers.** (1) 5A/5B: he thinks the SIS screenshot shows the teacher — it
+  shows prof. Mlíková Seidlerová for the whole group-5 slot, which is the department head, not
+  the subgroup teacher. His Gmail has **no** mail from the 2nd Dept. of Internal Medicine at all
+  (searched for the secretary, the subject, the subgroups): the screenshots came from other
+  students, so the department's list may not include his Gmail. **Still open** — he finds out at
+  the first class on 6 Oct, or asks the secretary. (2) **Keep the "NO CLASS" Calendar entries** —
+  he wants to see when a class is off. That is now the convention: a cancelled class is retitled
+  "NO CLASS — …", reminders off, marked free, never deleted. (4) Pathology re-check: done, above.
+- 2026-09-30 · **Pathology's 2026/27 schedules change week 1.** No lecture Thu 1 Oct, no
+  practical Fri 2 Oct, and the 15 Oct lecture is "Moodle only". All three are in
+  `TIMETABLE_CANCELLED` (with a note saying why) and in Calendar as "NO CLASS" / "MOODLE ONLY"
+  instances. Every lecture and practical topic of the term is in `TIMETABLE_NOTES` and in the
+  two Pathology series' descriptions; credits are given at the last practical, Fri 8 Jan.
+  `ClassRow` now shows a date note on a cancelled class too. Tomorrow, Thu 1 Oct, is therefore
+  Pharmacology practical 08:00 + Psychology seminar 11:00, nothing else — 4.2 h, not 6.7.
+- 2026-09-30 · Also on SIS now, not acted on: a **2026/27 document for Medical Czech**
+  (`EAP0103050`, `did=358528`) listing eight topics — the same content as the ten in `CZE-1`
+  (Ophthalmology and ENT merged, no grammar line), so the block was left alone. Pathophysiology
+  has 2026/27 oral and practical question files (`did=354571/354572`), already the basis of
+  `PFY`. Pharmacology and Simulation Medicine still attach nothing.
+- 2026-09-30 · Seen in his Gmail while looking for the subgroup mail, worth his attention: a
+  meeting with **prof. Štengl on Mon 12 Oct at 10:00** (physiology notes) that he agreed to on
+  17 Sep — it collides with the Pathophysiology practical (08:00–10:30) and is followed by the
+  Pharmacology lecture at 11:00. Told to him; nothing changed.
   **Session state is complete; safe to clear.**
 
 ---

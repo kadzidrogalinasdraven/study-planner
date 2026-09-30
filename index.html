@@ -613,23 +613,49 @@ const TIMETABLE = [
   { id:"mpe-lec",  term:"winter", day:5, start:"11:15", end:"13:45", subject:"mpe", kind:"lecture",   room:"P-MODRÁ",      teacher:"Vevera Jan, prof. MUDr., Ph.D.; Fiala…", weeks:"all" },
 ];
 /* One-off changes. Cancelled: date → slot ids. Confirm: a date the week rule is unsure about. */
-const TIMETABLE_CANCELLED = { "2026-10-16":["mpe-lec"] };
+/* Pathology's own 2026/27 schedules (SIS, did=357295 lectures / 357296 practicals, both dated
+   8 Sep 2026): nothing in week 1, and the 15 Oct lecture is "Moodle only". */
+const TIMETABLE_CANCELLED = { "2026-10-01":["pat-lec"], "2026-10-02":["pat-prac"], "2026-10-15":["pat-lec"], "2026-10-16":["mpe-lec"] };
 const TIMETABLE_CONFIRM   = { "2027-01-06":"sim-prac" };
 const TIMETABLE_EXTRA     = { "2027-01-06":["sim-prac"] };   // forced on, flagged — see the note above
 /* What the department's own schedule says about one session. Psychology: "Practicals schedules
    groups 1 - 5 GM.pdf", group 5. Internal medicine: "Rules general medicine 3rd year winter
    26-27.pdf" — the practical exam is sat in class time "in the last two weeks of semester". */
 const TIMETABLE_NOTES = {
-  "2026-10-01": { "mpe-sem":"Introduction to medical psychology." },
+  "2026-10-01": { "mpe-sem":"Introduction to medical psychology.", "pat-lec":"No lecture in week 1." },
+  "2026-10-02": { "pat-prac":"No practicals in week 1." },
   "2026-10-06": { "iim-prac":"First class: go to the Clinic Office (Secretariat) — your teacher meets you there." },
-  "2026-10-15": { "mpe-sem":"Doctor–patient relationship. Chronic patient, acute patient. Joined with group 1." },
-  "2026-10-29": { "mpe-sem":"Communication with an agitated or aggressive patient. Anxious patient." },
-  "2026-11-19": { "mpe-sem":"Handicapped patient. Moved here from 12 Nov." },
-  "2026-11-26": { "mpe-sem":"Pain — acute, chronic. Pharmacotherapy. Placebo, nocebo. Psychological preparation for painful procedures." },
-  "2026-12-10": { "mpe-sem":"Communication with elderly patients. Important aspects of senior age." },
+  "2026-10-08": { "pat-lec":"Introduction to pathology, methods. Cell injury and death, adaptations, intracellular accumulations, calcification, stones. Tissue repair. — Michalová, Bradová" },
+  "2026-10-09": { "pat-prac":"00. Introduction. Methods and death." },
+  "2026-10-15": { "mpe-sem":"Doctor–patient relationship. Chronic patient, acute patient. Joined with group 1.",
+                  "pat-lec":"Moodle only — no lecture in the hall. Acute and chronic inflammation, SIRS, sepsis. — Michalová" },
+  "2026-10-16": { "pat-prac":"01. Cell injury and cell death." },
+  "2026-10-22": { "pat-lec":"Hemodynamic disorders: hemostasis, thrombosis, embolism, hemorrhage, hyperemia, congestion, edema, infarction, shock. — Bradová" },
+  "2026-10-23": { "pat-prac":"02. Cellular adaptations." },
+  "2026-10-29": { "mpe-sem":"Communication with an agitated or aggressive patient. Anxious patient.",
+                  "pat-lec":"Genetic, environmental, nutritional and infectious etiology of diseases. — Pivovarčíková" },
+  "2026-10-30": { "pat-prac":"03. Inflammation." },
+  "2026-11-05": { "pat-lec":"Pathology of pregnancy, fetus and newborn. — Daumová" },
+  "2026-11-06": { "pat-prac":"04. Disorders of blood flow." },
+  "2026-11-12": { "pat-lec":"Diseases of the immune system: hypersensitivity, rejection, autoimmunity, immune deficiency, amyloidosis. — Pivovarčíková" },
+  "2026-11-13": { "pat-prac":"05. Etiological pathology." },
+  "2026-11-19": { "mpe-sem":"Handicapped patient. Moved here from 12 Nov.",
+                  "pat-lec":"Neoplasia: molecular oncology, classification, grading, staging, paraneoplastic syndromes. — Skálová" },
+  "2026-11-20": { "pat-prac":"09. Pathology of reproduction." },
+  "2026-11-26": { "mpe-sem":"Pain — acute, chronic. Pharmacotherapy. Placebo, nocebo. Psychological preparation for painful procedures.",
+                  "pat-lec":"Pathology of the GIT. — Daumová" },
+  "2026-11-27": { "pat-prac":"06. Immunopathology." },
+  "2026-12-03": { "pat-lec":"Pathology of the liver, biliary tree and pancreas. — Michalová" },
+  "2026-12-04": { "pat-prac":"07. Epithelial tumors." },
+  "2026-12-10": { "mpe-sem":"Communication with elderly patients. Important aspects of senior age.",
+                  "pat-lec":"Pathology of the cardiovascular system. — Skálová" },
+  "2026-12-11": { "pat-prac":"08. Mesenchymal and other tumors." },
   "2026-12-15": { "iim-prac":"Practical exam window: it is sat in class time in the last two weeks, with the parallel group’s teacher if possible." },
+  "2026-12-17": { "pat-lec":"Pathology of the endocrine system. — Daumová" },
+  "2026-12-18": { "pat-prac":"14. Gastrointestinal tract." },
   "2027-01-05": { "iim-prac":"Practical exam window: it is sat in class time in the last two weeks, with the parallel group’s teacher if possible." },
-  "2027-01-07": { "mpe-sem":"Evaluation of essays." },
+  "2027-01-07": { "mpe-sem":"Evaluation of essays.", "pat-lec":"Pathology of the lung, pleura and mediastinum. — Vaňková" },
+  "2027-01-08": { "pat-prac":"10. Cardiovascular system. Credits." },
 };
 /* Czech public holidays that fall on a teaching weekday: no classes. Not in TERMS.breaks,
    because a break week is skipped when teaching weeks are counted and a single day is not. */
@@ -725,7 +751,7 @@ const SOURCES = {
   "pat-q":   { label:"Pathology — the three exam-question lists",
                edition:"undated · uploaded Sept 2025", status:"current",
                where:"SIS · EAP0103500 · General 47, Special 108, Oncological 69",
-               note:"No academic year is printed on these PDFs, and the department silently refreshed all three on 22 September 2025 — the first week of term. Re-download them in late September and re-count 47 / 108 / 69." },
+               note:"No academic year is printed on these PDFs, and the department silently refreshed all three on 22 September 2025 — the first week of term. Re-downloaded on 30 September 2026 and compared question by question: all 224 identical. The department’s 2026/27 lecture and practical schedules (dated 8 Sept 2026) are on the same page; their topics are on the Classes tab." },
   "iim-q":   { label:"Introduction to Internal Medicine II — exam questions",
                edition:"2026/27", status:"current",
                where:"SIS · EAP0103322 · 24 propedeutics + 18 ECG and varia",
@@ -2602,7 +2628,7 @@ function ClassRow({s, isToday, dense}){
           {s.confirm && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"#B4530914",color:"var(--warn)"}}>confirm in SIS</span>}
           {s.weeks!=="all" && !dense && <span style={{fontSize:10,color:"var(--ink-3)"}}>every second week</span>}
         </div>
-        {s.today && !s.cancelled && <div style={{fontSize:12,color:"var(--ink-2)",marginTop:2,lineHeight:1.45}}>{s.today}</div>}
+        {s.today && <div style={{fontSize:12,color:"var(--ink-2)",marginTop:2,lineHeight:1.45}}>{s.today}</div>}
         <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:1}}>
           {s.place ? s.place : "room not shown"}{!dense && s.teacher ? " · "+s.teacher : ""}
         </div>
@@ -2711,7 +2737,8 @@ function ClassesView(){
           <strong style={{color:"var(--ink)"}}>No classes.</strong> Wed 28 Oct and Tue 17 Nov are public holidays.
         </div>
         <div style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.6,marginTop:6}}>
-          <strong style={{color:"var(--ink)"}}>Cancelled.</strong> Psychology lecture, Fri 16 Oct.
+          <strong style={{color:"var(--ink)"}}>Cancelled.</strong> Pathology has nothing in week 1 (Thu 1 and Fri 2 Oct) and its 15 Oct
+          lecture is on Moodle only. Psychology lecture, Fri 16 Oct.
         </div>
         <div style={{fontSize:12.5,color:"var(--ink-3)",lineHeight:1.6,marginTop:6}}>
           Summer timetable: not published yet — add it here in February.

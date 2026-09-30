@@ -1353,6 +1353,13 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   survives any client-side fix.
 - 2026-09-30 · Not done, and deliberately: extra days show no practice link on Today (the
   `LangChip` still follows the cadence only). Mentioned to him; add it if he asks.
+- 2026-09-30 · **Deployed as `65fabda`.** GitHub Pages picked it up in about a minute; the live
+  `index.html` is byte-identical to the commit. Checked on the live origin in a clean browser
+  profile (sync off, nothing stored): four language days against three reads 133% with one orbit
+  and "includes +8% from extra language days"; the only console error is the browser's own
+  request for a `favicon.ico` the site has never had.
+- 2026-09-30 · **Session state is complete; safe to clear.** The one open item is his answer on
+  sign-in (option A or B above). Nothing is half-done.
 
 ---
 

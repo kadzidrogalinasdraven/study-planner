@@ -217,6 +217,44 @@ the moment a category is removed. **The language anchor stays at 2026-09-01 and 
 to the start of term:** re-anchoring it to 1 October switched language practice off for the whole
 of September, which is the one habit that runs through the holiday.
 
+#### Languages can pass 100% — and only languages (2026-09-30, Linas's request)
+
+The cadence (three or four days a week, alternating 3 / 4 because a week is odd) is the **target,
+not the limit**. All seven boxes are open; a day off the cadence is an *extra*. `prodStats` gives
+every category `raw` (n ÷ d), `score` (what it is worth in the mean: `raw`, held at 1 unless the
+category is `uncapped`) and `pct`. **Only `lang` carries `uncapped:true`.** Gym and coursework stop
+at 100 on purpose — he said gym "can stay like that" and never asked for coursework — so do not
+tidy the three into one rule in either direction.
+
+The surplus feeds the combined score too, because he asked for exactly that ("just add that extra
+so it goes over 100% total"): +8 points per extra day in a three-day week, +6 in a four-day week,
+133% for a full week (167% if coursework has no target). **The consequence to know about: a strong
+language week lifts the headline over a weak coursework week.** Seven language days with half the
+coursework and one gym session reads 92%, of which 34 is surplus. `prodStats().bonus` is that
+share and the caption under the big ring always states it, so the number cannot flatter him
+silently. If he ever calls the headline misleading, the lever is how `bonus` is presented — not
+quietly re-capping the ring he asked to uncap.
+
+Past 100% a ring draws the surplus as an **orbit**: a second, thinner lap just outside it, one per
+extra 100%, two at most (the ceiling is 7 ÷ 3 = 233%). Four things here are easy to break:
+
+- **Nothing above the week grid may change height when a score crosses 100%.** The first build
+  added a "+N extra days" note and a bonus line that only appeared past 100; the grid jumped 42 px
+  under the finger that had just ticked it, and the next tap would have landed on the wrong row.
+  The orbit's room is reserved always, and the second caption line is always there and only
+  changes what it says. Measure the grid's `top` at 100 / 133 / 233% after touching that area.
+- **The orbits are always in the DOM** (zero length, opacity 0), never mounted on demand: an arc
+  that mounts at its final length has nothing to transition from and snaps in. Opacity, not dash
+  length, is what hides an empty one — a zero-length dash with a round cap can still paint a dot.
+- **An extra day has no language of its own, and the app must not pretend it knows.** On Today an
+  extra day offers both languages. In the week grid it starts as the language of the day before
+  (`langSuggest` — on this cadence the day before a break day is always a language day) and a
+  second tap swaps it, a third clears it. Cadence days stay a plain on/off. So `tickLang` now
+  takes the language: `tickLang(date, "czech"|"italian"|null)`, and it keeps `tickedAt` across a
+  swap so a correction is not re-stamped as a "late" tick.
+- **The orbit's entrance delay is dropped once the ring has settled** (`useRingSettled`). Without
+  that, every later tick waits 600 ms before the arc answers, which reads as a missed tap.
+
 ## Source freshness — the rule that governs every curriculum change (2026-09-04)
 
 The 2026/27 curricula are **not all published**. Everything in `CURRICULUM` is the most recent list
@@ -372,6 +410,79 @@ token, which means a backend — and this project is deliberately backend-free.
 **Still whole-blob newest-`updatedAt`-wins.** Two devices editing different things inside the same
 25 s window will still lose one side. That was true before and is unchanged; the flashcard decks
 merge per-card precisely because that rule was not good enough there.
+
+### Why he still presses Reconnect on every open — diagnosed, NOT yet fixed (2026-09-30)
+
+Linas reported that **every time he opens the app, on both devices, he has to press Reconnect, pick
+his account and connect.** He asked only whether staying signed in longer is *possible*. No auth
+code was changed; this is the diagnosis, so the next session does not have to redo it.
+
+**What the code does today — read from the source, not inferred:**
+
+- **Cold load more than an hour after the last use always ends in Reconnect.** `restoreToken()`
+  finds nothing valid, `live()` → `ensureFresh()` → `requestAccessToken({prompt:""})`, which opens
+  a popup with no user gesture behind it, and the browser blocks it. Seen directly this session:
+  the built-in preview pane does *not* block popups, and on load it opened `accounts.google.com`.
+- **Keeping the window open does not keep him signed in either.** The token lasts an hour and the
+  only working renewal is `renewOnGesture`, which fires on a tap *inside the last ten minutes* of
+  the token's life. Use the app at minute 5 and again at minute 70 and the session is dead.
+- **The timer path is a no-op.** `scheduleRefresh` → `attempt` calls `ensureFresh()` *without*
+  `force`, so while the token is still valid it returns the old token, renews nothing and never
+  re-arms. (Even with `force` its popup would be blocked — no gesture.)
+- **`live()` is not gated on `appIsInFront()`.** Harmless while the browser blocks the popup; it
+  would become the old focus-theft bug on any browser that allows popups for this site.
+- **Reconnect shows the account chooser by design** (`prompt:"select_account"`). GIS does honour
+  the remembered account: the library reads `login_hint: b.login_hint || b.hint`, and in the token
+  flow `prompt` *undefined* means `select_account` while `""` sends no prompt at all (checked in
+  the live `accounts.google.com/gsi/client` script).
+
+**What Google's own documentation says — fetched 2026-09-30, quoted, not remembered:**
+
+- Token model: *"A user gesture such as button press or clicking on a link is required to request
+  and obtain a new, valid access token."* No refresh token, no backend.
+- Code model: refresh tokens, but *"On your backend server, you exchange an authorization
+  code…"* — a static page cannot use it. The note above about a backend being the only complete
+  fix stands.
+- **Testing status: *"Authorizations by a test user will expire seven days from the time of
+  consent."*** So while the app is in Testing he must re-consent about once a week **whatever the
+  client code does.** This was not recorded anywhere before and it caps every option below.
+- Publishing: *"A project's publishing status is considered In production after selecting the
+  Publish app button"*; unverified apps asking for sensitive scopes get the "unverified app"
+  warning screen and a cap of 100 new users. **So "Publish app" does not by itself send the app
+  into a verification queue** — the wording further down in this file is stronger than the docs
+  support. It is still his decision, not a default: leave the rule as written until he chooses.
+
+**The options, in the order put to him:**
+
+| | What | Needs | Gets |
+| --- | --- | --- | --- |
+| A | Allow pop-ups for `kadzidrogalinasdraven.github.io` in Chrome | a browser setting, no code | the silent renewals the app already attempts stop being blocked. **Untested.** Side effect: `live()` is ungated, so an hourly popup can flash while the tab is merely visible — gate it first if he keeps this. |
+| B | **Silent sign-in with no popup** — the documented redirect flow (`response_type=token`, `prompt=none`, `login_hint`) | code, plus one **Authorised redirect URI** on the OAuth client in Google Cloud | opening the app signs in by itself on both devices. Recommended. |
+| C | Lift the seven-day rule | switching the app to "In production" (unverified, warning screen once) | no weekly re-consent. His call; contradicts the "do not click Publish" note below. |
+| D | Refresh token | a backend | permanent. Out of scope by design. |
+
+**Design notes for B, so it is not re-derived.** Verified with `curl`, for the case with no Google
+session: the endpoint answers a `prompt=none` request with a plain **302** straight back to the
+redirect URI, the result in the fragment (`#error=interaction_required`). No HTML page, so no
+popup and nothing to click. The success case could not be exercised without his session; Google
+documents it as the same redirect carrying `#access_token=…&token_type=Bearer&expires_in=3600`.
+  1. *On open with a stale token*: a top-level redirect to Google and back. First-party, so it
+     works in Safari and on the iPhone, where third-party cookies are blocked.
+  2. *While the window stays open*: the same request in a **hidden iframe** — invisible, but it
+     needs third-party cookies, so Chrome on the Mac only. Fall back to the gesture popup.
+  3. Guard against a redirect loop (one attempt per load, remembered in `sessionStorage`), check
+     `navigator.onLine` before navigating away, send and verify a `state` value, and strip the
+     fragment with `history.replaceState` the moment it is read.
+  4. `interaction_required` means Google wants a click — signed out, or the weekly Testing expiry.
+     Show Reconnect exactly as now. Reconnect itself can then use `prompt:""` with the remembered
+     account instead of the chooser: still ONE popup inside the click, so the activation rule
+     above is respected.
+  5. The redirect URI must match exactly, trailing slash included, and the decks have their own
+     paths. Google now labels the implicit redirect flow "discouraged" in favour of code + PKCE,
+     which needs the backend this project does not have — it is documented and it works, but it
+     is not the future-proof choice, and the token model it replaces is the same grant.
+  6. **Cannot be tested from localhost** (not an authorised origin, and must not become one): it
+     has to be tried on the live site, in his browser, with him.
 
 
 ---
@@ -1217,6 +1328,31 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   February — add `term:"summer"` slots and a second set of Calendar series; (d) the standing
   re-check list under "Source freshness" (Pathology PDFs late Sept, IM II list ~24 Nov,
   Pharmacology Word file once logged in). Nothing is half-done.
+- 2026-09-30 · **Languages can now pass 100%**, at Linas's request: all seven days open in the
+  week grid (dashed = extra), the languages ring and the combined score both carry the surplus,
+  and a full ring shows it as a thinner second lap outside. Gym and coursework still stop at 100.
+  Rules and the four things that are easy to break are under "Productivity" above.
+- 2026-09-30 · Decisions made without asking, each one reversible: (1) coursework stays capped —
+  he named languages only; (2) an extra day in the grid starts as the language of the day before
+  and a second tap swaps it, while Today offers both languages outright; (3) the orbit is a
+  concentric thin lap, not an Apple-style overlap, because the languages ring is two-coloured and
+  a second lap drawn on top would hide the split. All three were told to him.
+- 2026-09-30 · Verified: 18 worked weeks through the shipped `prodStats` source in Node (4 of 3 =
+  133% → combined 108; 7 of 3 = 233% → 133; 7 of 4 = 175% → 119; gym 5 of 3 stays 100); then in a
+  real browser via Playwright at 1100 px and 375 px — tap cycle on an extra day, plain toggle on a
+  cadence day, Today strip on both kinds of day (clock faked to Thu 1 Oct and Wed 7 Oct), week
+  grid `top` identical at 100 / 133 / 167 / 200 / 233%, reduced motion lands instantly, no console
+  errors. **The built-in browser pane is unusable for this app while its localhost profile has
+  sync switched on** — the cold-load renewal opens a Google popup the agent may not close, and
+  closing the opener tab is the only way out. Use Playwright, whose profile has sync off.
+- 2026-09-30 · **Sign-in question answered, nothing changed.** He must press Reconnect on every
+  open; the cause and four options are written up under "Staying signed in → Why he still presses
+  Reconnect". Waiting on his choice between A (allow pop-ups, no code) and B (build the no-popup
+  silent sign-in, needs one redirect URI in Google Cloud). New fact worth remembering: **in
+  Testing status Google expires every authorisation after seven days**, so a weekly re-consent
+  survives any client-side fix.
+- 2026-09-30 · Not done, and deliberately: extra days show no practice link on Today (the
+  `LangChip` still follows the cadence only). Mentioned to him; add it if he asks.
 
 ---
 

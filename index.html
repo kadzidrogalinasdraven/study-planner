@@ -1549,13 +1549,22 @@ const LANG = { czech:{name:"Czech",color:LANGC.czech,url:CHAT_CZECH}, italian:{n
    NOT moved to the start of term: languages are the one habit that runs straight through the
    holiday, and re-anchoring would have switched them off for the whole of September.
    tickLang stores the language in each log entry, so past days keep the label they were
-   ticked with regardless. */
+   ticked with regardless.
+
+   The cadence sets the TARGET, not the limit. Every day of the week can be logged; a day off
+   the cadence is an extra, and extras are what carry the languages ring past 100%. */
 function langForDate(iso){
   const anchor=parseISO("2026-09-01"), d=parseISO(iso);
   const off=Math.round((d-anchor)/86400000);
   if(off<0 || off%2!==0) return null;            // before the anchor, or a break day
   return ((off/2)%2===0) ? "czech" : "italian";
 }
+/* An extra day has no language of its own, so the week grid proposes the one from the day before
+   — on this cadence the day before a break day is always a language day, which makes an extra
+   read as a second day on the same language. It is a first guess and nothing more: a second tap
+   swaps it, and the Today strip asks outright instead of guessing. */
+function langSuggest(iso){ return langForDate(iso) || langForDate(addDays(iso,-1)) || "czech"; }
+const otherLang = l => l==="czech" ? "italian" : "czech";
 
 /* ── the year, as an arc ────────────────────────────────────────────────────
    A function of `data`, not a literal, so a booked exam date appears on the timeline the moment
@@ -1889,7 +1898,7 @@ function prodStats(data, today){
   const langN   = week.filter(function(d){ return p.lang.log[d]; }).length;
 
   const split={ czech:0, italian:0 };
-  week.forEach(function(d){ const e=p.lang.log[d]; if(e){ const l=e.lang||langForDate(d)||"czech"; split[l]=(split[l]||0)+1; } });
+  week.forEach(function(d){ const e=p.lang.log[d]; if(e){ const l=e.lang||langSuggest(d); split[l]=(split[l]||0)+1; } });
 
   /* The coursework target is the pace needed across every live subject, rounded up — not a
      number anybody typed. If nothing is outstanding it is zero and the ring drops out of the
@@ -1897,13 +1906,18 @@ function prodStats(data, today){
   const live = SUBJECTS.filter(function(s){ return deadlineOf(s,data) >= today; });
   const need = live.reduce(function(a,s){ return a + paceOf(s,data,today).perWeek; }, 0);
 
+  /* `uncapped` is the one switch that lets a category score past its target. Languages carry it,
+     at Linas's request: the cadence is three or four days a week, he may well study six or seven,
+     and the surplus should show — on its own ring and in the headline. Gym and coursework stop
+     at 100 on purpose; he asked for gym to stay as it was, and nobody asked for coursework. */
   const cats=[
     { key:"work", label:"Coursework", color:UI.accent, weight:2, n:workN, d:need,          configured:need>0 },
     { key:"gym",  label:"Gym",        color:"#BE123C", weight:1, n:gymN,  d:p.gym.targetPerWeek||0, configured:(p.gym.targetPerWeek||0)>0 },
-    { key:"lang", label:"Languages",  color:LANGC.czech, weight:1, n:langN, d:langDays.length, configured:langDays.length>0, split:split },
+    { key:"lang", label:"Languages",  color:LANGC.czech, weight:1, n:langN, d:langDays.length, configured:langDays.length>0, split:split, uncapped:true },
   ].map(function(c){
-    const raw = c.d>0 ? c.n/c.d : 0;
-    return Object.assign(c, { raw:raw, pct: Math.min(100, Math.round(raw*100)) });
+    const raw   = c.d>0 ? c.n/c.d : 0;
+    const score = c.uncapped ? raw : Math.min(1, raw);     // what the category is worth in the mean
+    return Object.assign(c, { raw:raw, score:score, pct: Math.round(score*100) });
   });
   // keyed access as well as ordered: the old code read cats[0] and cats[2] positionally, which
   // broke silently the moment a category was removed
@@ -1911,9 +1925,13 @@ function prodStats(data, today){
 
   const inScore = cats.filter(function(c){ return c.configured; });
   const wsum    = inScore.reduce(function(a,c){ return a+c.weight; }, 0);
-  // clamp each contribution at 1 so an over-target week can't inflate the headline past 100
-  const combined= wsum>0 ? Math.round(inScore.reduce(function(a,c){ return a + c.weight*Math.min(1,c.raw); }, 0)/wsum*100) : 0;
-  return { week, cats, byKey, combined, counted:inScore.length, need };
+  const mean    = function(f){ return wsum>0 ? Math.round(inScore.reduce(function(a,c){ return a + c.weight*f(c); }, 0)/wsum*100) : 0; };
+  /* A capped category contributes at most 1, so only an uncapped one can lift the headline past
+     100. `bonus` is how much of the headline that surplus accounts for — the same mean taken with
+     every category held at 1 — so the screen can say where the extra came from. */
+  const combined= mean(function(c){ return c.score; });
+  const bonus   = combined - mean(function(c){ return Math.min(1, c.score); });
+  return { week, cats, byKey, combined, bonus, counted:inScore.length, need };
 }
 
 /* ── persistence ──────────────────────────────────────────────────── */
@@ -3273,13 +3291,53 @@ function useRingArm(delay){
   return on;
 }
 
-function Ring({size, stroke, pct, color, delay, segments, children}){
+/* ── past 100% ────────────────────────────────────────────────────────
+   A full ring has nowhere left to go, so the surplus runs as a second, thinner lap just outside
+   it: one orbit per extra 100%, drawn once the main lap has closed. Two are enough — languages
+   top out at seven days against a three-day cadence, which is 233%.
+
+   The orbits are ALWAYS in the DOM, at zero length when there is nothing to show, rather than
+   mounted when the score first passes 100. An arc that mounts at its final length has nothing to
+   transition from, so it would snap into place where every other arc on the page glides. */
+const ORBIT_MAX = 2;
+const ORBIT_MS  = 480;
+
+/* The orbit waits for the main lap only while the ring is making its entrance. After that a tick
+   has to move it at once: a pause of most of a second before the arc answers reads as a missed
+   tap. This is a stagger timer, so like useRingArm it needs its own reduced-motion branch. */
+function useRingSettled(delay){
+  const [done,setDone]=useState(prefersReduced());
+  useEffect(function(){
+    if(prefersReduced()) return;
+    const t=setTimeout(function(){ setDone(true); }, (delay||0)+RING_MS+ORBIT_MAX*ORBIT_MS+200);
+    return function(){ clearTimeout(t); };
+  },[]);
+  return done;
+}
+
+function Ring({size, stroke, pct, color, overColor, delay, segments, children}){
   const r=(size-stroke)/2, C=2*Math.PI*r, cx=size/2;
   const on=useRingArm(delay);
+  const settled=useRingSettled(delay);
   const tr={ transition:"stroke-dashoffset "+RING_MS+"ms "+RING_EASE };
+  const thin=Math.max(2.5, stroke*0.4), gap=thin*0.8;
+  const extra=Math.max(0, (pct||0)-100)/100;          // laps beyond the first: 1.33 at 233%
+  const orbits=[];
+  for(let k=0;k<ORBIT_MAX;k++){
+    const f=Math.max(0, Math.min(1, extra-k));
+    const ro=r+stroke/2+gap+thin/2+k*(thin+gap), Co=2*Math.PI*ro;
+    const wait=settled ? 0 : Math.round(RING_MS*0.75)+k*ORBIT_MS;
+    /* opacity is what guarantees an empty orbit is invisible: a zero-length dash with a round
+       cap still paints a dot in some engines. It switches on the instant the arc starts to grow
+       and off only after it has finished retracting. */
+    orbits.push(<circle key={"orbit"+k} cx={cx} cy={cx} r={ro} fill="none" stroke={overColor||color} strokeWidth={thin} strokeLinecap="round"
+      strokeDasharray={Co} style={{strokeDashoffset:(on ? Co*(1-f) : Co)+"px", opacity:(on&&f>0)?1:0,
+        transition:"stroke-dashoffset "+ORBIT_MS+"ms "+RING_EASE+" "+wait+"ms, opacity 0ms linear "+(f>0?wait:ORBIT_MS)+"ms"}}/>);
+  }
   return (
     <div style={{position:"relative",width:size,height:size,flex:"none"}}>
-      <svg width={size} height={size} viewBox={"0 0 "+size+" "+size} style={{transform:"rotate(-90deg)",display:"block"}} aria-hidden="true">
+      {/* overflow is visible because the orbits sit outside the ring's own box */}
+      <svg width={size} height={size} viewBox={"0 0 "+size+" "+size} style={{transform:"rotate(-90deg)",display:"block",overflow:"visible"}} aria-hidden="true">
         <circle cx={cx} cy={cx} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke}/>
         {/* dashoffset goes in style, not as a presentation attribute: transitions on attributes
             are spec-legal but inconsistently honoured, and style leaves nothing to chance */}
@@ -3293,6 +3351,7 @@ function Ring({size, stroke, pct, color, delay, segments, children}){
             })
           : <circle cx={cx} cy={cx} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round"
               strokeDasharray={C} style={Object.assign({strokeDashoffset:(on ? C*(1-Math.min(100,pct)/100) : C)+"px"},tr)}/>}
+        {orbits}
       </svg>
       <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center",lineHeight:1.15}}>{children}</div>
     </div>
@@ -3312,8 +3371,9 @@ function useStaggeredValue(value, delay){
 
 function CategoryRing({c, delay, note, noteWarn}){
   const shown=useStaggeredValue(c.pct, delay);
-  // extra credit (logging a non-scheduled day) can push the two arcs past a full circle, which
-  // would wrap the second segment over the first — normalise so they always sum to ≤ 1
+  // extra days push the two arcs past a full circle, which would wrap the second segment over
+  // the first — normalise so the main lap is always the Czech : Italian split of what was
+  // logged. The surplus itself is not drawn here; Ring adds it as an orbit from c.pct.
   let segs=null;
   if(c.key==="lang" && c.d>0 && (c.split.czech+c.split.italian)>0){
     let cz=c.split.czech/c.d, it=c.split.italian/c.d;
@@ -3340,12 +3400,12 @@ function CategoryRing({c, delay, note, noteWarn}){
   );
 }
 
-function TickCell({on, color, late, onClick, label, disabled}){
-  if(disabled) return <div style={{flex:1,textAlign:"center",fontSize:12,color:"var(--line-2)"}} aria-hidden="true">·</div>;
+/* `dashed` marks a box that is open but not expected: an extra day, beyond the target. */
+function TickCell({on, color, late, onClick, label, dashed}){
   return (
     <button onClick={onClick} aria-pressed={on} aria-label={label}
       style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,background:"none",border:0,padding:"5px 0"}}>
-      <span style={{width:19,height:19,borderRadius:6,border:"1.5px solid "+(on?color:"var(--line-2)"),background:on?color:"var(--card)",display:"flex",alignItems:"center",justifyContent:"center",transition:"background .18s,border-color .18s"}}>
+      <span style={{width:19,height:19,borderRadius:6,border:"1.5px "+(dashed&&!on?"dashed":"solid")+" "+(on?color:"var(--line-2)"),background:on?color:"var(--card)",display:"flex",alignItems:"center",justifyContent:"center",transition:"background .18s,border-color .18s"}}>
         {on && <i className="fa-solid fa-check" style={{fontSize:9,color:"#fff"}} aria-hidden="true"/>}
       </span>
       <span style={{fontSize:8,color:"var(--ink-3)",height:8,lineHeight:1}}>{late?"late":""}</span>
@@ -3355,14 +3415,24 @@ function TickCell({on, color, late, onClick, label, disabled}){
 
 function WeekGrid({data, A, week}){
   const p=data.prod, t=todayStr();
+  const langOf=d=>{ const e=p.lang.log[d]; return e ? (e.lang||langSuggest(d)) : null; };
   const rows=[
-    { key:"gym", label:"Gym", color:"#BE123C",
+    { key:"gym", label:"Gym", color:()=>"#BE123C",
       on:d=>!!p.gym.log[d], late:d=>p.gym.log[d]&&loggedLate(d,p.gym.log[d].tickedAt),
       click:d=>A.tickGym(d, !p.gym.log[d]) },
-    { key:"lang", label:"Languages", color:LANGC.czech,
+    /* All seven days are open. A cadence day is a plain on/off, exactly as it always was. An
+       extra day cycles suggested language → the other one → off, because nothing in the app
+       knows which language an unscheduled session was; the tick takes that language's colour. */
+    { key:"lang", label:"Languages", color:d=>LANGC[langOf(d)]||LANGC.czech,
       on:d=>!!p.lang.log[d], late:d=>p.lang.log[d]&&loggedLate(d,p.lang.log[d].tickedAt),
-      off:d=>!langForDate(d) && !p.lang.log[d],
-      click:d=>A.tickLang(d, !p.lang.log[d]) },
+      dashed:d=>!langForDate(d),
+      name:d=>{ const l=langOf(d); return (l?LANG[l].name:"Languages")+(langForDate(d)?"":" (extra day)"); },
+      click:d=>{
+        const sched=langForDate(d), cur=langOf(d);
+        if(sched) return A.tickLang(d, cur?null:sched);
+        const first=langSuggest(d);
+        A.tickLang(d, !cur ? first : cur===first ? otherLang(first) : null);
+      } },
   ];
   return (
     <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"12px 12px 6px",marginTop:16}}>
@@ -3382,14 +3452,20 @@ function WeekGrid({data, A, week}){
               <span style={{display:"block",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.label}</span>
             </span>
             {week.map(function(d){
-              return <TickCell key={d} on={r.on(d)} color={r.color} late={r.late?r.late(d):false}
-                disabled={r.off?r.off(d):false} onClick={()=>{haptic();r.click(d);}}
-                label={r.label+" on "+fmtShort(d)}/>;
+              return <TickCell key={d} on={r.on(d)} color={r.color(d)} late={r.late?r.late(d):false}
+                dashed={r.dashed?r.dashed(d):false} onClick={()=>{haptic();r.click(d);}}
+                label={(r.name?r.name(d):r.label)+" on "+fmtShort(d)}/>;
             })}
           </div>
         );
       })}
-      <div style={{fontSize:10.5,color:"var(--ink-3)",marginTop:8,paddingTop:6,borderTop:"0.5px solid var(--line)"}}>
+      <div style={{fontSize:10.5,color:"var(--ink-3)",marginTop:8,paddingTop:6,borderTop:"0.5px solid var(--line)",lineHeight:1.55}}>
+        Languages: solid boxes are the cadence days; dashed ones are extra and count beyond 100%.
+        An extra day takes the language of the day before — tap again for the other
+        (<span style={{whiteSpace:"nowrap"}}><Dot size={6} color={LANGC.czech}/> Czech</span>
+        {" "}·{" "}<span style={{whiteSpace:"nowrap"}}><Dot size={6} color={LANGC.italian}/> Italian</span>),
+        once more to clear.
+        <br/>
         Coursework counts itself — ticking a topic anywhere in the app feeds its ring, so it has no
         row here. “late” marks a day filled in more than a day afterwards.
       </div>
@@ -3412,15 +3488,23 @@ function ProductivityView({data, A}){
       <div className="eyebrow" style={{marginTop:18}}>this week · {fmtShort(S.week[0])} – {fmtShort(S.week[6])}</div>
       <h1 style={{fontSize:30,margin:"2px 0 14px"}}>Productivity</h1>
 
-      <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,marginBottom:6}}>
+      {/* Nothing above the week grid may change height when a score crosses 100%: a ring that
+          grew, or a line that appeared, would shove the grid down under the finger that had just
+          ticked it, and the next tap would land on the wrong row. So the room for the orbit is
+          reserved always (the padding here), and the second caption line is always present —
+          it only changes what it says. */}
+      <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,marginBottom:6,padding:"8px 0 0"}}>
         {/* neutral ink, not a category hue: the headline is an aggregate, and painting it in one
             category's colour made the two read as the same thing */}
-        <Ring size={168} stroke={10} pct={S.combined} color="var(--ink-2)" delay={0}>
+        <Ring size={168} stroke={10} pct={S.combined} color="var(--ink-2)" overColor="var(--ink)" delay={0}>
           <AnimatedNumber value={combinedShown} suffix="%" dur={RING_MS} className="num" style={{fontFamily:"var(--serif)",fontSize:38,color:"var(--ink)"}}/>
           <span style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2}}>combined</span>
         </Ring>
-        <div style={{fontSize:11.5,color:"var(--ink-3)",textAlign:"center"}}>
-          coursework counts double · {S.counted} of 3 categories tracked
+        <div style={{fontSize:11.5,color:"var(--ink-3)",textAlign:"center",marginTop:8}}>
+          <div>coursework counts double · {S.counted} of 3 categories tracked</div>
+          {S.bonus>0
+            ? <div style={{color:"var(--ink-2)"}}>includes +{S.bonus}% from extra language days</div>
+            : <div>extra language days count beyond 100%</div>}
         </div>
       </div>
 
@@ -3452,7 +3536,10 @@ function ProductivityView({data, A}){
         languages ×1). A category you haven’t set up is left out of the average entirely rather
         than counted as zero. Coursework is every topic ticked this week against the pace needed
         across all live subjects{work && work.d>0 ? " — "+work.d+" this week" : ""}. Language days
-        follow the Czech / Italian cadence — {S.byKey.lang.d} scheduled this week.
+        follow the Czech / Italian cadence — {S.byKey.lang.d} scheduled this week. That is the
+        target, not the limit: every day is open, and each day beyond the {S.byKey.lang.d} counts
+        as extra, carrying the languages ring and the combined score past 100%. The surplus is
+        drawn as a second, thinner lap outside the ring. Coursework and gym stop at 100%.
       </p>
     </div>
   );
@@ -3461,20 +3548,29 @@ function ProductivityView({data, A}){
 /* the 3-second daily surface: logging that isn't on the default screen doesn't happen */
 function ProdTodayStrip({data, A}){
   const t=todayStr(), p=data.prod;
-  const lang=langForDate(t);
+  const lang=langForDate(t), logged=p.lang.log[t];
   const items=[
     { key:"gym", label:"Gym", color:"#BE123C", on:!!p.gym.log[t], click:()=>A.tickGym(t,!p.gym.log[t]) },
   ];
-  if(lang) items.push({ key:"lang", label:lang==="czech"?"Czech":"Italian", color:LANG[lang].color,
-                        on:!!p.lang.log[t], click:()=>A.tickLang(t,!p.lang.log[t]) });
-  if(!items.length) return null;
+  /* A cadence day offers its one language, as it always has. Any other day offers both, marked
+     as extra: the app cannot know which language an unscheduled session was, so here it asks
+     instead of guessing. One entry per day — tapping the other language swaps it. */
+  if(lang) items.push({ key:"lang", label:LANG[lang].name, color:LANG[lang].color,
+                        on:!!logged, click:()=>A.tickLang(t, logged?null:lang) });
+  else ["czech","italian"].forEach(function(l){
+    const on=!!logged && (logged.lang||langSuggest(t))===l;
+    items.push({ key:"lang-"+l, label:LANG[l].name, color:LANG[l].color, extra:true,
+                 on:on, click:()=>A.tickLang(t, on?null:l) });
+  });
   return (
     <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap",marginTop:10}}>
       {items.map(function(it){
         return (
           <button key={it.key} className="chip" aria-pressed={it.on} onClick={()=>{haptic();it.click();}}
-            style={{border:"0.5px solid "+(it.on?it.color:"var(--line-2)"),background:it.on?it.color+"14":"var(--card)",color:it.on?it.color:"var(--ink-2)"}}>
-            <i className={it.on?"fa-solid fa-circle-check":"fa-regular fa-circle"} style={{fontSize:11}} aria-hidden="true"/>{it.label}
+            title={it.extra?"Extra day — not on the cadence, so it counts beyond 100%":undefined}
+            aria-label={it.extra?it.label+", extra day":undefined}
+            style={{border:it.on?"0.5px solid "+it.color:it.extra?"1px dashed var(--line-2)":"0.5px solid var(--line-2)",background:it.on?it.color+"14":"var(--card)",color:it.on?it.color:"var(--ink-2)"}}>
+            <i className={it.on?"fa-solid fa-circle-check":it.extra?"fa-solid fa-plus":"fa-regular fa-circle"} style={{fontSize:11}} aria-hidden="true"/>{it.label}
           </button>
         );
       })}
@@ -3670,9 +3766,14 @@ function App(){
       if(on) log[date]={tickedAt:nowISO()}; else delete log[date];
       return {...d, prod:{...d.prod, gym:{...d.prod.gym, log}}};
     }),
-    tickLang:(date,on)=>mutate(d=>{
+    /* lang is "czech" | "italian" to log that language for the day, or null to clear it. One
+       entry per day, so logging the other language replaces the first rather than adding to it.
+       tickedAt survives a swap: correcting Czech → Italian on an extra day is not a new tick, and
+       must not turn a day logged on time into one marked "late". */
+    tickLang:(date,lang)=>mutate(d=>{
       const log={...d.prod.lang.log};
-      if(on) log[date]={lang:langForDate(date)||"czech", tickedAt:nowISO()}; else delete log[date];
+      if(lang){ const was=log[date]; log[date]={lang:lang, tickedAt:(was&&was.tickedAt)||nowISO()}; }
+      else delete log[date];
       return {...d, prod:{...d.prod, lang:{...d.prod.lang, log}}};
     }),
     setGymTarget:(v)=>mutate(d=>({...d, prod:{...d.prod, gym:{...d.prod.gym, targetPerWeek:v}}})),

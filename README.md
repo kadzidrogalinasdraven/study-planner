@@ -229,7 +229,28 @@ Three weekly rings plus a combined one. Weeks run **Monday–Sunday**, local tim
 | --- | --- | --- |
 | Coursework | 2× | topics ticked this week ÷ the pace needed across every live subject |
 | Gym | 1× | sessions this week ÷ your target, 3 by default |
-| Languages | 1× | language days hit ÷ language days scheduled |
+| Languages | 1× | language days logged ÷ language days on the cadence — **can pass 100%** |
+
+### Going past 100%
+
+The language cadence — three or four days a week — is the target, not the limit. All seven boxes
+in the week grid are open: the solid ones are the cadence days, the dashed ones are extra. Every
+extra day counts, so four days against a cadence of three is 133%, and a full week is 233%.
+
+The surplus carries into the combined score as well: each extra language day adds about 8 points
+to it in a three-day week, about 6 in a four-day week. A line under the big ring says how much of
+the headline came from extra days.
+
+A ring that is already full shows the surplus as a second, thinner lap just outside it — one
+orbit per extra 100%.
+
+Coursework and gym stop at 100%. Going to the gym five times against a target of three is still
+100%, not 167%.
+
+**Which language was an extra day?** The app cannot know, so it does not pretend to. On the Today
+screen an extra day offers both Czech and Italian and you tap the one you did. In the week grid an
+extra day starts as the language of the day before; tap it again to switch to the other, and once
+more to clear it. Cadence days are a plain on/off, as they always were.
 
 **A category you haven't set up is left out of the average entirely, rather than counted as zero.**
 An unconfigured ring would otherwise drag the headline number down for no reason. "Set up" means
@@ -259,7 +280,8 @@ an omission: a topic is not done *for* a date the way a gym session is, so its s
 time.
 
 Language practice alternates Czech and Italian on every other day, half an hour each, and runs
-straight through the holidays rather than pausing for term.
+straight through the holidays rather than pausing for term. Those are the days the plan asks
+for; practising on the days in between is logged as extra (see "Going past 100%").
 
 ## Privacy
 

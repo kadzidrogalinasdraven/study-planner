@@ -1462,6 +1462,21 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 - 2026-09-30 · **The built-in browser pane works again on a second port.** `.claude/launch.json`
   has `planner-clean` on 8732: a different origin, so an empty localStorage, so sync is off and
   no Google popup opens. Use that one, never `planner` on 8731. (The file is local, untracked.)
+- 2026-09-30 · **Deployed as `0264502`.** Live `index.html` byte-identical to the commit; the
+  same 34 engine and scoring checks pass on the live origin; ticking two boxes in the grid with
+  the clock set to Thursday reads 2 / 12 and shows both ticked on Today, the third still open.
+  The test suite is a single `page.evaluate`, kept where it survives a new session:
+  `~/.claude/projects/-Users-linas-Projects-study-planner/tests/engine-tests.js`. It needs
+  nothing but the loaded page, because every engine function is a global there. To run it, copy
+  it into `.playwright-mcp/` (the Playwright tool only reads files under the repo) and pass that
+  path as `filename` to `browser_run_code_unsafe`; it returns `{checks, fails, failed}`.
+- 2026-09-30 · **Open, for him:** (1) was Chrome's pop-up default already on "allow" before
+  today, and does Reconnect still appear after an hour; (2) whether Today holding still is what
+  he wants, now that he can see it; (3) whether he wants the no-popup sign-in built. His own Plan
+  may not match the example he gave (Pharmacology ×2 tomorrow): on an untouched plan Thursday is
+  one topic each of Pharmacology, Pathology and Pathophysiology — 2.75 h of his 3 h, and a second
+  0.75 h topic does not fit. The table shows whatever his Plan shows.
+- 2026-09-30 · **Session state is complete; safe to clear.**
 
 ---
 

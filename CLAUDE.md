@@ -1553,6 +1553,8 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   entries; (3) ask at a Simulation Medicine practical whether 6 Jan runs; (4) still from before:
   does Reconnect appear after an hour. **Due and not done:** the late-September re-download of
   Pathology's three question PDFs (see "What to re-check, and when").
+- 2026-09-30 · **Deployed as `1e8ae83`.** Live `index.html` matched the commit 40 s after the push.
+  **Session state is complete; safe to clear.**
 
 ---
 

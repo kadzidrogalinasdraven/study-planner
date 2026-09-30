@@ -1787,9 +1787,12 @@ function pressureOf(x, queue, date){
 }
 function fillDay(date, blocks, queue){
   const budget=budgetFor(date); let left=budget; const items=[];
+  /* The order has to be TOTAL — pressure, then deadline, then key. Today's list and the week's
+     table are both built by running this from different starting points and are expected to
+     agree; a comparator that leaves two blocks tied lets the sort decide, and then they need not. */
   const order=blocks.map(function(x){ return { x:x, p:pressureOf(x,queue,date) }; })
     .filter(function(o){ return o.p>=0; })
-    .sort(function(a,b){ return b.p-a.p || (a.x.due<b.x.due?-1:1); })
+    .sort(function(a,b){ return b.p-a.p || (a.x.due<b.x.due?-1:a.x.due>b.x.due?1:(a.x.key<b.x.key?-1:a.x.key>b.x.key?1:0)); })
     .map(function(o){ return o.x; });
   let placed=true;
   while(placed && left>0.01){
@@ -1812,12 +1815,44 @@ function fillDay(date, blocks, queue){
    a way that mattered: it charged the October-to-January days against subjects not examined until
    May, and reported 181 h of overflow that did not exist. Simulating uses the same placement rule
    as the visible plan, so the banner and the schedule can never contradict each other. */
+/* ── lists that hold still ─────────────────────────────────────────────────
+   The scheduler only ever looks at what is unticked, so a list built from the live state moves
+   every time a box is ticked: the ticked topic drops out and the next one slides up to take its
+   place. For a queue that is right. For a day it is wrong — today's list could never be finished,
+   and tomorrow's changed each time today's was touched.
+
+   doneAt is what fixes it. `beforeTicks` rebuilds the state as it stood before the given days'
+   ticks by putting those topics back, and anything that must not move while it is being worked
+   through — today's list, the week's table — is planned from that state instead. */
+function beforeTicks(data, days){
+  const at=data.doneAt||{}, done=Object.assign({}, data.done);
+  Object.keys(at).forEach(function(c){ if(done[c] && days.indexOf(at[c])>=0) done[c]=false; });
+  return Object.assign({}, data, { done:done });
+}
+/* Today is planned from this morning's state, so its list is the one the day started with:
+   ticking a topic marks it done where it stands rather than pulling tomorrow's first topic in
+   behind it. Every later day is planned from what is really left, minus what today has claimed —
+   so work done ahead still frees those days up at once.
+
+   Returns the blocks, today's fill, and the queues as they stand for tomorrow. buildPlan and
+   projectYear both start here, which is what keeps the banner and the schedule in step. */
+function startDay(data, today){
+  const morning=beforeTicks(data, [today]);
+  const blocks=liveBlocks(morning, today);
+  const q={}; blocks.forEach(function(x){ q[x.key]=blockQueue(x.b,morning).slice(); });
+  const first=fillDay(today, blocks, q);
+  const held={}; first.items.forEach(function(i){ held[i.code]=1; });
+  const queue={};
+  blocks.forEach(function(x){ queue[x.key]=blockQueue(x.b,data).filter(function(c){ return !held[c]; }); });
+  return { blocks:blocks, first:first, queue:queue };
+}
+
 function projectYear(data, today){
-  const blocks=liveBlocks(data, today);
+  const sd=startDay(data, today), blocks=sd.blocks, queue=sd.queue;
   if(!blocks.length) return [];
-  const queue={}; blocks.forEach(function(x){ queue[x.key]=blockQueue(x.b,data).slice(); });
   let last=today; blocks.forEach(function(x){ if(x.due>last) last=x.due; });
-  dateRange(today,last).forEach(function(d){ fillDay(d, blocks, queue); });
+  // today is already placed by startDay; everything else has from tomorrow to its deadline
+  dateRange(addDays(today,1), last).forEach(function(d){ fillDay(d, blocks, queue); });
   const bySub={};
   blocks.forEach(function(x){
     const missed=queue[x.key]; if(!missed.length) return;
@@ -1834,15 +1869,15 @@ function projectYear(data, today){
 
 function buildPlan(data, today){
   const days   = dateRange(today, addDays(today, PLAN_DAYS-1));
-  const blocks = liveBlocks(data, today);
   const live   = SUBJECTS.filter(function(s){ return deadlineOf(s,data) >= today; });
-  const pace={}, queue={};
+  const pace={};
   live.forEach(function(s){ pace[s.id]=paceOf(s,data,today); });
-  blocks.forEach(function(x){ queue[x.key]=blockQueue(x.b,data).slice(); });
+  const sd=startDay(data, today), blocks=sd.blocks, queue=sd.queue;
 
   const reviewed={};
-  const out = days.map(function(date){
-    const f=fillDay(date, blocks, queue);
+  const out = days.map(function(date, n){
+    // day 0 is today, pinned to this morning: its items include the ones already ticked
+    const f = n===0 ? sd.first : fillDay(date, blocks, queue);
     const items=f.items, review=[]; let left=f.left; const budget=f.budget, open=f.open;
     dueForReview(data, date, live).forEach(function(c){
       if(reviewed[c] || review.length>=REVIEW_PER_DAY || left < REVIEW_HRS) return;
@@ -1863,6 +1898,49 @@ function buildPlan(data, today){
   out.overflow = { bySubject:short, hours: short.reduce(function(a,x){ return a+x.hours; },0) };
   out.pace = pace;
   return out;
+}
+
+/* ── the week, as it was planned on Monday ──────────────────────────────────
+   The Productivity tab needs a week that holds still: a target that does not shrink when a day
+   is skipped or grow when one is finished early, and a box for every topic that stays where it
+   is once ticked. So the seven days are planned once, from the state as it stood on Monday
+   morning — this week's ticks put back — with the very same fillDay the Plan uses.
+
+   Followed day by day, this IS the Plan: both reach each morning with the same topics left, so
+   they list the same things. They part only when you are off it, and then on purpose. Behind,
+   the Plan re-flows the missed topics into the days that are left, within each day's budget,
+   while this table leaves them open on the day they were due. Ahead, the Plan refills the freed
+   days, while this table shows the week's own list finishing early.
+
+   Nothing is stored. It is recomputed on every render from done + doneAt, so it cannot go
+   stale — and that is also why booking an exam date or skipping a block mid-week re-deals the
+   whole week, past days included. */
+function weekPlan(data, today){
+  const week  = weekDaysOf(today);
+  const start = beforeTicks(data, week);
+  const blocks= liveBlocks(start, week[0]);
+  const queue = {}; blocks.forEach(function(x){ queue[x.key]=blockQueue(x.b,start).slice(); });
+  const cells={}, planned={};                 // cells[subject][iso] = { planned:[code…], extra:[code…] }
+  const cell=function(code, iso){
+    const sid=SUBJECT_OF[code]; if(!sid) return null;
+    const row=cells[sid]||(cells[sid]={});
+    return row[iso]||(row[iso]={ planned:[], extra:[] });
+  };
+  week.forEach(function(d){
+    fillDay(d, blocks, queue).items.forEach(function(i){ const c=cell(i.code, d); if(c){ c.planned.push(i.code); planned[i.code]=d; } });
+  });
+  /* Ticked this week but not on this week's list: work done ahead of it. It has no box of its
+     own, so it is counted on the day it was ticked. */
+  const at=data.doneAt||{}; let extra=0;
+  Object.keys(at).forEach(function(code){
+    if(!data.done[code] || planned[code] || week.indexOf(at[code])<0) return;
+    const c=cell(code, at[code]); if(c){ c.extra.push(code); extra++; }
+  });
+  const codes=Object.keys(planned);
+  return { week:week, cells:cells, planned:planned, total:codes.length, extra:extra,
+           done:   codes.filter(function(c){ return data.done[c]; }).length,
+           behind: codes.filter(function(c){ return planned[c]<today && !data.done[c]; }).length,
+           subjects: SUBJECTS.filter(function(s){ return cells[s.id]; }) };
 }
 
 /* The next thing with a date on it — a booked exam, an exam period opening, or a credit
@@ -1900,18 +1978,22 @@ function prodStats(data, today){
   const split={ czech:0, italian:0 };
   week.forEach(function(d){ const e=p.lang.log[d]; if(e){ const l=e.lang||langSuggest(d); split[l]=(split[l]||0)+1; } });
 
-  /* The coursework target is the pace needed across every live subject, rounded up — not a
-     number anybody typed. If nothing is outstanding it is zero and the ring drops out of the
-     average rather than sitting at 0%. */
-  const live = SUBJECTS.filter(function(s){ return deadlineOf(s,data) >= today; });
-  const need = live.reduce(function(a,s){ return a + paceOf(s,data,today).perWeek; }, 0);
+  /* The coursework target is what the Plan puts on this week's seven days — the number of topics
+     the daily budgets actually hold, fixed on Monday (see weekPlan). It used to be the pace
+     needed to finish every live subject on time, which came to 39 topics a week against a plan
+     that schedules about half that: a target nobody was ever asked to meet, so the ring could
+     not reach 100 by doing everything the Plan said. The shortfall between the two is real, and
+     it is reported where it belongs — in the overflow banner on Today and Plan, not here.
+     If nothing is planned the target is zero and the ring drops out of the average rather than
+     sitting at 0%. */
+  const plan = weekPlan(data, today);
 
   /* `uncapped` is the one switch that lets a category score past its target. Languages carry it,
      at Linas's request: the cadence is three or four days a week, he may well study six or seven,
      and the surplus should show — on its own ring and in the headline. Gym and coursework stop
      at 100 on purpose; he asked for gym to stay as it was, and nobody asked for coursework. */
   const cats=[
-    { key:"work", label:"Coursework", color:UI.accent, weight:2, n:workN, d:need,          configured:need>0 },
+    { key:"work", label:"Coursework", color:UI.accent, weight:2, n:workN, d:plan.total,    configured:plan.total>0 },
     { key:"gym",  label:"Gym",        color:"#BE123C", weight:1, n:gymN,  d:p.gym.targetPerWeek||0, configured:(p.gym.targetPerWeek||0)>0 },
     { key:"lang", label:"Languages",  color:LANGC.czech, weight:1, n:langN, d:langDays.length, configured:langDays.length>0, split:split, uncapped:true },
   ].map(function(c){
@@ -1931,7 +2013,7 @@ function prodStats(data, today){
      every category held at 1 — so the screen can say where the extra came from. */
   const combined= mean(function(c){ return c.score; });
   const bonus   = combined - mean(function(c){ return Math.min(1, c.score); });
-  return { week, cats, byKey, combined, bonus, counted:inScore.length, need };
+  return { week, cats, byKey, combined, bonus, counted:inScore.length, plan };
 }
 
 /* ── persistence ──────────────────────────────────────────────────── */
@@ -2166,6 +2248,9 @@ function DayBody({p, data, A, showNote}){
     g.codes.push(it.code);
   });
   const empty = !p.items.length && !p.review.length;
+  /* Only today can be finished: its list is the one the day started with, ticked topics and all
+     (see startDay). Every later day lists only what is still open. */
+  const finished = p.date===todayStr() && p.items.length>0 && p.items.every(function(i){ return data.done[i.code]; });
   return (
     <>
       {showNote && p.items.length>0 && <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px",fontStyle:"italic"}}>{p.phaseLabel} <span style={{color:"var(--ink-3)",fontStyle:"normal"}}>· {p.est} of {p.budget} h</span></p>}
@@ -2180,6 +2265,10 @@ function DayBody({p, data, A, showNote}){
           </div>
         );
       })}
+      {finished && <p style={{fontSize:13.5,color:UI.accent,margin:"6px 0 12px",lineHeight:1.5}}>
+        <i className="fa-solid fa-circle-check" style={{marginRight:7}} aria-hidden="true"/>
+        Today’s list is done. <span style={{color:"var(--ink-3)"}}>Tomorrow’s is on the Plan tab — anything you tick ahead there counts for this week too.</span>
+      </p>}
       {p.review.length>0 && <>
         <div className="seclabel">Review <span style={{fontSize:12,color:"var(--ink-3)"}}>· ticked three weeks ago or more, exam approaching</span></div>
         {p.review.map(function(c){ return <ReviewRow key={c} code={c} data={data} A={A}/>; })}
@@ -2734,8 +2823,9 @@ function PlanView({data, A}){
       <h1 style={{fontSize:28,margin:"2px 0 6px"}}>Plan</h1>
       <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 6px"}}>
         Nothing here is hand-written. Every day is derived from what you have ticked and from how
-        close each deadline is, so it re-flows the moment you tick something and it cannot go
-        stale. The window rolls with today rather than running between two fixed dates.
+        close each deadline is, so it cannot go stale. Today’s list is set each morning and holds
+        still while you work through it; every later day re-flows the moment you tick something.
+        The window rolls with today rather than running between two fixed dates.
       </p>
       <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 6px"}}>
         Days are filled to a budget that follows the academic calendar — {phaseById("wteach").hrs} h on a
@@ -3413,9 +3503,39 @@ function TickCell({on, color, late, onClick, label, dashed}){
   );
 }
 
-function WeekGrid({data, A, week}){
+/* One box per planned topic. It is the very same tick as the checkbox on Today, Plan and
+   Progress — A.toggleDone on data.done — so there is nothing to keep in step. `missed` is a box
+   still open on a day that has already gone: it stays where it was due, outlined, and ticking
+   it late still counts for the week. */
+function TopicTick({code, done, missed, onClick}){
+  const s=SUBJECT[SUBJECT_OF[code]], title=CODE_TITLE[code]||code;
+  return (
+    <button onClick={onClick} aria-pressed={done} title={title}
+      aria-label={s.short+": "+title+(missed?" — still open from an earlier day":"")}
+      style={{display:"flex",background:"none",border:0,padding:"1px 0"}}>
+      <span style={{width:19,height:19,borderRadius:6,border:"1.5px solid "+(done?s.color:missed?"#B4530999":"var(--line-2)"),background:done?s.color:"var(--card)",display:"flex",alignItems:"center",justifyContent:"center",transition:"background .18s,border-color .18s"}}>
+        {done && <i className="fa-solid fa-check" style={{fontSize:9,color:"#fff"}} aria-hidden="true"/>}
+      </span>
+    </button>
+  );
+}
+
+/* The label column. Wide enough for "Pathophysiology" on one line, narrow enough that seven
+   19px boxes still fit beside it on a 375px phone. */
+const GRID_LABEL_W = 112;
+
+function WeekGrid({data, A, week, plan}){
   const p=data.prod, t=todayStr();
   const langOf=d=>{ const e=p.lang.log[d]; return e ? (e.lang||langSuggest(d)) : null; };
+  /* The boxes carry no words, so a tick says which topic it was. The timer only takes the toast
+     away again; the way it arrives is a CSS animation, which reduced motion already covers. */
+  const [said,setSaid]=useState(null);
+  useEffect(function(){
+    if(!said) return;
+    const tm=setTimeout(function(){ setSaid(null); }, 2200);
+    return function(){ clearTimeout(tm); };
+  },[said]);
+  const tickTopic=function(code){ setSaid({ code:code, on:!data.done[code], k:Date.now() }); A.toggleDone(code); };
   const rows=[
     { key:"gym", label:"Gym", color:()=>"#BE123C",
       on:d=>!!p.gym.log[d], late:d=>p.gym.log[d]&&loggedLate(d,p.gym.log[d].tickedAt),
@@ -3437,7 +3557,7 @@ function WeekGrid({data, A, week}){
   return (
     <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"12px 12px 6px",marginTop:16}}>
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-        <span style={{width:104,flex:"none",fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>this week</span>
+        <span style={{width:GRID_LABEL_W,flex:"none",fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>this week</span>
         {week.map(function(d){
           const isT=d===t;
           return <span key={d} style={{flex:1,textAlign:"center",fontSize:10.5,color:isT?"var(--ink)":"var(--ink-3)",fontWeight:isT?600:400}}>
@@ -3448,7 +3568,7 @@ function WeekGrid({data, A, week}){
       {rows.map(function(r){
         return (
           <div key={r.key} style={{display:"flex",alignItems:"center",gap:8,borderTop:"0.5px solid var(--line)"}}>
-            <span title={r.label} style={{width:104,flex:"none",fontSize:12.5,color:"var(--ink-2)",overflow:"hidden",lineHeight:1.25}}>
+            <span title={r.label} style={{width:GRID_LABEL_W,flex:"none",fontSize:12.5,color:"var(--ink-2)",overflow:"hidden",lineHeight:1.25}}>
               <span style={{display:"block",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.label}</span>
             </span>
             {week.map(function(d){
@@ -3459,6 +3579,51 @@ function WeekGrid({data, A, week}){
           </div>
         );
       })}
+
+      {/* Coursework: the week as the Plan laid it out on Monday, one row per course, one box per
+          topic, under the day it is planned for. */}
+      <div style={{display:"flex",alignItems:"baseline",gap:8,flexWrap:"wrap",borderTop:"0.5px solid var(--line)",padding:"9px 0 6px"}}>
+        <span style={{fontSize:11.5,color:"var(--ink-3)",textTransform:"uppercase",letterSpacing:".06em"}}>coursework</span>
+        <span style={{fontSize:11,color:"var(--ink-3)"}}>
+          {plan.total>0
+            ? plan.done+" of "+plan.total+" planned topics done"+(plan.extra>0?" · +"+plan.extra+" beyond the plan":"")
+            : plan.extra>0 ? "nothing planned this week · "+plan.extra+" done anyway"
+            : "nothing is planned for this week"}
+        </span>
+      </div>
+      {plan.subjects.map(function(s){
+        const row=plan.cells[s.id];
+        return (
+          <div key={s.id} style={{display:"flex",alignItems:"center",gap:8,borderTop:"0.5px solid var(--line)"}}>
+            <span title={s.title} style={{width:GRID_LABEL_W,flex:"none",display:"flex",alignItems:"flex-start",gap:6,fontSize:12,color:"var(--ink-2)",lineHeight:1.25,padding:"6px 0"}}>
+              <span style={{flex:"none",marginTop:4,display:"flex"}}><Dot size={7} color={s.color}/></span>
+              <span style={{minWidth:0}}>{s.short}</span>
+            </span>
+            {week.map(function(d){
+              const c=row[d];
+              return (
+                <div key={d} style={{flex:1,minWidth:0,display:"flex",flexWrap:"wrap",justifyContent:"center",alignItems:"center",gap:"2px 3px",padding:"5px 0"}}>
+                  {c && c.planned.map(function(code){
+                    return <TopicTick key={code} code={code} done={!!data.done[code]} missed={d<t && !data.done[code]} onClick={()=>tickTopic(code)}/>;
+                  })}
+                  {c && c.extra.length>0 && (
+                    <span title={c.extra.map(function(code){ return CODE_TITLE[code]||code; }).join("\n")}
+                      style={{fontSize:10.5,color:s.color,lineHeight:1,padding:"2px 0"}}>+{c.extra.length}</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+
+      {said && (
+        <div key={said.k} className="microtoast" role="status" style={{maxWidth:"88vw",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+          <i className={said.on?"fa-solid fa-circle-check":"fa-regular fa-circle"} style={{marginRight:7}} aria-hidden="true"/>
+          {said.on?"Done":"Open again"} · {CODE_TITLE[said.code]||said.code}
+        </div>
+      )}
+
       <div style={{fontSize:10.5,color:"var(--ink-3)",marginTop:8,paddingTop:6,borderTop:"0.5px solid var(--line)",lineHeight:1.55}}>
         Languages: solid boxes are the cadence days; dashed ones are extra and count beyond 100%.
         An extra day takes the language of the day before — tap again for the other
@@ -3466,8 +3631,11 @@ function WeekGrid({data, A, week}){
         {" "}·{" "}<span style={{whiteSpace:"nowrap"}}><Dot size={6} color={LANGC.italian}/> Italian</span>),
         once more to clear.
         <br/>
-        Coursework counts itself — ticking a topic anywhere in the app feeds its ring, so it has no
-        row here. “late” marks a day filled in more than a day afterwards.
+        Coursework: one box per topic, under the day the Plan gives it — the week as laid out
+        on Monday. It is the same tick as on Today and the Plan. A box still open on a day that
+        has passed stays there, outlined. “+2” is work beyond this week’s list.
+        <br/>
+        “late” marks a gym or language day filled in more than a day afterwards.
       </div>
     </div>
   );
@@ -3510,8 +3678,13 @@ function ProductivityView({data, A}){
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:10,marginTop:12}}>
         {S.cats.map(function(c,i){
-          const note = c.key==="work" && c.d>0 ? c.d+" topics/wk to stay on pace" : null;
-          return <CategoryRing key={c.key} c={c} delay={delayFor(i)} note={note} noteWarn={c.key==="work"&&c.n<c.d}/>;
+          // the plan's own number for the week, and — only once something is actually overdue —
+          // how many of its topics are still open on days that have passed
+          const behind = c.key==="work" ? S.plan.behind : 0;
+          const note = c.key==="work" && c.d>0
+            ? c.d+" planned this week"+(behind>0 ? " · "+behind+" behind" : "")
+            : null;
+          return <CategoryRing key={c.key} c={c} delay={delayFor(i)} note={note} noteWarn={behind>0}/>;
         })}
       </div>
 
@@ -3529,13 +3702,14 @@ function ProductivityView({data, A}){
         )}
       </div>
 
-      <WeekGrid data={data} A={A} week={S.week}/>
+      <WeekGrid data={data} A={A} week={S.week} plan={S.plan}/>
 
       <p style={{fontSize:11.5,color:"var(--ink-3)",lineHeight:1.6,marginTop:14}}>
         Combined = weighted mean over the categories you actually track (coursework ×2, gym ×1,
         languages ×1). A category you haven’t set up is left out of the average entirely rather
-        than counted as zero. Coursework is every topic ticked this week against the pace needed
-        across all live subjects{work && work.d>0 ? " — "+work.d+" this week" : ""}. Language days
+        than counted as zero. Coursework is every topic ticked this week against the number the
+        Plan puts on this week’s seven days{work && work.d>0 ? " — "+work.d+" this week" : ""},
+        fixed on Monday so the target holds still while you work through it. Language days
         follow the Czech / Italian cadence — {S.byKey.lang.d} scheduled this week. That is the
         target, not the limit: every day is open, and each day beyond the {S.byKey.lang.d} counts
         as extra, carrying the languages ring and the combined score past 100%. The surplus is

@@ -187,8 +187,13 @@ schedule re-paces around it, and the date appears on the Timeline.
 ### The plan is derived, not written
 
 Nothing in the Plan tab is hand-written. It shows a rolling fourteen days from today, recomputed
-from what you have ticked and how close each deadline is, so it re-flows the moment you tick
-something and it cannot go stale.
+from what you have ticked and how close each deadline is, so it cannot go stale.
+
+**Today's list holds still.** It is set each morning and stays as it is while you work through
+it: a topic you tick stays on the list, ticked, instead of tomorrow's first topic sliding up to
+take its place. That is what lets a day be finished — when every topic on it is ticked, Today
+says so. Every later day re-flows the moment you tick something, so work done ahead frees those
+days up at once.
 
 Days are filled to a budget that follows the academic calendar — three hours on a teaching day,
 five at a teaching weekend, eight inside an exam period, two over the winter break. How long a
@@ -214,9 +219,10 @@ date, raising the daily budget, or marking blocks you will not study as skipped.
 
 ### Progress
 
-Every topic, grouped by course and then by block, with the block's semester marked. Ticking a
-topic removes it from Today and the Plan, and brings it back once for review three weeks later if
-its exam is close — over a nine-month year nothing else re-exposes what you learned in October.
+Every topic, grouped by course and then by block, with the block's semester marked. A ticked
+topic drops out of every later day of the Plan (on today's list it stays, ticked), and comes back
+once for review three weeks later if its exam is close — over a nine-month year nothing else
+re-exposes what you learned in October.
 
 The ban icon beside a topic skips it: a skipped topic is scheduled nowhere and counted nowhere.
 Use it when a block turns out not to be examinable, rather than pretending you will study it.
@@ -227,7 +233,7 @@ Three weekly rings plus a combined one. Weeks run **Monday–Sunday**, local tim
 
 | Ring | Weight | Score |
 | --- | --- | --- |
-| Coursework | 2× | topics ticked this week ÷ the pace needed across every live subject |
+| Coursework | 2× | topics ticked this week ÷ the topics the Plan puts on this week |
 | Gym | 1× | sessions this week ÷ your target, 3 by default |
 | Languages | 1× | language days logged ÷ language days on the cadence — **can pass 100%** |
 
@@ -258,17 +264,38 @@ An unconfigured ring would otherwise drag the headline number down for no reason
 still counts, at 0. If it dropped out on quiet weeks instead, Monday would read 100% off a single
 gym session and then fall as the week filled in.
 
-### Where the coursework number comes from
+### Coursework: the week's plan, one box per topic
 
-Ticking a topic anywhere in the app feeds this ring — there is no separate control, and no row for
-it in the week grid. Alongside the `done` map there is a parallel `doneAt` map recording *when*
-each topic was ticked, which is what makes "this week" answerable. Unticking deletes the stamp, so
-it cannot leave phantom credit behind.
+Under the Gym and Languages rows, the week grid lists the week's coursework: one row per course,
+one box per topic, under the day the Plan gives it. Tomorrow's three topics are three boxes in
+tomorrow's column.
 
-The target is not a number anyone typed: it is the sum, across every subject whose deadline is
-still ahead, of the topics per week that subject needs to be ready in time. It therefore rises as
-an exam approaches and falls as you get ahead. If nothing is outstanding it is zero and the ring
-drops out of the average rather than sitting at 0%.
+**A box is the same tick as the checkbox on Today, the Plan and Progress.** Tick a topic in any
+of them and it is ticked in all of them; there is nothing to keep in step. A box says which topic
+it was as you tick it.
+
+**The week is laid out on Monday and then holds still.** It is what the Plan held for those seven
+days as the week began, and it does not move while you work through it — a ticked box stays where
+it is, and the target neither shrinks when a day is skipped nor grows when one is finished early.
+Follow the Plan day by day and the two list exactly the same topics. They differ only when you
+are off it:
+
+- **Behind.** A box left open on a day that has passed stays on that day, outlined, and the ring
+  says how many are behind. The Plan, meanwhile, re-flows those topics into the days that are
+  left, inside each day's budget. Ticking one late still counts for the week.
+- **Ahead.** Work beyond the week's own list has no box, so it is shown as "+2" on the day you did
+  it. It counts towards the ring, which stops at 100%.
+
+**The target is the number of topics on the week's plan** — about twenty in a full teaching week,
+at three hours a day. It used to be the pace needed to finish every course on time, which came to
+about thirty-nine a week: a number the Plan itself never asked for, so doing everything on the
+Plan could not fill the ring. The gap between the two is real, and it is reported on Today and
+Plan as the hours that do not fit the calendar — not hidden inside this ring. If nothing is
+planned for the week the ring drops out of the average rather than sitting at 0%.
+
+Alongside the `done` map there is a parallel `doneAt` map recording *when* each topic was ticked.
+It is what makes "this week" answerable, and what lets the week be rebuilt as it stood on Monday.
+Unticking deletes the stamp, so it cannot leave phantom credit behind.
 
 ### Logged late
 

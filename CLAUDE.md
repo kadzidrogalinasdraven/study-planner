@@ -175,7 +175,9 @@ Four rules that are load-bearing and easy to break:
   in March.
 - **A topic costing more than a whole day is capped at the day's budget** in `fillDay`. Pharmacology
   works out at ~3.75 h a topic against a 3 h teaching day; without the cap those 26 topics were
-  unschedulable forever and sat permanently in overflow.
+  unschedulable forever and sat permanently in overflow. (That was the 26-line syllabus. With the
+  157-question list Pharmacology is 0.75 h a topic, and the course the cap now rescues is Medical
+  Psychology at 3.5 h. The rule is the same.)
 - **Blocks are ordered by PRESSURE — remaining hours ÷ hours left before the deadline —
   recomputed daily**, not by raw deadline. Deadline order starved the biggest course: the two
   blocks due first ate every day's budget and Pathophysiology went untouched for weeks.
@@ -185,6 +187,56 @@ not be placed. **Do not replace it with arithmetic.** The share-of-the-calendar 
 here first charged the October-to-January days against subjects not examined until May and
 reported 181 h of overflow that did not exist. Simulating means the banner and the visible
 schedule can never contradict each other.
+
+#### Today's list holds still, and so does the week (2026-09-30)
+
+The scheduler only ever looks at unticked topics, so a list built from the live state moves every
+time a box is ticked: the ticked topic drops out and the next one slides up behind it. Until today
+that made Today a treadmill — tick a topic and tomorrow's first topic took its place, so the day's
+list could never be finished and tomorrow's list changed whenever today's was touched. Nobody had
+hit it because nothing had been ticked before term. It had to go before the week table could
+exist: a box that vanishes when ticked is not a box.
+
+`doneAt` is the fix. **`beforeTicks(data, days)`** rebuilds the state as it stood before those
+days' ticks, by putting the topics back, and two things are planned from such a state:
+
+- **Today** — `startDay(data, today)` plans today from *this morning's* state, so `plan[0].items`
+  is the list the day started with and **includes the topics already ticked** (the cards already
+  rendered a done state; the engine simply never sent one). Later days are planned from what is
+  really left, minus what today has claimed — so work done ahead frees them at once.
+  `buildPlan` and `projectYear` both start from `startDay`; that is what keeps the banner and the
+  schedule in step now. Do not give either its own way of opening the day.
+- **The week** — `weekPlan(data, today)` plans Monday to Sunday from *Monday morning's* state with
+  the same `fillDay`. It is the Productivity tab's table and the coursework ring's target.
+
+**Followed day by day the two are the same list**, because both reach each morning with the same
+topics left. That is tested, not assumed: six simulated weeks on plan, 504 day-comparisons,
+checked in the morning, half-way through the day and in the evening. They part only when he is
+off the plan, and on purpose:
+
+| | The week table | The Plan |
+| --- | --- | --- |
+| Behind | the missed box stays open on the day it was due, outlined; "N behind" on the ring | re-flows the missed topics into the days left, **inside each day's budget** — never piled on top |
+| Ahead | the week's own list finishes early; work beyond it is "+N" on the day it was ticked | refills the freed days to their budget straight away |
+
+So "the Plan says X for Friday and the table says Y" is not a bug when he has skipped or jumped
+ahead. It would be one if he were exactly on plan.
+
+Things that are easy to break here:
+
+- **`fillDay`'s sort must be a TOTAL order** (pressure, then deadline, then key). Today and the week
+  are built by running it from different starting points and are expected to agree; a comparator
+  that leaves two blocks tied lets the sort decide, and then they need not.
+- **Nothing is stored.** The week is recomputed on every render from `done` + `doneAt`, which is
+  why it cannot go stale — and also why **booking an exam date or skipping a block mid-week
+  re-deals the whole week, past days included**, and can show topics as "behind" on days that had
+  held something else. It is rare, and storing the week to avoid it would bring back exactly the
+  staleness the derived plan exists to prevent. Explain it; do not persist it.
+- **A bulk tick in Progress** stamps today on everything it ticks. Those topics land as "+N" on
+  today, and the ring reads them as this week's work. That was already true of the ring.
+- **Regression check for the engine:** with nothing ticked on the day under test, the new
+  `buildPlan` and `projectYear` must equal the old ones exactly. Verified on 68 states — 17 dates
+  across the year × 4 levels of progress, with skips and booked exam dates.
 
 Daily budgets come from `PHASES` and are **the user's own choice**: 3 h on a teaching day, +2 at a
 teaching weekend and on Dean's Day, 8 h inside an exam period, 2 h over the winter break. Look
@@ -216,6 +268,27 @@ as well as `cats` — the old code read `cats[0]` and `cats[2]` positionally, wh
 the moment a category is removed. **The language anchor stays at 2026-09-01 and must not be moved
 to the start of term:** re-anchoring it to 1 October switched language practice off for the whole
 of September, which is the one habit that runs through the holiday.
+
+#### The coursework ring measures the Plan, not the pace (2026-09-30, Linas's request)
+
+The target used to be the pace needed to finish every live subject on time — `paceOf().perWeek`
+summed, **39 topics a week**. The Plan, at his 3 h a day, holds **21** in a full week. So the ring
+asked for something the Plan never scheduled and could not reach 100 by doing everything on it.
+He asked for "just the weekly amount of topics I have to study", as found in the Plan: the target
+is now `weekPlan().total`, and `prodStats` returns `plan` instead of `need`.
+
+**The gap between 21 and 39 is real and has not gone away.** It is the overflow — 71 h on an
+untouched year — and it is reported by the banner on Today and Plan. Do not move it back into
+this ring, and do not read a 100% coursework week as "on track for the exams".
+
+The week grid carries the coursework under Gym and Languages: one row per course, one
+`TopicTick` per planned topic, under the day the Plan gives it. **It is the same tick as
+everywhere else** — `A.toggleDone` on `data.done` — so there is no second record to keep in step;
+that is the whole answer to "directly connected". The boxes carry no words, so a tick raises a
+toast naming the topic. A box still open on a past day is outlined (`missed`); work beyond the
+week's list has no box and shows as "+N" on the day it was ticked. The label column is
+`GRID_LABEL_W` = 112 px: "Pathophysiology" on one line, and seven 19 px boxes still fit beside it
+at 375 px.
 
 #### Languages can pass 100% — and only languages (2026-09-30, Linas's request)
 
@@ -1360,6 +1433,35 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   request for a `favicon.ico` the site has never had.
 - 2026-09-30 · **Session state is complete; safe to clear.** The one open item is his answer on
   sign-in (option A or B above). Nothing is half-done.
+- 2026-09-30 · **Sign-in, option A is now in place on the Mac — result not yet known.** His
+  screenshot of Chrome → Pop-ups and redirects shows `https://kadzidrogalinasdraven.github.io`
+  AND the old Netlify origin under "Allowed", **and the default itself set to "Sites can send
+  pop-ups and use redirects"**. Unknown whether he switched the default on just now or it was
+  already so. It matters: **if pop-ups were already allowed for every site before today, then a
+  blocked popup was never what sent him to Reconnect**, and the diagnosis above needs a second
+  look (the silent request would then be failing inside Google — the weekly Testing expiry is the
+  first suspect). Asked him which it was, and told him to set the default back to "Don't allow"
+  if he had changed it, since the planner only needs its own line. **The test is to open the app
+  after more than an hour and see whether Reconnect appears.** Ask for the outcome first thing.
+- 2026-09-30 · **Coursework on the Productivity tab now follows the Plan**, at his request: the
+  ring's target is the week's planned topics (12 this week, 21 in a full one) instead of the
+  39-a-week pace, and the week grid lists each day's topics as tickable boxes under Gym and
+  Languages. Rules under "Productivity" and "Today's list holds still" above.
+- 2026-09-30 · **One change he did not ask for, made because the request could not work without
+  it: Today's list no longer refills.** A ticked topic stays on today's list, ticked, and Today
+  says when the list is done; before, tomorrow's first topic slid up to replace it. Told to him
+  plainly, with how to reverse it (`startDay` → plan today from the live state again).
+- 2026-09-30 · Verified in the real app, in a browser, against the running engine rather than a
+  copy of it: 68 states identical to the deployed engine when nothing is ticked today; 26 engine
+  invariants (pinning, working ahead, six weeks on plan = 504 Plan-vs-table comparisons, 210
+  day-states of random ticking with the week unmoved, behind, empty weeks, 40 consecutive weeks);
+  8 scoring cases; then the clicks themselves — box in the grid → Today shows it ticked and does
+  not refill → tick on Today → box in the grid → tick on Plan → "Today's list is done"; a skipped
+  Friday seen from Saturday (3 behind, outlined); work beyond the week (+1, +2); 375 px; reduced
+  motion; all eight tabs; no console errors.
+- 2026-09-30 · **The built-in browser pane works again on a second port.** `.claude/launch.json`
+  has `planner-clean` on 8732: a different origin, so an empty localStorage, so sync is off and
+  no Google popup opens. Use that one, never `planner` on 8731. (The file is local, untracked.)
 
 ---
 

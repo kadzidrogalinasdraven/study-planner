@@ -1477,6 +1477,13 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   one topic each of Pharmacology, Pathology and Pathophysiology — 2.75 h of his 3 h, and a second
   0.75 h topic does not fit. The table shows whatever his Plan shows.
 - 2026-09-30 · **Session state is complete; safe to clear.**
+- 2026-09-30 · **His answers.** (3) The no-popup sign-in is **deferred — "we'll do it later"**.
+  Do not build it unprompted; the design notes under "Staying signed in" are ready when he asks.
+  (1) He reports sign-in "working fine enough after changing settings", and will check in an
+  hour whether Reconnect still appears — **ask for that result first thing next session.** He did
+  not say whether Chrome's pop-up default was already on "allow" before today, so that question
+  is still open, and with it whether the default should go back to "Don't allow". (2) No comment
+  on Today holding still; treat it as accepted unless he raises it.
 
 ---
 

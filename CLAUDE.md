@@ -1693,6 +1693,16 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   pharmacology topics alone are 536 h. Asked him what he meant. If he does want it, the estimate
   is his to give (see the memory note on effort estimates) and the lever is the constants or a
   per-subject figure from him — never a number invented here.
+- 2026-10-01 · **Deployed as `49dae8d`.** GitHub Pages was slow this time: the live `index.html`
+  was still the old one two minutes after the push and matched the commit byte for byte at
+  10:37. Checked on the live origin in the browser pane: 678 topics, 22 blocks, Pharmacology
+  35 / 52 / 47 with the "2026/27 · pre-final" badge, the 1 Oct practical note on Today,
+  Simulation Medicine on its six dates and nothing on 6 Jan, no console errors.
+  **Open, for him:** (1) the Pathophysiology gap until 25 Oct — leave, merge the two Special
+  blocks, or change the ranking; (2) what he meant by "4 h per topic"; (3) whether to mark the
+  6 Jan Simulation Medicine entry in Google Calendar "NO CLASS"; (4) whether the four stale
+  expectations in the engine test file may be updated; (5) from before: 5A or 5B, and whether
+  Reconnect still appears after an hour.
 
 ---
 

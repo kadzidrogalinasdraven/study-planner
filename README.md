@@ -144,7 +144,7 @@ eleven compulsory courses, 56 credits, five graded exams and six credits.
 Everything factual in it comes from the university, not from guesswork. The courses, their codes,
 semesters, completion types and credit values are transcribed from Charles University's own study
 plan (SIS, plan `EAVSEOB2023`). The term dates, exam periods, holidays and Dean's Day come from
-the Faculty's Dean's Measure 6/2026. The 701 topics come from the exam-question lists each
+the Faculty's Dean's Measure 6/2026. The 678 topics come from the exam-question lists each
 department publishes, or from the SIS syllabus where a department publishes no question list.
 
 ### How current is any of it
@@ -154,8 +154,9 @@ teaching starts. So every topic list carries its own age, shown wherever the top
 subject card, and on each block in Progress. Two courses, Pathophysiology and Introduction to
 Internal Medicine II, have a verified 2026/27 question list. Pathology's three lists are undated
 and were silently refreshed on the first day of last term, so they want re-downloading in late
-September. Pharmacology's real list is behind a login, and what
-stands in for it is a six-year-old list from the course this one was split out of.
+September. Pharmacology uses the department's official 2026/27 oral list of 134 questions, read
+on 1 October 2026 and marked pre-final: the department has said it will still renumber it and
+move a few questions, and will announce the final version.
 
 The Subjects tab has a panel spelling all of this out, and a second panel listing what the shared
 student Drive archive gets wrong — it dates from 2020 to 2022 and predates the current

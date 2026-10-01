@@ -120,7 +120,7 @@ examine the second-year half of each course as well** — that is why `SUBJECTS`
 
 ### 569 topics, and where they came from
 
-`CURRICULUM` is 21 blocks. Where a department publishes a numbered exam-question list, **that list
+`CURRICULUM` is 22 blocks. Where a department publishes a numbered exam-question list, **that list
 is the curriculum**, because it is literally what is examined:
 
 | Subject | Blocks | Topics | Source |
@@ -128,7 +128,7 @@ is the curriculum**, because it is literally what is examined:
 | Pathology | General 47 / Special 108 / Oncological 69 | **224** | the three exam-question PDFs |
 | Pathophysiology II | 4 oral groups (30/35/35/35) + practical 18 | **153** | oral + practical question PDFs, 2026/27 edition |
 | Intro to Internal Medicine II | Propedeutics 24 / ECG+varia 18 | **42** | exam PDF, **2026/27 edition** (`did=357554`, read 2026-09-30) |
-| Pharmacology II | General 26 / Special 131 | **157** | the legacy code `EA0107015` — see below |
+| Pharmacology II | General 35 / Special I 52 / Special II 47 | **134** | the department's 2026-27 Word file, read 2026-10-01, **pre-final** — see below |
 | Medical Psychology and Ethics | 1 | 20 | SIS syllabus (labels abridged; full text in SIS) |
 | Internal Medicine I | Cardiovascular 10 / Pneumology 4 | 14 | SIS syllabus |
 | Propedeutics of Surgery | 1 | 32 | SIS syllabus |
@@ -137,7 +137,8 @@ is the curriculum**, because it is literally what is examined:
 | Radiological Anatomy | 1 | 13 | SIS syllabus |
 | Medical Czech | 1 | 10 | SIS syllabus |
 
-**701 topics across 21 blocks.**
+**678 topics across 22 blocks** (701 across 21 until 2026-10-01, when Pharmacology's 157-question
+stand-in was replaced by the official 134).
 
 One staleness warning worth repeating to the user: the **Internal Medicine I** question PDF in SIS
 is headed 2021/2022 and was therefore *not* used — the current SIS syllabus was used instead.
@@ -160,8 +161,9 @@ There is no hand-written "this topic takes N hours" anywhere, and there must not
 cost is `(examEcts || ects) × HOURS_PER_ECTS × share ÷ topics in that subject`, where
 `HOURS_PER_ECTS = 26` (the Bologna convention of 25–30 h per credit) and share is
 `SELF_STUDY_SHARE = 0.55`, or `PRACTICAL_SHARE = 0.25` for the four courses the study plan writes
-as `0/N` — no lectures, so almost all of the workload is contact time. That yields ~806 h of
-private study across the year. **Change the constants, not the eleven numbers.**
+as `0/N` — no lectures, so almost all of the workload is contact time. That yields ~811 h of
+private study across the year (measured 2026-10-01; quarter-hour rounding per topic moves it a
+little whenever a topic count changes). **Change the constants, not the eleven numbers.**
 
 ### The plan engine
 
@@ -170,7 +172,7 @@ private study across the year. **Change the constants, not the eleven numbers.**
 exam; a rolling window cannot go stale, and rendering 300 days through in-browser Babel would
 freeze the page for no benefit.
 
-Four rules that are load-bearing and easy to break:
+Five rules that are load-bearing and easy to break:
 
 - **The scheduling unit is a curriculum BLOCK, not a subject.** Pathology's winter blocks are due
   at the January credit and its summer blocks at the June final. Scheduling per subject made the
@@ -181,11 +183,22 @@ Four rules that are load-bearing and easy to break:
 - **A topic costing more than a whole day is capped at the day's budget** in `fillDay`. Pharmacology
   works out at ~3.75 h a topic against a 3 h teaching day; without the cap those 26 topics were
   unschedulable forever and sat permanently in overflow. (That was the 26-line syllabus. With the
-  157-question list Pharmacology is 0.75 h a topic, and the course the cap now rescues is Medical
-  Psychology at 3.5 h. The rule is the same.)
+  157-question list, and with the official 134, Pharmacology is 0.75 h a topic, and the course
+  the cap now rescues is Medical Psychology at 3.5 h. The rule is the same.)
 - **Blocks are ordered by PRESSURE — remaining hours ÷ hours left before the deadline —
   recomputed daily**, not by raw deadline. Deadline order starved the biggest course: the two
   blocks due first ate every day's budget and Pathophysiology went untouched for weeks.
+- **Pressure is per BLOCK, so how a subject is cut into blocks decides who gets the daily slots.**
+  A 3 h day holds about three topics, one from each of the three highest-pressure blocks, and
+  with a shared deadline pressure is simply the block's remaining hours. Seen on 2026-10-01:
+  Pharmacology went from two blocks (98 h + 20 h) to three (26 h / 39 h / 35 h). Before, the
+  third slot went to a Pathophysiology block (26 h); after, Special I and Special II both
+  outrank every Pathophysiology block, and **followed exactly, the Plan shows no Pathophysiology
+  until 25 October**. It self-corrects, and the year's overflow is not worse (Pathophysiology
+  15 h unplaced, was 16), but it is three and a half weeks of the largest winter exam off the
+  list. Linas was told; the engine was not changed, at his instruction. The data-only way out is
+  one Special block instead of two; the engine way is to rank by subject. **Before adding or
+  splitting a block, print the next fortnight by subject.**
 
 `projectYear()` simulates every remaining day with the same `fillDay` rule and reports what could
 not be placed. **Do not replace it with arithmetic.** The share-of-the-calendar formula that stood
@@ -285,6 +298,9 @@ is now `weekPlan().total`, and `prodStats` returns `plan` instead of `need`.
 **The gap between 21 and 39 is real and has not gone away.** It is the overflow — 71 h on an
 untouched year, 74 h since the 42nd internal-medicine question — and it is reported by the banner on Today and Plan. Do not move it back into
 this ring, and do not read a 100% coursework week as "on track for the exams".
+**Since the official pharmacology list (2026-10-01) the three numbers are 19, 38 and 60 h**: a full
+week holds 19 topics, not 21, because with 17 h less pharmacology the days take more of the
+dearer Pathology and Internal Medicine topics; the first, short week is still 12.
 
 The week grid carries the coursework under Gym and Languages: one row per course, one
 `TopicTick` per planned topic, under the day the Plan gives it. **It is the same tick as
@@ -358,15 +374,61 @@ the 2025/2026 schedule. **Trust the body, never the filename or the comment.**
 And do not diff whole SIS pages when re-checking — every `skr=2026` page differs from `skr=2025`
 in auto-generated fields (capacity, schedule links, teacher rosters). Diff the editorial blocks.
 
-### Pharmacology: the list exists, it is just not where you would look
+### Pharmacology: the official list is in, and it is pre-final (2026-10-01)
 
-`EAP0103100` renders **no Files section at any skr**, and SIS says the question list is a Word file
-you download once enrolled. But the legacy LFP code **`EA0107015`** carries a complete
-**157-question list inline, login-free**, in its "Course assessment methods" field —
-26 General + 131 Special, last updated by the current guarantor in November 2020. SIS itself
-declares `Interchangeability: EA0107015` on `EAP0103100` at every skr. That list is what the deck
-now uses, marked `status:"old"`, and it should be replaced with the Word file once Linas is logged
-in. Fetch URL:
+**The curriculum is the department's own 2026-27 oral list: 134 questions — General 35,
+Special I 52, Special II 47 — all three blocks `sem:"winter"`, all examined at the winter exam.**
+It is the Word file "Pharmacology Exam Requirements_2026-27.docx", which sits behind the login
+under **`EAP0102100` (Pharmacology I) → Files**, not under Pharmacology II. Linas's verbatim
+transcription, and the department's credit-and-exam rules (still the 2025-26 file), are in his
+iCloud folder `Medical School/Jahr II/Pharmacology/Exam topics & curriculum/` — **read-only, never
+edit anything there**, and use the list itself, not the transcriber's notes after it. The file has
+no question numbers and no sub-points; the G/S1/S2 numbers in the transcription were added by
+whoever transcribed it.
+
+**It is not final.** At the first practical on 1 Oct the teacher (Dr. Dědečková) said the list
+gets small changes that week — numbering, and some questions moved elsewhere — and that she will
+announce the final version. Hence the source status `prefinal`, a status added for this: amber
+badge "2026/27 · pre-final", ranked between `old` and `recent`, counted under "lists to replace".
+Flip `pha-q` to `current` when the final list is in.
+
+**The codes are `PHA201`–`PHA334`, and the number means nothing.** Codes are tick keys and belong
+to a question's content, not its place (the `IIM042` rule):
+
+- `PHA001`–`PHA157` were the 2020 stand-in list and meant other questions. They are retired and
+  must never be reused. That is why the new run starts at 201.
+- The run is flat, in the order of the 1 Oct file (General 201–235, Special I 236–287,
+  Special II 288–334), and deliberately does not encode the block — questions are about to move
+  between blocks, and a moved question keeps its code.
+- **When the final list arrives, diff by content:** unchanged, reworded or moved → same code; new →
+  the next free number from `PHA335`; dropped → the code is retired; split or merged → the
+  results are new questions with new codes.
+- Titles are byte-identical to the official file and were generated from it by script, never
+  retyped. `S1.35` "coronary heart disease" and `S1.37` "ischemic heart disease" are the same
+  disease under two names and stay two topics — never merge them silently.
+
+**What a tick on a code that has left `CURRICULUM` does** (traced 2026-10-01; Linas had no
+pharmacology ticks, so nothing was orphaned): it is kept — `migrate()` prunes nothing — and it is
+invisible to Progress, Subjects, the Plan, the review queue and the week table, which all look
+codes up first. The one place that still counts it is `prodStats`' `workN`, which counts every
+tick dated this week whatever its code, so an orphan would add one to that week's coursework
+ring and show nowhere else. Not fixed; nobody is affected.
+
+**The teacher's other points from 1 Oct**, which exist in no file — they are from Linas's
+recording: (1) no official credit test this semester; an optional short test after each practical,
+for revision and as practice for the computer test. (2) A pre-term — an exam date in advance —
+needs 100% attendance at the practicals; the one allowed absence does not apply, and a missed one
+is made up in another group or a make-up lesson. (3) The Moodle practicals course is the same as
+before, the first two lectures (antidiarrheals, laxatives) now at the top. (4) Do not park
+pharmacology while studying pathophysiology: every year the pathophysiology-first students get
+late exam dates and can end up with neither exam passed. That is recorded above `fillDay` as a
+second reason for the round-robin. **The exam date picker only accepts dates inside the exam
+period, so a pre-term date cannot be booked in the app yet** — told to Linas, not changed.
+
+For the record, the stand-in it replaced: the legacy LFP code **`EA0107015`** carries a complete
+157-question list inline and login-free in its "Course assessment methods" field (26 General +
+131 Special, last updated November 2020); SIS declares `Interchangeability: EA0107015` on
+`EAP0103100` at every skr, and `EAP0103100` itself renders no public Files section.
 `https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EA0107015&fak=11140&skr=2022`
 
 ### Immunology is not a third-year subject and the archive is wrong about it
@@ -383,7 +445,9 @@ apply to you".
 
 | When | What |
 | --- | --- |
-| **Immediately, once logged in** | The Pharmacology Word file — SIS `EAP0103100` Files, and Moodle courses 620 and 498. Highest-value single retrieval outstanding. |
+| ~~Immediately, once logged in~~ **done 2026-10-01** | The Pharmacology Word file. It was under `EAP0102100` (Pharmacology I) → Files, not `EAP0103100`; its 134 questions are now the curriculum. Moodle courses 620 and 498 were not needed. |
+| **When the practical teacher announces it (she said: the week of 1 Oct)** | The final 2026-27 pharma list, announced by the practical teacher — diff by content, keep the codes of unchanged questions. New questions take `PHA335` onwards; then set `pha-q` to `current`. |
+| **During the winter semester** | A 2026-27 version of "Pharmacology II_Credit and Exam" — on 1 Oct SIS still had the 2025-26 file, and the "no credit test" rule is so far only the teacher's word. Also the pre-term dates. |
 | ~~Late September 2026~~ **done 2026-09-30** | Pathology's three question PDFs (`did=335822/335828/335830`) re-downloaded and compared question by question with `CURRICULUM`: all 224 identical. The same page now carries the department's 2026/27 lecture and practical schedules (`did=357295`, `357296`, dated 8 Sept 2026) — those are in `TIMETABLE_NOTES`. |
 | **By 11 December 2026** | Guarantors must publish winter exam dates in SIS (dean's measure 6/2026, Art. 3.1). |
 | **Start of term** | The Pathophysiology WS 2026/2027 practical programme — the department page still links the **2024/2025** file, and the credit condition ("protocols of all experiments") hangs on it. |
@@ -1300,6 +1364,9 @@ happens, so the chat can be cleared at any point. Newest entries at the bottom.
 > teaching-week count group 5 has no Simulation Medicine (week 13 is odd), by SIS's "odd numbered
 > in calendar" it has (ISO week 1). It stays on and flagged. Six sessions also matches the six
 > winter topics in the syllabus, which argues for "no".
+> **Settled 2026-10-01: no.** The course coordinator's e-mail lists six sessions for group 5 —
+> 7 and 21 Oct, 4 and 18 Nov, 2 and 16 Dec — and nothing in January. The slot now carries
+> `dates`, and `TIMETABLE_EXTRA` / `TIMETABLE_CONFIRM` are empty.
 >
 > **Public holidays were missing too:** Wed 28 Oct and Tue 17 Nov have no classes
 > (`PUBLIC_HOLIDAYS`). They are deliberately not in `TERMS.breaks` — a break week is skipped when
@@ -1579,6 +1646,53 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   17 Sep — it collides with the Pathophysiology practical (08:00–10:30) and is followed by the
   Pharmacology lecture at 11:00. Told to him; nothing changed.
   **Session state is complete; safe to clear.**
+- 2026-10-01 · **Pharmacology is the official 2026-27 list now: 134 questions in three blocks,
+  marked pre-final.** Codes `PHA201`–`PHA334`; the old `PHA001`–`PHA157` are retired. Rules, the
+  teacher's points from the first practical, and what to do when the final list arrives are under
+  "Pharmacology: the official list is in". The credit rule no longer has a credit test and names
+  the pre-term condition; the 1 Oct practical carries a note; the teacher's "do not park
+  pharmacology" advice is in the comment above `fillDay`. Linas had ticked no topics, so nothing
+  was orphaned. 678 topics, 22 blocks.
+- 2026-10-01 · Verified by script: 35 + 52 + 47 = 134, every title byte-identical to the official
+  file, no new code equal to an old one. In the browser (`planner-clean`): Pharmacology 0/134,
+  three blocks, badge "2026/27 · pre-final", "1 list to replace", ~0.75 h a topic before and
+  after (exact 0.64 → 0.75), 117.75 h → 100.5 h in total, year overflow 74 h → 60 h
+  (Pharmacology 26 h → 11 h), no console errors. **The pane caches `index.html`: after an edit,
+  load `index.html?r=1` or it shows the old file.**
+- 2026-10-01 · **A side effect he has been told about, not fixed: no Pathophysiology on the Plan
+  until 25 October** if the Plan is followed exactly — see the fifth engine rule. Today's list
+  went from Pharmacology / Pathology / Pathophysiology to Pathology / Pharmacology ×2. Waiting on
+  his choice: leave it, merge Special I and II into one block, or change the ranking.
+- 2026-10-01 · **The engine test suite: 30 of 34 pass, and the four that fail are expectations
+  tied to the old list, not engine faults.** (1) "a full teaching week: 21 topics" and (2) the
+  full-week scoring case expect 21 — it is 19 now. (3) "tomorrow is refilled to its budget"
+  compares item counts: tomorrow became one 2.5 h internal-medicine topic instead of three small
+  ones, which is still a full 3 h day. (4) the "15 ticked against 12" case ticks `PHA100` and
+  `PHA101`, which no longer exist, so two of its three extras are orphans. The file
+  (`~/.claude/projects/…/tests/engine-tests.js`) was **not edited** — it is outside the files he
+  allowed. Update those four expectations before trusting a red result from it.
+- 2026-10-01 · **Simulation Medicine, from the course coordinator's e-mail of 1 Oct** (sent by the
+  secretary, Mgr. Jana Hrabová; in his Gmail): group 5 has six sessions, 07:30–09:10 on 7 and
+  21 Oct, 4 and 18 Nov, 2 and 16 Dec — so **6 Jan does not run** and the flag is gone. Credit, each
+  semester: 100% attendance including substitute sessions (a class on a public holiday counts as
+  done), and the Moodle theory and assignments completed before each class, checked at the start
+  and a condition for being let in. No more than five minutes late. A substitute session must be
+  on the same topic and confirmed by the secretary first; extra ones run 11–15 Jan 2027, times to
+  come. All of it is in `creditRule` and a standing note on the slot. **The Moodle enrolment key
+  is in the e-mail and deliberately not in this public repo.** The staff e-mail addresses are not
+  here either.
+- 2026-10-01 · **Not done, and his to decide:** the Google Calendar series still has a Simulation
+  Medicine entry on Wed 6 Jan — by his convention it should become "NO CLASS", but he asked only
+  for the planner. Also pre-existing and merely noticed: the Plan does not schedule a Simulation
+  Medicine topic until mid-December although the first class, with compulsory Moodle preparation,
+  is 7 Oct — its block's pressure is too low to win a slot.
+- 2026-10-01 · **An open question from him about hours.** Told that a code comment still says
+  "nearly four hours a topic" for Pharmacology, he answered that 4 h a topic is more realistic and
+  that it should be realistic for every topic. Not acted on: it contradicts "hours are derived"
+  and his own instruction in the same session to change no constants, and at 4 h the 134
+  pharmacology topics alone are 536 h. Asked him what he meant. If he does want it, the estimate
+  is his to give (see the memory note on effort estimates) and the lever is the constants or a
+  per-subject figure from him — never a number invented here.
 
 ---
 
@@ -1607,9 +1721,9 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 - **Two topic lists are a year behind** (Intro to Internal Medicine II, 2025/26) or were rejected
   as stale (Internal Medicine I, 2021/22 — the current SIS syllabus was used instead). Re-check
   both once 2026/27 files appear.
-- **Pharmacology II has no public question list.** SIS says one exists and is downloadable, but no
-  file is attached to any public record and Moodle is login-gated. The 26 syllabus lines are
-  standing in. If the user can download it while logged in, that list should replace them.
+- ~~**Pharmacology II has no public question list.**~~ **Resolved 2026-10-01:** the official
+  2026-27 list (134 questions, pre-final) is the curriculum — see "Pharmacology: the official
+  list is in".
 - **The daily budget is 3 h in term and 8 h in an exam block, at the user's request.** At those
   numbers the year is tight but close to fitting; the overflow banner reports the shortfall per
   subject rather than hiding it. If it ever reads absurd, check `PHASES` before blaming the maths.

@@ -515,7 +515,7 @@ const SUBJECTS = [
     examEcts:7,   // 4 here + 3 for Pharmacology I, which this exam also covers
     note:"the exam covers Pharmacology I from second year in full as well",
     examFormat:"A computer test of 50 single-best-answer questions, four options each, 35 correct to pass. Then an oral where you draw three questions: one general and two special. It covers Pharmacology I in full as well as this year\u2019s. Two rules that bite: fail the test at your FIRST term and you lose the term and are graded 4, and fail the ORAL and you re-sit the computer test too. Neither half banks.",
-    creditRule:"Seminar attendance with exactly one unexcused absence per semester \u2014 more needs a documented excuse plus a make-up. Zero absences if you want an early date. Progress tests plus a final credit test, structurally the last seminar of the winter semester.",
+    creditRule:"Active participation in the practicals. One unexcused absence a semester is allowed; anything beyond it needs a proper excuse for serious, demonstrable reasons, e-mailed to your teacher. There is no credit test this semester \u2014 the practical teacher said so at the first practical on 1 October 2026. After each practical there is an optional short test, for revision and as practice for the computer test. Pre-term (an exam date in advance): you need 100% attendance at the practicals \u2014 the one allowed absence does not apply. If you miss one, join another group or arrange a make-up lesson with the teacher; if neither is possible, the department\u2019s rules say you are examined on that topic individually. The written rules in SIS are still the 2025/26 file.",
     cmd:"/study-first-pass Pharmacology — " },
   { id:"iim", key:"IIM", sis:"EAP0103322", title:"Introduction to Internal Medicine II",
     short:"Intro to Internal Medicine", dept:"14-320", ects:7, color:"#BE123C", sem:"winter",
@@ -546,7 +546,7 @@ const SUBJECTS = [
     completion:{ summer:"credit" }, examId:null, practical:true,
     cmd:"/study-first-pass Neurobehavioral sciences — " },
   { id:"sim", key:"SIM", sis:"EAP0103430", title:"Simulation Medicine",
-    creditRule:"Attendance at every practical, and the e-learning done before each block.",
+    creditRule:"In each semester: 100% attendance, including any substitute sessions — a class that falls on a public holiday counts as completed. And the Moodle theory and its assignments done before every class: this is checked at the start and is a condition for being let in. Arrive no later than five minutes after the start. If you cannot come, arrange a substitute session on the same topic with the secretary, Mgr. Jana Hrabová, and join another group only once she has confirmed it — otherwise the instructor may turn you away. Extra substitute sessions for the winter semester run in the week of 11–15 January 2027; times to be announced. From the course coordinator’s e-mail of 1 October 2026.",
     short:"Simulation", dept:"14-430", ects:3, color:"#5E7155", sem:"both",
     completion:{ winter:"credit", summer:"credit" }, examId:null, practical:true,
     cmd:"/study-first-pass Simulation medicine — " },
@@ -585,11 +585,13 @@ const EXAMS = [
 
    The break is not counted: 4–8 Jan is teaching week 13, which is how the Psychology schedule
    numbers it (group 5, week 13, 7 Jan). By the same count Simulation Medicine ("even") does not
-   run on Wed 6 Jan — but SIS's own gloss, "odd numbered in calendar", would put it there, and
-   a missed practical costs the credit. So 6 Jan stays on, flagged, until the department says.
+   run on Wed 6 Jan — but SIS's own gloss, "odd numbered in calendar", would put it there, so
+   6 Jan was kept on and flagged until the department said. It said on 1 Oct 2026: the course
+   coordinator's e-mail lists six sessions for group 5, the last on 16 Dec, and none in January.
 
    A slot with `dates` follows that list and nothing else: the department published the actual
-   sessions, and one of them was moved (12 Nov → 19 Nov).
+   sessions. For the Psychology seminar one of them was moved (12 Nov → 19 Nov); for Simulation
+   Medicine the list is the e-mail's.
 
    Summer slots are added when Linas has that timetable (mid-February 2027). */
 const TERMS = {
@@ -602,7 +604,9 @@ const TIMETABLE = [
   { id:"iim-prac", term:"winter", day:2, start:"08:00", end:"10:30", subject:"iim", kind:"practical", room:"FN-2IK",       teacher:"5A doc. Hirmerová · 5B Dr. Nussbaumerová", weeks:"all",
     note:"Bring a white coat, slippers, a stethoscope and a visible ID card." },
   { id:"iim-lec",  term:"winter", day:2, start:"11:00", end:"12:40", subject:"iim", kind:"lecture",   room:"P4",           teacher:"Mlíková Seidlerová Jitka, prof. MUDr.",  weeks:"all" },
-  { id:"sim-prac", term:"winter", day:3, start:"07:30", end:"09:10", subject:"sim", kind:"practical", room:"USIM5.21A",    teacher:"Smékalová Olga, MUDr.",                  weeks:"even" },
+  { id:"sim-prac", term:"winter", day:3, start:"07:30", end:"09:10", subject:"sim", kind:"practical", room:"USIM5.21A",    teacher:"Smékalová Olga, MUDr.",                  weeks:"even",
+    dates:["2026-10-07","2026-10-21","2026-11-04","2026-11-18","2026-12-02","2026-12-16"],
+    note:"Do the Moodle theory and assignments first — checked at the start. No more than five minutes late." },
   { id:"pfy-lec",  term:"winter", day:3, start:"11:15", end:"12:55", subject:"pfy", kind:"lecture",   room:"P-HNĚDÁ",      teacher:"Barcal Jan, MUDr., Ph.D.",               weeks:"all" },
   { id:"cze-sem",  term:"winter", day:3, start:"13:30", end:"15:10", subject:"cze", kind:"seminar",   room:"USL4.21",      teacher:"Kopřivová Tamara, PhD",                  weeks:"all" },
   { id:"pha-prac", term:"winter", day:4, start:"08:00", end:"10:30", subject:"pha", kind:"practical", room:"U2.5",         teacher:"Dědečková Eva, PharmDr. Bc., Ph.D.",     weeks:"all" },
@@ -616,13 +620,14 @@ const TIMETABLE = [
 /* Pathology's own 2026/27 schedules (SIS, did=357295 lectures / 357296 practicals, both dated
    8 Sep 2026): nothing in week 1, and the 15 Oct lecture is "Moodle only". */
 const TIMETABLE_CANCELLED = { "2026-10-01":["pat-lec"], "2026-10-02":["pat-prac"], "2026-10-15":["pat-lec"], "2026-10-16":["mpe-lec"] };
-const TIMETABLE_CONFIRM   = { "2027-01-06":"sim-prac" };
-const TIMETABLE_EXTRA     = { "2027-01-06":["sim-prac"] };   // forced on, flagged — see the note above
+const TIMETABLE_CONFIRM   = {};   // empty since 1 Oct 2026: Simulation Medicine on 6 Jan was the one entry, and it does not run
+const TIMETABLE_EXTRA     = {};   // date → slot ids forced on against the week rule
 /* What the department's own schedule says about one session. Psychology: "Practicals schedules
    groups 1 - 5 GM.pdf", group 5. Internal medicine: "Rules general medicine 3rd year winter
    26-27.pdf" — the practical exam is sat in class time "in the last two weeks of semester". */
 const TIMETABLE_NOTES = {
-  "2026-10-01": { "mpe-sem":"Introduction to medical psychology.", "pat-lec":"No lecture in week 1." },
+  "2026-10-01": { "pha-prac":"First practical. No credit test this semester — an optional short test after each practical instead. A pre-term needs 100% attendance. The question list in SIS gets small changes this week; the teacher will announce the final version. Moodle: the same practicals course as before, with the first two lectures — antidiarrheals and laxatives — now at the top.",
+                  "mpe-sem":"Introduction to medical psychology.", "pat-lec":"No lecture in week 1." },
   "2026-10-02": { "pat-prac":"No practicals in week 1." },
   "2026-10-06": { "iim-prac":"First class: go to the Clinic Office (Secretariat) — your teacher meets you there." },
   "2026-10-08": { "pat-lec":"Introduction to pathology, methods. Cell injury and death, adaptations, intracellular accumulations, calcification, stones. Tissue repair. — Michalová, Bradová" },
@@ -741,6 +746,7 @@ function classSpan(iso){
 
      none     no official topic list is published at all — a syllabus is standing in
      old      a real question list, but from a previous academic year
+     prefinal the 2026/27 list, but the department has said it will still change
      recent   the current list, with no academic year printed on it
      current  explicitly the 2026/27 edition                                                  */
 const SOURCES = {
@@ -756,10 +762,10 @@ const SOURCES = {
                edition:"2026/27", status:"current",
                where:"SIS · EAP0103322 · 24 propedeutics + 18 ECG and varia",
                note:"Headed “academic year 2026/2027” and read on 30 September 2026. One question more than last year’s list: I.18, Examination of bone metabolism. The second group is printed as “III. ECG + varia” — there is no group II. The oral is one question from each group plus an ECG to describe." },
-  "pha-q":   { label:"Pharmacology — the 157-question list",
-               edition:"2020/21 · a stand-in", status:"old",
-               where:"SIS · legacy code EA0107015 · General 26 + Special 131",
-               note:"The current list is real but login-gated. This is the last public one, six years old, from the course this one was split out of — so newer drugs are missing and a question may now sit in the other semester's pool. Download the Word file from SIS once you are enrolled and it should replace this." },
+  "pha-q":   { label:"Pharmacology — the official oral question list",
+               edition:"2026/27 · pre-final", status:"prefinal",
+               where:"SIS, logged in · EAP0102100 (Pharmacology I) · Files · General 35 + Special I 52 + Special II 47",
+               note:"The department’s Word file “Pharmacology Exam Requirements_2026-27.docx”, read on 1 October 2026. Not final yet: at the first practical that day the teacher said the list gets small changes this week — numbering, and some questions moved elsewhere — and that she will announce the final version. The file has no question numbers and no sub-points. It replaces the 157-question list of 2020 that stood in until now." },
   "im1-syl": { label:"Internal Medicine I — 2020 course syllabus",
                edition:"2020 · contradicted", status:"stale",
                where:"SIS · EAP0103320 · 10 cardiovascular + 4 pneumology",
@@ -1202,166 +1208,152 @@ const CURRICULUM = [
     ["PFY152","Surgical sewing materials, types of needles, surgical knot"],
     ["PFY153","Surgical knots and sutures"],
   ]},
+  /* Pharmacology: the department's 2026-27 oral list, read on 1 Oct 2026 — pre-final, see SOURCES.
+     Codes are tick keys and belong to a question's CONTENT, not to its place in the list. They
+     start at PHA201 because PHA001–PHA157 were the 2020 stand-in list and meant other questions;
+     those are retired and must never be reused. When the final list arrives, compare by content:
+     an unchanged, reworded or moved question keeps its code (and may change block), a new one
+     takes the next free number from PHA335, a dropped one retires its code, and the results of
+     a split or a merge are new questions. The number says nothing about the block. */
   { key:"PHA-G", src:"pha-q", subject:"pha", sem:"winter", name:"General pharmacology", topics:[
-    ["PHA001","Pharmacology and its subdivisions, origins and sources of drugs, names of drugs"],
-    ["PHA002","Preclinical drug evaluation, clinical trials (phases)"],
-    ["PHA003","Routes of administration of drugs, advantages, disadvantages, dosage forms"],
-    ["PHA004","Drug transport through biological membranes \u2013 passive, carrier-mediated"],
-    ["PHA005","Basic pharmacokinetic parameters and processes, first order and zero order kinetics, saturation kinetics"],
-    ["PHA006","Absorption of drugs, Bateman function, bioavailability, determination of bioavailability, AUC"],
-    ["PHA007","Distribution, of drugs, volume of distribution, redistribution, binding to plasma proteins, tissue barriers"],
-    ["PHA008","Elimination, elimination half-life (\u03b1, \u03b2 phase), elimination rate constant, clearance"],
-    ["PHA009","Dosage regimens, continuous and intermittent administration of drugs, accumulation, accumulation index"],
-    ["PHA010","Biotransformation of drugs, phases, examples"],
-    ["PHA011","The role of the liver in drug metabolism, first pass effect"],
-    ["PHA012","Induction and inhibition of enzymes, clinical significance"],
-    ["PHA013","Renal and extrarenal excretion of drugs"],
-    ["PHA014","General principles of drug action, molecular mechanisms of drug action, the importance of placebo and nocebo"],
-    ["PHA015","Specific effect of drugs - targets of drug action, receptor theory - types of receptors"],
-    ["PHA016","Dose-response relationship, therapeutic index, therapeutic window, therapeutic risk"],
-    ["PHA017","Factors influencing pharmacokinetics and pharmacodynamics of drugs, adherence, compliance"],
-    ["PHA018","Drug interactions, synergism, antagonism"],
-    ["PHA019","Pharmacogenetics, genetic polymorphism"],
-    ["PHA020","Tolerance, tachyphylaxis, resistance"],
-    ["PHA021","Influence of diseases on the effect of drugs, polypharmacy"],
-    ["PHA022","Adverse drug reactions"],
-    ["PHA023","Drug induced allergic (hypersensitivity) reactions, idiosyncratic drug reactions"],
-    ["PHA024","Carcinogenic and mutagenic effects"],
-    ["PHA025","Drugs in pregnancy, teratogenic effect, drugs in lactation"],
-    ["PHA026","Drug therapy in infants and children, drug therapy in the elderly"],
+    ["PHA201","Pharmacology and its subdivisions, origin, and sources of drugs, names of drugs, pharmacopoeia"],
+    ["PHA202","Legislation related to the management of drugs, food supplements, and medical devices; regulatory bodies"],
+    ["PHA203","Prescribing of medical preparations"],
+    ["PHA204","Preclinical and clinical evaluation of drugs"],
+    ["PHA205","Routes of drug administration, advantages and disadvantages"],
+    ["PHA206","Dosage forms - peroral and oral"],
+    ["PHA207","Dosage forms - parenteral and dermatological"],
+    ["PHA208","Dosage forms - ocular, auricular, nasal, rectal, vaginal, and inhalant forms"],
+    ["PHA209","Communication with the patient when prescribing drugs, adherence, compliance, placebo, and nocebo effect"],
+    ["PHA210","Mechanisms of drug permeation through biological membranes – passive and specialized"],
+    ["PHA211","Basic pharmacokinetic parameters and processes"],
+    ["PHA212","Pharmacokinetic processes of zero and first-order, saturation kinetics"],
+    ["PHA213","Drug absorption, Bateman's function, bioavailability, and its measurement, AUC"],
+    ["PHA214","Drug distribution, volume of distribution, redistribution, binding of drugs to plasma proteins, barriers in the body"],
+    ["PHA215","Elimination, biological half-life, (phase α, β), elimination rate constant, clearance"],
+    ["PHA216","Dosing regimen, continuous and intermittent drug administration, drug accumulation, accumulation index"],
+    ["PHA217","Biotransformation of drugs, phases, and examples"],
+    ["PHA218","The role of the liver in drug elimination, first pass effects"],
+    ["PHA219","Inhibition and induction of enzymes by drugs, clinical significance"],
+    ["PHA220","Renal and extrarenal excretion of drugs"],
+    ["PHA221","The effect of drugs in general, the mode of action at the molecular level"],
+    ["PHA222","Specific mechanism of drug action - target structures, receptor theory - types of receptors"],
+    ["PHA223","Dose-response relationship, therapeutic index, therapeutic range (window), therapeutic risk"],
+    ["PHA224","Factors affecting drug kinetics and dynamics"],
+    ["PHA225","Drug interactions"],
+    ["PHA226","Pharmacogenetics, genetic polymorphism"],
+    ["PHA227","Tolerance, tachyphylaxis, resistance, sensitization, desensitization"],
+    ["PHA228","The influence of concomitant diseases on the effect of drugs"],
+    ["PHA229","Adverse drug reactions"],
+    ["PHA230","Drug allergy, idiosyncrasy"],
+    ["PHA231","Carcinogenic and mutagenic effects"],
+    ["PHA232","Drugs in pregnancy and breastfeeding, teratogenic effects"],
+    ["PHA233","Pharmacotherapy in childhood"],
+    ["PHA234","Pharmacotherapy in old age, polypharmacy"],
+    ["PHA235","Biological therapy: basic classification of products (nomenclature; biosimilars), therapeutic benefits and risks"],
   ]},
-  { key:"PHA-S", src:"pha-q", subject:"pha", sem:"winter", name:"Special pharmacology", topics:[
-    ["PHA027","Cholinergic neurotransmission, effects of drugs on cholinergic transmission\u2026"],
-    ["PHA028","Reversible and irreversible anticholinesterase agents"],
-    ["PHA029","Antimuscarinic agents \u2013 alkaloids and their derivatives, synthetic anticholinergic drugs, antispasmodics"],
-    ["PHA030","Neurotransmission in autonomic ganglia, drugs acting on autonomic ganglia, ganglion-blocking drugs, nicotine\u2026"],
-    ["PHA031","Adrenergic neurotransmission, effects of drug on adrenergic transmission, adrenoceptors\u2026"],
-    ["PHA032","Catecholamines, synthesis, biotransformation, uptake, adrenaline, noradrenaline, isoprenaline, dopamine, dobutamine"],
-    ["PHA033","Alpha-adrenoceptor agonists, selective alpha-1 and alpha-2 agonists"],
-    ["PHA034","Ephedrine, amphetamines"],
-    ["PHA035","Beta-adrenoceptor agonists (\u03b21, \u03b22)"],
-    ["PHA036","Alpha-adrenoceptor antagonists, classification, clinical use"],
-    ["PHA037","Ergot alkaloids and their derivatives, serotonin (5-HT), 5-HT receptors and drugs acting on them"],
-    ["PHA038","Beta-adrenoceptor antagonists (\u03b2-blockers)"],
-    ["PHA039","Drugs used in ophthalmology"],
-    ["PHA040","Nitric oxide (NO)"],
-    ["PHA041","Neuromuscular-blocking agents, classification, depolarizing and nondepolarizing agents, antidotes, clinical use\u2026"],
-    ["PHA042","Dantrolene, Botulinum toxin type A, centrally acting muscle relaxants"],
-    ["PHA043","Local anaesthetics \u2013 chemical structure, pharmacokinetics, effects, types of local anaesthesia\u2026"],
-    ["PHA044","Adverse effects and intoxications of local anaesthetics, prevention and therapy"],
-    ["PHA045","Cocaine"],
-    ["PHA046","General anaesthesia, stages, inhalation anaesthetics in general, volatile inhalation anaesthetics\u2026"],
-    ["PHA047","Intravenous general anaesthetics, neuroleptanalgesia, combined anaesthesia"],
-    ["PHA048","Risks of general anaesthesia, premedication, drug interactions with general anaesthetics\u2026"],
-    ["PHA049","Hypnotics, principles of use, barbiturates and their effects, clinical use, current significance"],
-    ["PHA050","Benzodiazepines as hypnotics and Z-hypnotics"],
-    ["PHA051","Ethanol \u2013 acute effects, clinical use, methanol and therapy of methanol intoxication, alcoholism, effects on health\u2026"],
-    ["PHA052","Antiepileptic drugs, principles of use, adverse effects, \u201cclassic\u201d antiepileptic drugs"],
-    ["PHA053","\u201cNewer\u201d antiepileptic drugs"],
-    ["PHA054","Drug treatment of Parkinson\u2019s disease \u2013 classification, mechanism of action, adverse effects\u2026"],
-    ["PHA055","Classification of psychiatric medication"],
-    ["PHA056","Typical and atypical antipsychotics"],
-    ["PHA057","Antidepressants \u2013 tricyclic"],
-    ["PHA058","Antidepressants \u2013 monoamine oxidase inhibitors"],
-    ["PHA059","Antidepressants \u2013 SSRI, SNRI and atypical antidepressants"],
-    ["PHA060","Mood stabilizers"],
-    ["PHA061","Anxiolytics (tranquilizers)"],
-    ["PHA062","Psychostimulants, CNS stimulants, anorectic drugs"],
-    ["PHA063","Drugs used in Alzheimer\u2019s disease. Nootropics and related drugs"],
-    ["PHA064","Psychoactive agents (hallucinogens)"],
-    ["PHA065","Cannabinoids, endocannabinoids: receptors, role in organism, possible use"],
-    ["PHA066","Substance (drug) dependence"],
-    ["PHA067","Opium and its alkaloids, endogenous opioids, morphine, morphine intoxication, morphine dependence"],
-    ["PHA068","Derivatives and substitutes of morphine, opioid antagonists and dualists"],
-    ["PHA069","Eicosanoids, significance, methods of influencing the eicosanoid synthesis, inflammatory cytokine inhibitors"],
-    ["PHA070","Analgesic-antipyretics, classification, adverse effects"],
-    ["PHA071","Nonsteroidal anti-inflammatory drugs \u2013 classification, clinical use, adverse effects, cyclooxygenase I and II"],
-    ["PHA072","Pharmacotherapy of migraine"],
-    ["PHA073","Anti-rheumatic drugs \u2013 disease-modifying drugs, monoclonal antibodies"],
-    ["PHA074","Drugs used in gout"],
-    ["PHA075","Immunomodulation, immunosuppressive drugs, immunostimulant drugs"],
-    ["PHA076","Inotropic agents, digoxin and related drugs"],
-    ["PHA077","Antiarrhythmic drugs \u2013 mechanism of action, classification, overview"],
-    ["PHA078","Antiarrhythmic drugs \u2013 characteristics and representatives of individual groups, unclassified drugs"],
-    ["PHA079","Vasoconstrictor drugs"],
-    ["PHA080","Methylxanthines and their derivatives"],
-    ["PHA081","Angiotensin-converting enzyme inhibitors and angiotensin receptor blockers"],
-    ["PHA082","Aldosterone antagonists, drugs affecting natriuretic peptides"],
-    ["PHA083","Diuretics in general \u2013 sites of action, classification by mechanism of action, osmotic diuretics and aquaretics"],
-    ["PHA084","Thiazides, sulphonamide diuretics, carbonic anhydrase inhibitors"],
-    ["PHA085","Loop diuretics, use, risks, potassium-sparing diuretics"],
-    ["PHA086","Overview of vasodilator drugs (+ mechanism of action), direct vasodilator drugs (potassium channel openers\u2026"],
-    ["PHA087","Calcium channel blockers"],
-    ["PHA088","Nitrites and nitrates"],
-    ["PHA089","Overview of drugs used in heart failure"],
-    ["PHA090","Overview of drugs used in coronary artery disease"],
-    ["PHA091","Antihypertensive drugs and their clinical use, adverse effects, contraindications"],
-    ["PHA092","Drugs used in atherosclerosis and drugs affecting lipid metabolism"],
-    ["PHA093","Drugs affecting blood coagulation \u2013 Overview of mechanisms of action"],
-    ["PHA094","Parenteral anticoagulants \u2013 indirect thrombin inhibitors (heparin)"],
-    ["PHA095","Parenteral anticoagulants \u2013 indirect factor Xa inhibitors (low molecular weight heparins and pentasaccharides)"],
-    ["PHA096","Direct oral anticoagulants: thrombin inhibitors (gatrans), factor Xa inhibitors (xabans)"],
-    ["PHA097","Antivitamins K"],
-    ["PHA098","Antidote for anticoagulants"],
-    ["PHA099","Fibrinolytics, thrombolytics"],
-    ["PHA100","Drugs affecting platelet aggregation"],
-    ["PHA101","Agents that reduce increased bleeding, haemostatic agents"],
-    ["PHA102","Drugs used in anaemia"],
-    ["PHA103","Antitussives, expectorants"],
-    ["PHA104","Histamine and antihistamines H1"],
-    ["PHA105","Antiasthmatics, drugs used in obstructive lung disease"],
-    ["PHA106","Intestinal adsorbents, disinfectants, laxatives, antidiarrheal drugs, antiinfectives, antiflatulent agents"],
-    ["PHA107","Acids and antacids, pancreatic and proteolytic enzymes"],
-    ["PHA108","Drugs used in peptic ulcer disease"],
-    ["PHA109","Prokinetics, probiotics"],
-    ["PHA110","Emetics, antiemetics"],
-    ["PHA111","Intestinal anti-inflammatory drugs and monoclonal antibodies (idiopathic inflammatory bowel diseases)"],
-    ["PHA112","Substances with hepatoprotective effect, cholagogues, dissolution of gallstones"],
-    ["PHA113","Hormones of the hypothalamus, hormones of the adenohypophysis and neurohypophysis, their analogues and clinical use"],
-    ["PHA114","Thyroid and parathyroid hormones, iodine, iodides and antithyroid drugs"],
-    ["PHA115","Mineralocorticoids, their antagonists, substitution therapy"],
-    ["PHA116","Insulin and glucagon"],
-    ["PHA117","Pharmacotherapy of diabetes, overview, oral antidiabetics, and their significant side effects"],
-    ["PHA118","Glucocorticoids"],
-    ["PHA119","Androgens, anabolic steroids"],
-    ["PHA120","Oestrogens, progestogens: clinical use"],
-    ["PHA121","Contraceptives, side effects, main contraindications"],
-    ["PHA122","Uterotonics, tocolytics"],
-    ["PHA123","Hormone antagonists"],
-    ["PHA124","Drugs in the treatment of benign prostatic hyperplasia"],
-    ["PHA125","Antibacterial agents: classification, mechanisms of action, pharmacokinetics, indications, resistance\u2026"],
-    ["PHA126","\u03b2-lactam antibiotics: penicillins. Beta-lactamase inhibitors"],
-    ["PHA127","\u03b2-lactam antibiotics: cephalosporins, carbapenems, monobactams"],
-    ["PHA128","Aminoglycosides, quinolones"],
-    ["PHA129","Glycopeptides, lipopeptides polypeptides, macrolides and azalides, lincosamides oxazolidinones"],
-    ["PHA130","Tetracyclines and glycylcyclines, rifamycins, nitroimidazoles, sulphonamides"],
-    ["PHA131","Chloramphenicol, fidaxomycin, fosfomycin, nitrofurantoin, fusidic acid, mupirocin\u2026"],
-    ["PHA132","Antituberculosis and antileprosy drugs"],
-    ["PHA133","Antifungals"],
-    ["PHA134","Antivirals in general, drugs used in hepatitis B and C, herpes infections and influenza; ribavirin"],
-    ["PHA135","Antiretrovirals, HIV therapy"],
-    ["PHA136","Antiparasitic drugs"],
-    ["PHA137","Anticancer drugs - general overview, mechanism of action"],
-    ["PHA138","Anticancer drugs - principles of therapy, combinations, adverse effects, resistance\u2026"],
-    ["PHA139","Anticancer drugs - alkylating agents"],
-    ["PHA140","Anticancer drugs - antimetabolites"],
-    ["PHA141","Intercalating agents + topoisomerase inhibitors"],
-    ["PHA142","Mitosis inhibitors"],
-    ["PHA143","Anticancer drugs with combined mechanisms of action, monoclonal antibodies"],
-    ["PHA144","Hormones and antihormones in cancer treatment"],
-    ["PHA145","Platinum derivatives"],
-    ["PHA146","X-ray contrast agents and their adverse effects"],
-    ["PHA147","Disinfectants, antiseptics"],
-    ["PHA148","Drugs used for local action on the skin and mucous membranes (excluding disinfectants)"],
-    ["PHA149","Antagonists and specific antidotes for poisoning and overdose"],
-    ["PHA150","Antidotes for metal poisoning in general, intoxication with mercury, arsenic and lead compounds, and their therapy"],
-    ["PHA151","Calcium, magnesium, potassium"],
-    ["PHA152","Zinc, selenium, antioxidants"],
-    ["PHA153","Vitamins A, E, K"],
-    ["PHA154","Vitamin D and hormones affecting Ca metabolism"],
-    ["PHA155","Substances used in the treatment of osteoporosis"],
-    ["PHA156","Vitamin C, B vitamins"],
-    ["PHA157","Phytotherapy, alternative medicine (principles, significance)"],
+  { key:"PHA-S1", src:"pha-q", subject:"pha", sem:"winter", name:"Special pharmacology I", topics:[
+    ["PHA236","Cholinergic transmission"],
+    ["PHA237","Direct parasympathomimetics"],
+    ["PHA238","Indirect parasympathomimetics"],
+    ["PHA239","Parasympatholytics"],
+    ["PHA240","Adrenergic transmission"],
+    ["PHA241","Non-selective sympathomimetics"],
+    ["PHA242","Alpha sympathomimetics"],
+    ["PHA243","Beta sympathomimetics"],
+    ["PHA244","Indirect sympathomimetics"],
+    ["PHA245","Alpha sympatholytics"],
+    ["PHA246","Beta sympatholytics"],
+    ["PHA247","Muscle relaxants"],
+    ["PHA248","Local anesthetics"],
+    ["PHA249","General anesthetics - inhalation"],
+    ["PHA250","General anesthetics - intravenous"],
+    ["PHA251","Hypnotics"],
+    ["PHA252","Benzodiazepines"],
+    ["PHA253","Antiepileptic drugs"],
+    ["PHA254","Antiparkinson drugs"],
+    ["PHA255","Antipsychotics"],
+    ["PHA256","Antidepressants – tricyclic, MAO inhibitors"],
+    ["PHA257","Antidepressants – SSRIs, SNRIs, and atypical antidepressants"],
+    ["PHA258","Anxiolytics, mood stabilizers"],
+    ["PHA259","Pharmacotherapy of Alzheimer's disease. Nootropics"],
+    ["PHA260","Opioids"],
+    ["PHA261","Eicosanoids"],
+    ["PHA262","Analgesics-antipyretics"],
+    ["PHA263","Nonsteroidal anti-inflammatory drugs"],
+    ["PHA264","Pharmacotherapy of migraine"],
+    ["PHA265","Drugs with a positive inotropic effect, digoxin"],
+    ["PHA266","Antiarrhythmics"],
+    ["PHA267","ACE inhibitors and angiotensin receptor antagonists"],
+    ["PHA268","Diuretics"],
+    ["PHA269","Calcium channel blockers"],
+    ["PHA270","Pharmacotherapy of coronary heart disease"],
+    ["PHA271","Pharmacotherapy of heart failure"],
+    ["PHA272","Pharmacotherapy of ischemic heart disease"],
+    ["PHA273","Antihypertensives"],
+    ["PHA274","Pharmacotherapy of atherosclerosis, hyperlipidemia"],
+    ["PHA275","Parenteral anticoagulants"],
+    ["PHA276","Oral anticoagulants"],
+    ["PHA277","Fibrinolytics, thrombolytics, antifibrinolytics"],
+    ["PHA278","Antiplatelet drugs"],
+    ["PHA279","Insulin, insulin analogues, and glucagon"],
+    ["PHA280","Oral antidiabetic drugs and incretin analogues"],
+    ["PHA281","Principles of antibiotic therapy"],
+    ["PHA282","Penicillins, beta-lactamase inhibitors"],
+    ["PHA283","Cephalosporins, carbapenems, monobactams"],
+    ["PHA284","Aminoglycosides, quinolones"],
+    ["PHA285","Lincosamides, glycopeptides, polymyxins"],
+    ["PHA286","Tetracyclines, amphenicols"],
+    ["PHA287","Macrolides"],
+  ]},
+  { key:"PHA-S2", src:"pha-q", subject:"pha", sem:"winter", name:"Special pharmacology II", topics:[
+    ["PHA288","Chemotherapy of urinary and intestinal infections"],
+    ["PHA289","Antiparasitic drugs"],
+    ["PHA290","Antituberculotics and leprostatic agents"],
+    ["PHA291","Antimycotics"],
+    ["PHA292","Antiviral drugs"],
+    ["PHA293","Antiretroviral drugs"],
+    ["PHA294","Antitussives, mucolytics, expectorant drugs"],
+    ["PHA295","Treatment of allergic conditions, antihistamines"],
+    ["PHA296","Antiasthmatics, COPD"],
+    ["PHA297","Laxatives, antidiarrheals"],
+    ["PHA298","Pharmacotherapy of peptic ulcer disease and GERD"],
+    ["PHA299","Prokinetics, antiemetics, proemetogenic drugs"],
+    ["PHA300","Pharmacotherapy of inflammatory bowel disease"],
+    ["PHA301","Antispasmodic drugs"],
+    ["PHA302","Hepatoprotective agents, cholagogues"],
+    ["PHA303","Drugs in ophthalmology"],
+    ["PHA304","Drug addiction"],
+    ["PHA305","Ethyl alcohol, methyl alcohol"],
+    ["PHA306","Cannabis, cannabinoids"],
+    ["PHA307","Hallucinogens"],
+    ["PHA308","Stimulants"],
+    ["PHA309","Nicotine"],
+    ["PHA310","Methylxanthines and their derivatives"],
+    ["PHA311","Antirheumatic drugs"],
+    ["PHA312","Pharmacotherapy of gout"],
+    ["PHA313","Immunosuppressants, immunostimulants"],
+    ["PHA314","Hormones of the hypothalamus and the pituitary gland, their analogues"],
+    ["PHA315","Pharmacotherapy of thyroid diseases"],
+    ["PHA316","Glucocorticoids, mineralocorticoids"],
+    ["PHA317","Pharmacotherapy of obesity"],
+    ["PHA318","Androgens, anabolic steroids"],
+    ["PHA319","Estrogens, progestogens"],
+    ["PHA320","Contraceptives"],
+    ["PHA321","Pharmacotherapy of benign prostatic hyperplasia"],
+    ["PHA322","Cytostatics"],
+    ["PHA323","Pharmacotherapy of anemia"],
+    ["PHA324","Contrast agents"],
+    ["PHA325","Drugs used for local effect on the skin and mucous membranes"],
+    ["PHA326","Fat-soluble vitamins"],
+    ["PHA327","Water-soluble vitamins"],
+    ["PHA328","Pharmacotherapy of osteoporosis"],
+    ["PHA329","Phytotherapy"],
+    ["PHA330","General toxicology"],
+    ["PHA331","Poisoning and overdose therapy"],
+    ["PHA332","Toxicology of plants and fungi"],
+    ["PHA333","Toxicology of animal poisons"],
+    ["PHA334","Mercury, arsenic, and lead poisoning"],
   ]},
   { key:"IIM-1", src:"iim-q", subject:"iim", sem:"winter", name:"Propedeutics of internal medicine", topics:[
     ["IIM001","Approach to the patient. Medical history - structure and importance"],
@@ -1842,6 +1834,11 @@ function dueForReview(data, today, live){
 /* Round-robin, not block-by-block. Filling each day from one subject's queue would leave
    Pharmacology untouched until January; touching two to four subjects a day is what a real
    teaching week looks like anyway. Urgency decides who goes first each day.
+
+   A second reason, from the pharmacology practical teacher on 1 October 2026: do not park
+   pharmacology while you study pathophysiology. Every year the students who go
+   pathophysiology-first get late pharmacology exam dates, and can end up with neither exam
+   passed. Her advice is to read pharmacology alongside — which is what this already does.
 
    A topic can cost more than a whole day — Pharmacology works out at nearly four hours a topic
    against a three-hour teaching day. Capping its cost at the day's budget is what stops such a
@@ -2729,9 +2726,9 @@ function ClassesView(){
         <div style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.6}}>
           <strong style={{color:"var(--ink)"}}>Every second week.</strong> SIS counts <em>teaching</em> weeks, and week 1 is the
           week of 1 October — so its “even” is an odd calendar week. Simulation Medicine (even) runs on
-          <strong> 7 and 21 Oct, 4 and 18 Nov, 2 and 16 Dec</strong>. The Psychology seminar follows the department’s own
-          list: <strong>1, 15 and 29 Oct, 19 and 26 Nov, 10 Dec, 7 Jan</strong>. Wednesday 6 Jan is the one open date:
-          by the week count there is no Simulation Medicine, by SIS’s calendar note there is. It is marked above — ask.
+          <strong> 7 and 21 Oct, 4 and 18 Nov, 2 and 16 Dec</strong> — the course coordinator’s own list, with nothing on
+          Wednesday 6 Jan. The Psychology seminar follows the department’s own
+          list: <strong>1, 15 and 29 Oct, 19 and 26 Nov, 10 Dec, 7 Jan</strong>.
         </div>
         <div style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.6,marginTop:6}}>
           <strong style={{color:"var(--ink)"}}>No classes.</strong> Wed 28 Oct and Tue 17 Nov are public holidays.
@@ -3015,12 +3012,14 @@ const ARCHIVE_STALE = [
 
      none     no official topic list is published at all — a syllabus is standing in
      old      a real question list, but from a previous academic year
+     prefinal the 2026/27 list, but the department has said it will still change
      recent   the current list, with no academic year printed on it
      current  explicitly the 2026/27 edition
 */
 const SRC_STATUS = {
   current: { label:"2026/27",        tone:"#0F6E56", bg:"#0F6E5614" },
   recent:  { label:"current",        tone:"#6E6757", bg:"var(--paper-2)" },
+  prefinal:{ label:"2026/27 · pre-final", tone:"#B45309", bg:"#B4530914" },
   old:     { label:"a year behind",  tone:"#B45309", bg:"#B4530914" },
   none:    { label:"no official list", tone:"#B45309", bg:"#B4530914" },
   stale:   { label:"contradicted",   tone:"#B0203A", bg:"#B0203A14" },
@@ -3039,7 +3038,7 @@ function SourceBadge({src, compact}){
 
 /* The worst status across a subject's blocks — a subject is only as trustworthy as its weakest
    topic list, and that is the one worth surfacing on the card. */
-const SRC_RANK = { stale:0, none:1, old:2, recent:3, current:4 };
+const SRC_RANK = { stale:0, none:1, old:2, prefinal:3, recent:4, current:5 };
 function worstSource(subjectId){
   const blocks = BLOCKS_OF[subjectId]||[];
   let worst = null;
@@ -3056,7 +3055,7 @@ function FreshnessPanel(){
   const [open,setOpen]=useState(false);
   const rows = Object.keys(SOURCES).map(function(k){ return Object.assign({key:k}, SOURCES[k]); })
     .sort(function(a,b){ return SRC_RANK[a.status]-SRC_RANK[b.status]; });
-  const bad = rows.filter(function(r){ return r.status==="none" || r.status==="old"; });
+  const bad = rows.filter(function(r){ return r.status==="none" || r.status==="old" || r.status==="prefinal"; });
   return (
     <div style={{border:"0.5px solid var(--line)",borderRadius:"var(--r-lg)",background:"var(--card)",padding:"12px 15px",marginBottom:16}}>
       <button onClick={()=>setOpen(o=>!o)} style={{background:"none",border:0,padding:0,textAlign:"left",width:"100%",display:"flex",alignItems:"center",gap:9}}>

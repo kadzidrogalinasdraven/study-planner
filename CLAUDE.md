@@ -155,15 +155,32 @@ because two courses in the source notes carry the byte-identical heading
 `### Syllabus (14 items, verbatim from SIS)` and an unscoped search silently gave Internal
 Medicine I the wrong list. Scope any re-extraction to the course section.
 
-### Hours are derived, never typed
+### Hours are estimated per topic — Linas's call (2026-10-02)
 
-There is no hand-written "this topic takes N hours" anywhere, and there must not be. Per-topic
-cost is `(examEcts || ects) × HOURS_PER_ECTS × share ÷ topics in that subject`, where
-`HOURS_PER_ECTS = 26` (the Bologna convention of 25–30 h per credit) and share is
-`SELF_STUDY_SHARE = 0.55`, or `PRACTICAL_SHARE = 0.25` for the four courses the study plan writes
-as `0/N` — no lectures, so almost all of the workload is contact time. That yields ~811 h of
-private study across the year (measured 2026-10-01; quarter-hour rounding per topic moves it a
-little whenever a topic count changes). **Change the constants, not the eleven numbers.**
+**This replaced "hours are derived, never typed".** Until 2026-10-02 a topic's cost was
+`(examEcts || ects) × 26 h × share ÷ topics in the subject`, which gave 0.75 h for a pharmacology or
+pathophysiology question. Linas rejected it twice: "4 h per topic is more realistic", then, asked
+what he meant, "under an hour for a whole topic is not realistic!! think about topic specific!
+Estimate the time, doesn't have to be perfect but 0,75h is never enough". So the hours are now an
+estimate, made by Claude at his explicit request, and his to overrule:
+
+- every topic has a **size** — `TOPIC_SIZE[code]`, else `BLOCK_SIZE[block]`, else `"M"`;
+- every subject has **hours per size** in `SIZE_HOURS` (pathophysiology and pharmacology
+  1.5 / 2.5 / 3.5, pathology 1 / 1.5 / 2.5, the credit-only courses 1–2 h); nothing is under 1 h;
+- the subject card shows the range ("1.5–3.5 h each"), from `s.hrsRange`.
+
+That makes 1,312 h across the year (pathophysiology 352, pharmacology 311, pathology 344).
+**To re-pace a subject change its three numbers; to re-size one topic change `TOPIC_SIZE`.**
+The sizes were judged from the titles, one subject at a time: whole mechanisms and big drug
+classes L, single narrow causes or drug groups S. `HOURS_PER_ECTS`, `SELF_STUDY_SHARE`,
+`PRACTICAL_SHARE` and the subjects' `practical:true` are gone.
+
+**The consequence he must keep seeing: the winter does not fit.** The three January exams, the
+Pathology and Simulation winter blocks need ~846 h; at his 3 h teaching days the calendar holds
+384 h to 10 Jan. The overflow banner read **544 h** on 2 Oct, up from 52 h. That is the honest
+number, not a bug — **never shrink `SIZE_HOURS` to make the banner smaller.** The levers are his:
+the daily budget (`PHASES`), booking exam dates late in the period (each booked day adds up to
+8 h of runway), and skipping blocks.
 
 ### The plan engine
 
@@ -180,25 +197,35 @@ Five rules that are load-bearing and easy to break:
 - **A block cannot be scheduled before the semester that teaches it** (`SEM_OPEN`). Without this
   the planner had you studying Propedeutics of Surgery in October, against lectures that happen
   in March.
-- **A topic costing more than a whole day is capped at the day's budget** in `fillDay`. Pharmacology
-  works out at ~3.75 h a topic against a 3 h teaching day; without the cap those 26 topics were
-  unschedulable forever and sat permanently in overflow. (That was the 26-line syllabus. With the
-  157-question list, and with the official 134, Pharmacology is 0.75 h a topic, and the course
-  the cap now rescues is Medical Psychology at 3.5 h. The rule is the same.)
-- **Blocks are ordered by PRESSURE — remaining hours ÷ hours left before the deadline —
-  recomputed daily**, not by raw deadline. Deadline order starved the biggest course: the two
-  blocks due first ate every day's budget and Pathophysiology went untouched for weeks.
-- **Pressure is per BLOCK, so how a subject is cut into blocks decides who gets the daily slots.**
-  A 3 h day holds about three topics, one from each of the three highest-pressure blocks, and
-  with a shared deadline pressure is simply the block's remaining hours. Seen on 2026-10-01:
-  Pharmacology went from two blocks (98 h + 20 h) to three (26 h / 39 h / 35 h). Before, the
-  third slot went to a Pathophysiology block (26 h); after, Special I and Special II both
-  outrank every Pathophysiology block, and **followed exactly, the Plan shows no Pathophysiology
-  until 25 October**. It self-corrects, and the year's overflow is not worse (Pathophysiology
-  15 h unplaced, was 16), but it is three and a half weeks of the largest winter exam off the
-  list. Linas was told; the engine was not changed, at his instruction. The data-only way out is
-  one Special block instead of two; the engine way is to rank by subject. **Before adding or
-  splitting a block, print the next fortnight by subject.**
+- **A topic costing more than a whole day is capped at the day's budget** in `fillDay`. With the
+  2026-10-02 hours the largest topics are 3.5 h against a 3 h teaching day; without the cap they
+  would be unschedulable forever and sit permanently in overflow.
+- **The day is filled by SHARES, not by a ranking of blocks (2026-10-02).** Linas: "pathophysio,
+  then pharma and then the rest". `STUDY_PRIORITY` makes three groups — `pfy` (weight 1.3), `pha`
+  (1.15), everything else (1). Each topic placed goes to the group least far along its own list
+  (hours done ÷ hours of its blocks open that day) divided by its weight; ties in priority order.
+  Inside the rest, the subject furthest **behind an even pace** to its own deadline goes first;
+  inside a subject, the block with most hours left. Followed exactly from 2 Oct to 10 Jan this
+  gives Pathophysiology 42%, Pharmacology 32%, Intro to Internal Medicine 13%, Pathology 9%,
+  Simulation and Czech 2% each, and every one of them is on the plan within a week.
+  Three reasons it is built like this, all learned the hard way:
+  - **A plain priority order would park pharmacology.** At 1.5–3.5 h a topic a teaching day holds
+    one; "pathophysiology first" would be pathophysiology every day for weeks — exactly what the
+    pharmacology teacher warned against (see the comment above `fillDay`).
+  - **Weights on REMAINING hours front-load.** Multiplying need or pressure by a weight builds the
+    whole lead at the start: tried on paper, 1.3 on pathophysiology meant about three weeks of
+    nothing else. Weighting the share DONE builds the lead gradually from zero.
+  - **Ranking BLOCKS lets the cutting decide.** When blocks were ranked one by one (until
+    2026-10-02), a subject in more blocks won more slots: Pharmacology's two Special blocks
+    pushed Pathophysiology off the plan until 25 October. And ranking by hours left inside the
+    rest gave every slot to the biggest course, so Simulation Medicine was never scheduled.
+  `liveBlocks` therefore keeps a block whose topics are all done (with `total`, its hours), so
+  finishing a block does not make its subject look less far along. **Every comparison ends on a
+  fixed order** — group order, deadline, subject id, block key — because Today and the week table
+  are built from different starting points and must agree.
+- **`fillDay` must stay a pure function of (date, blocks, queue).** No history, no counters. The
+  shares are recomputed from the queue each time, which is what lets the week table and the Plan
+  match when he follows the plan.
 
 `projectYear()` simulates every remaining day with the same `fillDay` rule and reports what could
 not be placed. **Do not replace it with arithmetic.** The share-of-the-calendar formula that stood
@@ -268,6 +295,23 @@ can only ever be too tight, never too loose. Booking a date relaxes the plan and
 Timeline immediately. Guarantors must publish winter dates by 11 Dec 2026 and summer dates by
 7 May 2027, so nothing can be booked before then.
 
+### His own deadlines (`DEADLINES`, 2026-10-02)
+
+Dated coursework that belongs to him rather than to the class — a seminar he presents, an essay
+he hands in — lives in `DEADLINES` beside `EXAMS`, as `{id, subject, iso, time, label, short,
+detail, confirm?}`. It feeds three existing places and adds no screen: `nextMilestone` (so it is
+Today's countdown whenever it is the next date), `TIMELINE`, and a box on the subject's card with
+`detail` and, in amber, `confirm`. **When two dates are possible, the earlier goes in** and
+`confirm` says why — the same reasoning as pacing exams to the first day of the period. The day
+itself is marked on the class through `TIMETABLE_NOTES` ("You present today, with Silvia: …").
+Nothing is stored; it is code, so a changed date is an edit and a deploy.
+
+**Never put classmates' names in the planner.** The repo and the site are public. The Psychology
+sign-up sheet names nine other students; only Silvia's first name went in, because she is his
+partner on both pieces of work and is already in this file as a Google test user. Prof. Vevera's
+work e-mail, phone and address did go in (the subject's `note`): they are printed on the card he
+hands to students, and the e-mail is where the essay must be sent.
+
 ### Migration out of second year
 
 `migrate()` wipes `done`, `doneAt` and `study` **once**, gated on `schemaV < 3`. The gate is not
@@ -301,6 +345,9 @@ this ring, and do not read a 100% coursework week as "on track for the exams".
 **Since the official pharmacology list (2026-10-01) the three numbers are 19, 38 and 60 h**: a full
 week holds 19 topics, not 21, because with 17 h less pharmacology the days take more of the
 dearer Pathology and Internal Medicine topics; the first, short week is still 12.
+**Since the topic-size hours (2026-10-02) a full week holds 11 topics and the first week 8, and
+the overflow is about 544 h** — see "Hours are estimated per topic". The ring is unchanged in kind:
+100% still means "did what the Plan put in this week".
 
 The week grid carries the coursework under Gym and Languages: one row per course, one
 `TopicTick` per planned topic, under the day the Plan gives it. **It is the same tick as
@@ -641,9 +688,10 @@ Two static files, no build step, no npm, no bundler. React 18 UMD + in-browser B
 | Deck (Silvia) | <https://kadzidrogalinasdraven.github.io/study-planner/physio_flashcards_silvia.html> |
 | Netlify — **stale, do not send anyone here** | <https://peppy-lokum-2c5109.netlify.app> |
 
-Netlify is frozen at the 3,842-explanation build because its deploys are blocked (see below). It is
-still serving, so the old links work and quietly show out-of-date content — which is worse than being
-down. Treat GitHub Pages as the live site.
+Netlify serves whatever it last built — since 30 Sep 2026 that is commit `b4856e4`, and it falls
+further behind with every push (see "Netlify was building every push" below). It is still serving,
+so the old links work and quietly show out-of-date content — which is worse than being down. Treat
+GitHub Pages as the live site.
 
 | File | What it is |
 | --- | --- |
@@ -683,7 +731,8 @@ would overwrite the planner's and 403 its calendar calls. Never separate them.
 Deploy is: commit on `test` → `git checkout main && git merge test --ff-only` → `git push origin main`.
 **GitHub Pages serves `main` from the repo root within about a minute — there is nothing to configure
 per file.** Pages publishes the whole repository, so any file committed is reachable at its own path.
-Netlify still watches `main` too and will resume automatically if its flag ever clears.
+Netlify still watches `main` too, and **every push costs Netlify credits until its builds are
+stopped** — see the next section.
 
 ### Why Netlify was abandoned (2026-08-08)
 
@@ -695,6 +744,25 @@ the team (**Planer**) and site (`peppy-lokum-2c5109`) — **not yet done**, and 
 
 GitHub Pages was set up instead: repo is public, so it is free, has no build step and no credit
 system, and 4.5 MB of HTML is nothing against its 1 GB / 100 GB-per-month limits.
+
+#### Netlify was building every push — the credits were real (found 2026-10-02)
+
+The flag above did clear, and nobody noticed: from the billing cycle that began 18 Sep 2026,
+Netlify built and published **every push to `main`**, in parallel with GitHub Pages. On the
+credit-based Free plan a production deploy costs **15 credits of 300 a month** (Netlify's pricing
+page and "How credits work" doc, checked 2026-10-02), so about twenty pushes empty it. There were
+12 pushes to `main` from 18 to 30 Sep; Netlify e-mailed "75% used" at 16:29 UTC on 30 Sep and
+"used all available credits … can't ship to production right now" at 18:50 UTC, three minutes after
+the push of `b4856e4`. **Proof it was building:** the live Netlify `index.html` is `b4856e4`
+byte for byte, plus one comment Netlify injects ("This site is hosted on Netlify…"); GitHub's
+deployments API shows only `github-pages`, so do not look for Netlify there.
+
+So the advice "push less" is wrong: **GitHub Pages costs nothing per push.** The cost is the second,
+unwanted Netlify build. The Free plan cannot bill — out of credits, it pauses deploys and keeps
+the site up on "operational credits" — so the only consequences are the e-mails and a stale copy.
+The fix is in Netlify's dashboard, which only Linas can reach: **Stop builds** (reversible), or
+**delete the site** (also removes the stale copy; irreversible, and safe only because his progress
+was moved to Drive before the move to Pages). Never re-link Netlify to this repo.
 
 **Never "solve" this by making a second account on another email.** It breaches Netlify's terms on
 circumventing plan limits, and it does not even work, for a reason that applies to *every* host move:
@@ -1703,6 +1771,69 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   6 Jan Simulation Medicine entry in Google Calendar "NO CLASS"; (4) whether the four stale
   expectations in the engine test file may be updated; (5) from before: 5A or 5B, and whether
   Reconnect still appears after an hour.
+- 2026-10-02 · **Medical Psychology, from four sources.** (a) His Wispr Flow recording of the first
+  seminar, 1 Oct — a meeting titled "medical psychology". **Where Wispr Flow keeps it:** the
+  summary in `~/Library/Application Support/Wispr Flow/flow.sqlite`, table `Meetings`, column
+  `summary`; the full transcript in `…/Wispr Flow/meetings/<meeting id>/refined.ndjson`, one JSON
+  line per utterance. Open the database with `sqlite3 -readonly`, and select by title — it holds
+  all of his dictation history, so never browse it. (b) A photo of the group-5 sign-up sheet.
+  (c) A photo of Prof. Vevera's business card. (d) The Dept. of Psychiatry e-mail of 1 Oct with
+  links to the essay anthology. What they say is in `SUBJECTS.mpe.creditRule` and `DEADLINES`.
+- 2026-10-02 · **Reading the sign-up sheet.** Printed columns: week, date, time, topic,
+  "presentation" (who presents the day's topic). Beside it, handwritten, an "essay" column (whose
+  essay is pitched that day). Linas and Silvia: **presentation 29 Oct** (agitated or aggressive
+  patient; anxious patient), **essay in the 12 Nov row**. The five groups each present once and
+  pitch an essay once, never on the same day, which is what fixes the essay column's rows.
+  Two conflicts with what the planner holds, neither resolved by changing the planner:
+  - The sheet prints **"Čt 9:20–11:00"** for every seminar. Wrong for group 5: his recording
+    started at 11:16 with the seminar under way, and his pharmacology practical recording ran
+    until about 10:08 the same morning. The planner keeps 11:00–12:40.
+  - The sheet prints **12.11** for "Handicapped patient"; the department's list (and the planner
+    and Calendar) say it moved to **19 Nov**. His essay is due 08:00 on the Wednesday before:
+    **11 Nov or 18 Nov.** `DEADLINES` carries 11 Nov with a `confirm` until he finds out.
+- 2026-10-02 · **The topic cards lost "New guide" and "Discuss"**, at his request — he never used
+  them. With them went the expand arrow (nothing left to open), `PROJECT_STUDY`, the `.copied`
+  style and every subject's `cmd`. The Instagram button keeps `copyText`.
+- 2026-10-02 · Outdated text fixed: the `fillDay` comment (Medical Psychology is now the topic
+  costing more than a day), the "check again in October" line on the freshness panel, the
+  Pathophysiology source note ("one of two verified courses"), the archive's pharmacology rooms,
+  README's late-September Pathology re-check, and this file's Netlify and "a year behind" notes.
+- 2026-10-02 · **Netlify** — see "Netlify was building every push". Told him what to click; it
+  is his account. Not changed from here.
+- 2026-10-02 · Verified locally on `planner-clean` (`index.html?r=…` to beat the cache): Today's
+  countdown reads "Psychology presentation · 27 days"; after 29 Oct it becomes the essay, after
+  11 Nov "Winter credits due"; both dates on the Timeline; the Medical Psychology card shows both
+  boxes and the amber note, and fits at 375 px with no sideways scroll; 29 Oct's seminar reads
+  "You present today, with Silvia"; topic cards have no arrow; no console errors.
+- 2026-10-02 · **His answers.** (1) Essay: keep 11 Nov, flagged, until he asks. (2) Calendar: all
+  of it, plus "a reminder to ask about outdated schedules and curricula, for every subject where I
+  have to ask, at the day and hour of that subject's practical". (3) Pathophysiology gap: "I'd
+  prioritise pathophysio, then pharma and then the rest (you decide)". (4) Hours: "0.75 h is
+  never enough — estimate topic-specific". (3) and (4) are the two engine sections above.
+- 2026-10-02 · **Calendar, done through the connector.** Simulation Medicine: the six real
+  sessions' descriptions rewritten (dates, Moodle preparation, 100% attendance, substitutes via
+  the secretary, 11–15 Jan); **6 Jan retitled "NO CLASS — Simulation Medicine"**, reminders off,
+  free. Psychology: the 29 Oct instance retitled "… — YOU PRESENT" with reminders a week, a day
+  and 30 min before; the 7 Jan description no longer says nobody knows when the essay is due.
+  Pharmacology practical series: credit text corrected (no credit test, pre-term rule). New
+  single events, all "free", none tagged `[planner:class]` so they show in the planner's
+  Upcoming: **essay due** Wed 11 Nov 08:00 (`5lsfva0bvo9v69nvbohrfg09sg`, reminders a week and a
+  day before) and four **"Ask:"** events, each at the start of that subject's practical with a
+  popup at 0 min — Pathophysiology programme Mon 5 Oct 08:00 (`2n74vhnluptuo8ql6cvo0pmvv8`),
+  Internal Medicine 5A/5B Tue 6 Oct 08:00 (`eks31gdqra0vbsr4ejpqjtgn5g`), final Pharmacology list
+  and credit rules Thu 8 Oct 08:00 (`15mtirj3en2ee8sotu6htk2edg`), Psychology essay date and
+  textbook Thu 15 Oct 11:00 (`un5odhoom32u3brr96h5i619n0`). When one is answered, delete nothing:
+  edit the planner, and leave the event as the record.
+- 2026-10-02 · **The engine test suite was updated** (in `~/.claude/projects/…/tests/`, outside the
+  repo). With the new hours, 8 of 34 failed — all counts written for the old figures ("three
+  topics on Thu 1 Oct", "21 in a full week", the retired `PHA100`/`PHA101`), none an engine
+  fault. They now test the rule instead of the count: the ring's target equals the week's plan,
+  a full week holds more than the half week, a refilled day has less room left than the smallest
+  topic, the scoring cases read the week's own total. **34 of 34 pass.** To run it from the
+  built-in pane: copy it into `.playwright-mcp/`, `fetch` it from `planner-clean`, and evaluate
+  the body of its `page.evaluate`.
+- 2026-10-02 · Still worth knowing: `EXAMS.mpe-s.place` says "Dept. of Psychology", but every
+  document this year comes from the **Dept. of Psychiatry**. Unverified, so unchanged.
 
 ---
 
@@ -1728,9 +1859,9 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   delete them — the hard rule about flashcard answers still stands, and Silvia still uses hers.
 - **No exam date can be booked yet.** Guarantors publish winter dates by 11 Dec 2026. Until then
   every subject paces to the first day of its exam period, which is deliberately pessimistic.
-- **Two topic lists are a year behind** (Intro to Internal Medicine II, 2025/26) or were rejected
-  as stale (Internal Medicine I, 2021/22 — the current SIS syllabus was used instead). Re-check
-  both once 2026/27 files appear.
+- ~~**Two topic lists are a year behind**~~ **Half resolved:** Intro to Internal Medicine II has
+  its 2026/27 list since 2026-09-30. Internal Medicine I is still the SIS syllabus, because its
+  only question PDF is the 2021/22 one for an exam that no longer exists.
 - ~~**Pharmacology II has no public question list.**~~ **Resolved 2026-10-01:** the official
   2026-27 list (134 questions, pre-final) is the curriculum — see "Pharmacology: the official
   list is in".

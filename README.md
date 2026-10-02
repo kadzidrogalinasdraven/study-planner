@@ -153,8 +153,8 @@ The 2026/27 curricula are not all out yet — several departments post the new e
 teaching starts. So every topic list carries its own age, shown wherever the topics are: on the
 subject card, and on each block in Progress. Two courses, Pathophysiology and Introduction to
 Internal Medicine II, have a verified 2026/27 question list. Pathology's three lists are undated
-and were silently refreshed on the first day of last term, so they want re-downloading in late
-September. Pharmacology uses the department's official 2026/27 oral list of 134 questions, read
+and were silently refreshed on the first day of last term; they were downloaded again on
+30 September 2026 and had not changed. Pharmacology uses the department's official 2026/27 oral list of 134 questions, read
 on 1 October 2026 and marked pre-final: the department has said it will still renumber it and
 move a few questions, and will announce the final version.
 
@@ -185,6 +185,12 @@ subject paces itself to the *first* day of its exam period, which is the pessimi
 booking a real date can only ever relax the plan. Set the date on the subject card and the whole
 schedule re-paces around it, and the date appears on the Timeline.
 
+**Your own deadlines** — a seminar you present, an essay you hand in — sit beside the exams. They
+are listed in `index.html` (`DEADLINES`) and show in three places: as the countdown at the top of
+Today whenever one is the next date coming up, on the Timeline, and on the subject's card with what
+to prepare. A date that is not yet certain says so, and the earlier of two possible dates is used
+until it is settled.
+
 ### The plan is derived, not written
 
 Nothing in the Plan tab is hand-written. It shows a rolling fourteen days from today, recomputed
@@ -198,20 +204,27 @@ days up at once.
 
 Days are filled to a budget that follows the academic calendar — three hours on a teaching day,
 five at a teaching weekend, eight inside an exam period, two over the winter break. How long a
-topic takes is derived from its course's credit value rather than guessed: twenty-six hours per
-credit at 55% private study, divided across that course's topics. Courses the study plan writes
-with no lecture hours are counted at 25%, because they are almost entirely contact time.
+topic takes is an estimate for a first pass to exam standard: every topic is small, medium or
+large, and every course has an hour figure for each size — 1.5, 2.5 and 3.5 hours for a
+pathophysiology or pharmacology question, for example, down to an hour for a Medical Czech
+topic. The figures sit at the top of `index.html` (`SIZE_HOURS`, `TOPIC_SIZE`); change a course's
+three numbers to re-pace it. They replaced a formula from credit values that gave 45 minutes a
+question, which was never enough.
 
-Three things the scheduler does that are worth knowing:
+Four things the scheduler does that are worth knowing:
 
 - **It plans by block, not by course.** Pathology's winter blocks are due at the January credit,
   its summer blocks at the June final. Treating Pathology as one deadline in May would hide the
   January credit entirely.
 - **It will not schedule a course before the semester that teaches it.** Propedeutics of Surgery
   is a summer course, so it does not appear in October.
-- **It rebalances every day.** Whichever block is under the most pressure — hours of work left
-  against hours of calendar left — goes first, so no course gets starved by one with a nearer
-  deadline.
+- **It shares the time in your order: Pathophysiology, then Pharmacology, then the rest.** Each
+  topic goes to whichever of the three is least far along its own list, with Pathophysiology
+  weighted to stay furthest ahead. Followed exactly, the winter comes out at about 42%
+  Pathophysiology, 32% Pharmacology and the rest for everything else — and none of them is ever
+  parked, which is what the pharmacology teacher warned against.
+- **Inside "the rest", the course furthest behind an even pace goes first**, so a January exam
+  moves faster than a June one and a small course like Simulation Medicine still gets its turn.
 
 Anything that will not fit before its deadline is reported, per subject, rather than quietly
 dropped. A schedule that silently loses a third of the work is worse than one that admits it does

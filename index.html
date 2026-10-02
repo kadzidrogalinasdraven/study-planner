@@ -55,7 +55,6 @@
   .sm{font-size:13px;padding:7px 9px;border:0.5px solid var(--line-2);border-radius:var(--r-md);background:var(--card)}
   .iconbtn{background:transparent;border:0;color:var(--ink-3);padding:6px;border-radius:6px;line-height:1;transition:color .15s,background .15s}
   .iconbtn:hover{color:var(--ink);background:var(--paper-2)}
-  .copied{font-size:11px;color:var(--accent)}
   @keyframes cbpop{0%{transform:scale(1)}42%{transform:scale(1.18)}100%{transform:scale(1)}}
   @keyframes ckin{0%{transform:scale(0) rotate(-14deg);opacity:0}55%{transform:scale(1.28) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
   @keyframes ckring{0%{transform:scale(.6);opacity:.5}100%{transform:scale(2.4);opacity:0}}
@@ -83,8 +82,6 @@ const UI = { accent:"#534AB7", accentSoft:"#ECEAFB" };
 const LANGC = { czech:"#1F4E79", italian:"#2F8F57" };
 const CHAT_CZECH   = "https://claude.ai/chat/53820c71-73a6-4d0c-bd13-87f8136b833b";
 const CHAT_ITALIAN = "https://claude.ai/chat/a3aebc22-8fa1-41ec-8205-a05785d4ba0f";
-/* One Claude project for third-year study guides. Topic cards copy a command and open it. */
-const PROJECT_STUDY = "https://claude.ai/new";
 // Instagram "school events": the button hands off to Claude's /insta-checkup skill (it scrapes
 // the accounts + writes events to Calendar); this app just reads them back. Swap in a dedicated
 // chat URL if you keep one, else a fresh chat works.
@@ -487,79 +484,131 @@ const EXAM_PERIODS = {
    2023"), Faculty of Medicine in Pilsen, academic year 2026/2027. Codes, semesters, completion
    types and credit values are transcribed from that plan, not inferred.
 
-   `hrs` is NOT hand-typed per subject. It is derived from the ECTS value — see HOURS_PER_ECTS
-   below — because inventing a per-topic study time is exactly the way a schedule becomes
-   fiction. Change the two constants, not the eleven numbers. */
-const HOURS_PER_ECTS = 26;     // Bologna/ECTS convention: 1 credit ≈ 25-30 h of total workload
-const SELF_STUDY_SHARE = 0.55; // the share of that workload that is not lectures/labs/wards
-const PRACTICAL_SHARE  = 0.25; // for courses the plan writes as 0/N — no lectures, nearly all contact
+   How long a topic takes is ESTIMATED, topic by topic, at Linas's request (2 Oct 2026). Until
+   then it was derived from credits (ECTS × 26 h × self-study share ÷ number of topics), which
+   came to 0.75 h for a pharmacology or pathophysiology question — "never enough", in his words:
+   "think topic-specific, estimate the time, it doesn't have to be perfect".
+   So every topic has a SIZE — S, M or L — and every subject an hour figure per size: a first pass
+   to exam standard, not a revision. Most topics are M; TOPIC_SIZE lists the ones that are
+   narrower or broader, BLOCK_SIZE the blocks whose default differs. To re-pace a whole subject,
+   change its three numbers here; to re-size one topic, change TOPIC_SIZE. The plan reports what
+   does not fit in the overflow banner rather than shrinking these to make it fit. */
+const SIZE_HOURS = {
+  pfy:{ S:1.5,  M:2.5, L:3.5 },   // oral questions are whole mechanisms; the practical ones are smaller
+  pha:{ S:1.5,  M:2.5, L:3.5 },   // one drug class: mechanism, kinetics, uses, adverse effects, interactions
+  iim:{ S:1.5,  M:2.5, L:3.5 },
+  mpe:{ S:1.5,  M:2.5, L:3.5 },
+  pat:{ S:1,    M:1.5, L:2.5 },   // 224 entities: most are one disease, a few are whole chapters
+  im1:{ S:1.5,  M:2,   L:3   },   // the credit-only courses: preparing for a practical, not an oral
+  psu:{ S:1,    M:1.5, L:2   },
+  nbs:{ S:1,    M:1.5, L:2   },
+  sim:{ S:1,    M:1.5, L:2   },
+  rad:{ S:1,    M:1,   L:1.5 },
+  cze:{ S:1,    M:1,   L:1.5 },
+};
+const BLOCK_SIZE = { "PFY-P":"S" };   // the practical-exam questions
+const TOPIC_SIZE = {
+  // Pathophysiology — broad mechanisms L, single narrow causes S
+  PFY001:"S", PFY003:"S", PFY004:"S", PFY009:"S", PFY010:"S", PFY011:"S", PFY012:"S", PFY013:"S",
+  PFY014:"S", PFY015:"S", PFY023:"S", PFY024:"S", PFY025:"S", PFY029:"S", PFY030:"S", PFY053:"S",
+  PFY064:"S", PFY065:"S", PFY067:"S", PFY074:"S", PFY076:"S", PFY078:"S", PFY080:"S", PFY091:"S",
+  PFY092:"S", PFY093:"S", PFY100:"S", PFY105:"S", PFY109:"S", PFY113:"S", PFY117:"S", PFY122:"S",
+  PFY123:"S", PFY128:"S", PFY129:"S", PFY131:"S", PFY132:"S",
+  PFY018:"L", PFY019:"L", PFY026:"L", PFY034:"L", PFY035:"L", PFY038:"L", PFY040:"L", PFY041:"L",
+  PFY043:"L", PFY051:"L", PFY056:"L", PFY059:"L", PFY061:"L", PFY062:"L", PFY077:"L", PFY082:"L",
+  PFY083:"L", PFY086:"L", PFY094:"L", PFY101:"L", PFY119:"L",
+  PFY138:"M", PFY145:"L",   // statistics; the ECG, which the practical exam asks of every candidate
+  // Pharmacology — narrow drug groups S, the big classes L
+  PHA201:"S", PHA202:"S", PHA206:"S", PHA207:"S", PHA208:"S", PHA209:"S", PHA218:"S", PHA220:"S",
+  PHA227:"S", PHA230:"S", PHA231:"S", PHA233:"S", PHA234:"S", PHA242:"S", PHA244:"S", PHA245:"S",
+  PHA259:"S", PHA262:"S", PHA264:"S", PHA277:"S", PHA286:"S", PHA287:"S", PHA288:"S", PHA294:"S",
+  PHA297:"S", PHA301:"S", PHA302:"S", PHA306:"S", PHA307:"S", PHA308:"S", PHA309:"S", PHA310:"S",
+  PHA312:"S", PHA317:"S", PHA318:"S", PHA321:"S", PHA324:"S", PHA326:"S", PHA327:"S", PHA329:"S",
+  PHA332:"S", PHA333:"S", PHA334:"S",
+  PHA211:"L", PHA222:"L", PHA225:"L", PHA246:"L", PHA253:"L", PHA255:"L", PHA260:"L", PHA266:"L",
+  PHA268:"L", PHA271:"L", PHA273:"L", PHA280:"L", PHA292:"L", PHA296:"L", PHA311:"L", PHA313:"L",
+  PHA316:"L", PHA322:"L", PHA331:"L",
+  // Introduction to Internal Medicine II — the examinations and the ECG L, imaging overviews S
+  IIM005:"L", IIM006:"L", IIM007:"L", IIM008:"L", IIM024:"L", IIM026:"L", IIM027:"L",
+  IIM030:"S", IIM031:"S", IIM032:"S", IIM033:"S", IIM034:"S", IIM037:"S", IIM038:"S", IIM039:"S",
+  IIM040:"S", IIM041:"S",
+  // Medical Psychology
+  MPE007:"S", MPE008:"S", MPE012:"L", MPE019:"L", MPE020:"L",
+  // Pathology — whole chapters L, single rare entities S
+  PAT010:"L", PAT019:"L", PAT020:"L", PAT022:"L", PAT026:"L", PAT028:"L", PAT056:"L", PAT070:"L",
+  PAT073:"L", PAT086:"L", PAT090:"L", PAT096:"L", PAT097:"L", PAT105:"L", PAT106:"L", PAT127:"L",
+  PAT132:"L", PAT142:"L", PAT148:"L", PAT156:"L", PAT157:"L", PAT160:"L", PAT162:"L", PAT177:"L",
+  PAT181:"L", PAT186:"L", PAT195:"L", PAT212:"L", PAT213:"L", PAT222:"L",
+  PAT004:"S", PAT005:"S", PAT016:"S", PAT017:"S", PAT018:"S", PAT033:"S", PAT034:"S", PAT035:"S",
+  PAT038:"S", PAT062:"S", PAT066:"S", PAT077:"S", PAT078:"S", PAT080:"S", PAT081:"S", PAT082:"S",
+  PAT083:"S", PAT092:"S", PAT094:"S", PAT095:"S", PAT112:"S", PAT114:"S", PAT115:"S", PAT117:"S",
+  PAT118:"S", PAT121:"S", PAT123:"S", PAT129:"S", PAT133:"S", PAT134:"S", PAT137:"S", PAT154:"S",
+  PAT155:"S", PAT174:"S", PAT184:"S", PAT190:"S", PAT196:"S", PAT198:"S", PAT202:"S", PAT205:"S",
+  PAT206:"S", PAT210:"S", PAT214:"S", PAT215:"S",
+};
+
+/* Linas's order (2 Oct 2026): "pathophysio, then pharma and then the rest". It is a SHARE of the
+   study time, not a queue — see fillDay. A larger weight keeps that group further along its
+   own list than the others are along theirs; every group still gets days, so pharmacology is
+   never parked behind pathophysiology, which its practical teacher warned against. */
+const STUDY_PRIORITY = [ { id:"pfy", weight:1.3 }, { id:"pha", weight:1.15 } ];   // the rest: 1
 
 const SUBJECTS = [
   { id:"pat", key:"PAT", sis:"EAP0103500", title:"Pathology",
     short:"Pathology", dept:"14-500", ects:20, color:"#8E2C48", sem:"both",
     completion:{ winter:"credit", summer:"credit+exam" }, examId:"pat-s",
     examFormat:"One microscopic slide, drawn from a pool of 116: localisation, diagnosis, an optional differential, and the examiner\u2019s questions. Worth 0\u20135. Then an oral of three questions \u2014 General, Special and Oncological \u2014 worth 0\u201310 each. Pass is 21 of 35. A zero on any single oral question fails you outright whatever the total, and grades 1 to 3 each need at least one point on every question. The museum station was removed in September 2025, but gross pathology is still examinable content.",
-    creditRule:"Winter: attendance at practicals. Summer: attendance plus the slide exam, sat at the end of summer teaching \u2014 no credit, no oral. Aim to be slide-ready by the end of teaching, not the week before the oral: the gap between them runs from two weeks to three months depending which term you book.",
-    cmd:"/study-first-pass Pathology — " },
+    creditRule:"Winter: attendance at practicals. Summer: attendance plus the slide exam, sat at the end of summer teaching \u2014 no credit, no oral. Aim to be slide-ready by the end of teaching, not the week before the oral: the gap between them runs from two weeks to three months depending which term you book." },
   { id:"pfy", key:"PFY", sis:"EAP0103090", title:"Pathological Physiology II.",
     short:"Pathophysiology", dept:"14-90", ects:5, color:"#7A3EA8", sem:"winter",
     completion:{ winter:"credit+exam" }, examId:"pfy-w",
     examEcts:8,   // 5 here + 3 for Pathological Physiology I, which this exam also covers
     note:"the exam covers Pathophysiology I from second year as well — two semesters of material",
     examFormat:"Practical first: one question drawn from the eighteen practical topics, plus description, diagnosis and pathophysiological analysis of three ECG records. Failing it fails the whole exam, and the two halves cannot be split across terms. Then an oral of four questions with 30 minutes of preparation \u2014 almost certainly one from each of the four groups, though that draw rule is nowhere stated officially. Sufficient knowledge is required in every one of the four.",
-    creditRule:"Active attendance at practicals, at most 2 excused absences a semester, excuse by e-mail within a week. All protocols submitted and accepted. Credit in both Pathophysiology I and II is required before you may register.",
-    cmd:"/pathophysiology " },
+    creditRule:"Active attendance at practicals, at most 2 excused absences a semester, excuse by e-mail within a week. All protocols submitted and accepted. Credit in both Pathophysiology I and II is required before you may register." },
   { id:"pha", key:"PHA", sis:"EAP0103100", title:"Pharmacology II.",
     short:"Pharmacology", dept:"14-100", ects:4, color:"#0F6E56", sem:"winter",
     completion:{ winter:"credit+exam" }, examId:"pha-w",
     examEcts:7,   // 4 here + 3 for Pharmacology I, which this exam also covers
     note:"the exam covers Pharmacology I from second year in full as well",
     examFormat:"A computer test of 50 single-best-answer questions, four options each, 35 correct to pass. Then an oral where you draw three questions: one general and two special. It covers Pharmacology I in full as well as this year\u2019s. Two rules that bite: fail the test at your FIRST term and you lose the term and are graded 4, and fail the ORAL and you re-sit the computer test too. Neither half banks.",
-    creditRule:"Active participation in the practicals. One unexcused absence a semester is allowed; anything beyond it needs a proper excuse for serious, demonstrable reasons, e-mailed to your teacher. There is no credit test this semester \u2014 the practical teacher said so at the first practical on 1 October 2026. After each practical there is an optional short test, for revision and as practice for the computer test. Pre-term (an exam date in advance): you need 100% attendance at the practicals \u2014 the one allowed absence does not apply. If you miss one, join another group or arrange a make-up lesson with the teacher; if neither is possible, the department\u2019s rules say you are examined on that topic individually. The written rules in SIS are still the 2025/26 file.",
-    cmd:"/study-first-pass Pharmacology — " },
+    creditRule:"Active participation in the practicals. One unexcused absence a semester is allowed; anything beyond it needs a proper excuse for serious, demonstrable reasons, e-mailed to your teacher. There is no credit test this semester \u2014 the practical teacher said so at the first practical on 1 October 2026. After each practical there is an optional short test, for revision and as practice for the computer test. Pre-term (an exam date in advance): you need 100% attendance at the practicals \u2014 the one allowed absence does not apply. If you miss one, join another group or arrange a make-up lesson with the teacher; if neither is possible, the department\u2019s rules say you are examined on that topic individually. The written rules in SIS are still the 2025/26 file." },
   { id:"iim", key:"IIM", sis:"EAP0103322", title:"Introduction to Internal Medicine II",
     short:"Intro to Internal Medicine", dept:"14-320", ects:7, color:"#BE123C", sem:"winter",
     completion:{ winter:"credit+exam" }, examId:"iim-w",
     examFormat:"The only internal-medicine exam of the year, and it covers Introduction to Internal Medicine I from second year as well. Practical in the last two weeks of teaching: take a history and examine a patient, or describe an ECG \u2014 white coat, stethoscope, pen and the examination record form. Then an oral of two questions, one from each group, plus an ECG to describe. Disease entities were dropped from the list, but cardiac and respiratory examination and investigation were kept and are certain to come up.",
-    creditRule:"The 2026/27 rules ask for “a minimum of 10 classes, 9 practical classes and a practical exam”. Only 11 Tuesdays are taught — 17 November is a public holiday — so count on one absence at most. The practical exam is sat in class time in the last two weeks (15 December or 5 January), with the parallel group’s teacher if possible. A missed practical can be substituted only by agreement with the teacher, asked for in advance. A lecture with fewer than three students may be cancelled. Questions go to the department secretary, not to the teachers. Passing this is a prerequisite for taking Internal Medicine I in the summer of the same year.",
-    cmd:"/study-first-pass Internal medicine propaedeutics — " },
+    creditRule:"The 2026/27 rules ask for “a minimum of 10 classes, 9 practical classes and a practical exam”. Only 11 Tuesdays are taught — 17 November is a public holiday — so count on one absence at most. The practical exam is sat in class time in the last two weeks (15 December or 5 January), with the parallel group’s teacher if possible. A missed practical can be substituted only by agreement with the teacher, asked for in advance. A lecture with fewer than three students may be cancelled. Questions go to the department secretary, not to the teachers. Passing this is a prerequisite for taking Internal Medicine I in the summer of the same year." },
   { id:"mpe", key:"MPE", sis:"EAP0103390", title:"Medical Psychology and Ethics",
     short:"Psychology & Ethics", dept:"14-390", ects:5, color:"#7C4A1E", sem:"both",
     completion:{ winter:"credit", summer:"credit+exam" }, examId:"mpe-s",
     examFormat:"Final oral exam, taken only after both credits are in hand.",
-    creditRule:"Winter: attendance at the practical seminars (compulsory, one absence a semester allowed) plus an essay — the essays are evaluated at the last seminar, 7 January. Summer: the same, plus an essay or participation in a student research survey. Lectures run in the winter only, and what is said in them is examined.",
-    cmd:"/study-first-pass Medical psychology and ethics — " },
+    note:"Seminar teacher: Prof. Jan Vevera, Dept. of Psychiatry, FN Lochotín, alej Svobody 80 · veveraj@fnplzen.cz · +420 377 103 100 · psych.fnplzen.cz",
+    creditRule:"Winter: attendance at the seminars (compulsory, one absence a semester allowed) and two pieces of group work, in groups of two or three, as Prof. Vevera set them out at the first seminar on 1 October 2026. A presentation of one seminar’s set topic: 15–25 minutes, then a discussion; PowerPoint is allowed but discouraged — he wants an interactive scene. And an essay of about three pages on a topic of your own in medical psychology, ethics or communication, unrelated to the presentation: start from something you have seen in practice, and not euthanasia. The textbook is the main source (the library has copies, the department one reference copy for use on site); AI may help as a consultant, not as the author. E-mail it to him and to the rest of the seminar group by 08:00 on the Wednesday before your essay seminar — they all read it — and present it there as a two- or three-minute elevator speech, not read aloud. Essays are evaluated at the last seminar, 7 January. The best one or two are published in the faculty’s anthology, “What are our medical students thinking about” (links in the Dept. of Psychiatry e-mail of 1 October), and the two best win the Dean’s Prize and 5,000 CZK. Summer: seminar attendance again, plus an essay or participation in a student research survey. Lectures run in the winter only, and what is said in them is examined." },
   { id:"im1", key:"IM1", sis:"EAP0103320", title:"Internal Medicine I.",
     short:"Internal Medicine I", dept:"14-320", ects:3, color:"#C2622E", sem:"summer",
     completion:{ summer:"credit" }, examId:null,
     examFormat:"No exam. The 2021/22 exam-question PDF still attached in SIS is for a combined exam that no longer exists \u2014 ignore it.",
-    creditRule:"Attendance at 10 practicals, one of which is a separately scheduled cardiology practical at Lochot\u00edn, entrance B. Get the attendance list signed there and hand it to your internal-medicine teacher the following week. Blocked until you have passed the winter Introduction to Internal Medicine II exam.",
-    cmd:"/study-first-pass Internal medicine — " },
+    creditRule:"Attendance at 10 practicals, one of which is a separately scheduled cardiology practical at Lochot\u00edn, entrance B. Get the attendance list signed there and hand it to your internal-medicine teacher the following week. Blocked until you have passed the winter Introduction to Internal Medicine II exam." },
   { id:"psu", key:"PSU", sis:"EAP0103400", title:"Propedeutics of Surgery",
     creditRule:"An electronic test, 75% to pass, three attempts.",
     short:"Surgery propedeutics", dept:"14-400", ects:3, color:"#3577C2", sem:"summer",
-    completion:{ summer:"credit" }, examId:null,
-    cmd:"/study-first-pass Surgical propaedeutics — " },
+    completion:{ summer:"credit" }, examId:null },
   { id:"nbs", key:"NBS", sis:"EAP0103091", title:"Neurobehavioral sciences",
     creditRule:"Seminar attendance, at most three excused absences, plus a credit test.",
     short:"Neurobehavioral", dept:"14-90", ects:4, color:"#4E6E81", sem:"summer",
-    completion:{ summer:"credit" }, examId:null, practical:true,
-    cmd:"/study-first-pass Neurobehavioral sciences — " },
+    completion:{ summer:"credit" }, examId:null },
   { id:"sim", key:"SIM", sis:"EAP0103430", title:"Simulation Medicine",
     creditRule:"In each semester: 100% attendance, including any substitute sessions — a class that falls on a public holiday counts as completed. And the Moodle theory and its assignments done before every class: this is checked at the start and is a condition for being let in. Arrive no later than five minutes after the start. If you cannot come, arrange a substitute session on the same topic with the secretary, Mgr. Jana Hrabová, and join another group only once she has confirmed it — otherwise the instructor may turn you away. Extra substitute sessions for the winter semester run in the week of 11–15 January 2027; times to be announced. From the course coordinator’s e-mail of 1 October 2026.",
     short:"Simulation", dept:"14-430", ects:3, color:"#5E7155", sem:"both",
-    completion:{ winter:"credit", summer:"credit" }, examId:null, practical:true,
-    cmd:"/study-first-pass Simulation medicine — " },
+    completion:{ winter:"credit", summer:"credit" }, examId:null },
   { id:"rad", key:"RAD", sis:"EAP0103440", title:"Radiological Anatomy",
     creditRule:"A timed Moodle test needing 23 of 25 points. Miss it and you are examined in person instead.",
     short:"Radiological anatomy", dept:"14-440", ects:1, color:"#A67C00", sem:"summer",
-    completion:{ summer:"credit" }, examId:null, practical:true,
-    cmd:"/study-first-pass Radiological anatomy — " },
+    completion:{ summer:"credit" }, examId:null },
   { id:"cze", key:"CZE", sis:"EAP0103050", title:"Czech for Medical Practice in Hospital",
     creditRule:"Attendance with two absences allowed, then a credit test: 70%, three attempts, in both semesters.",
     short:"Medical Czech", dept:"14-50", ects:1, color:"#185FA5", sem:"both",
-    completion:{ winter:"credit", summer:"credit" }, examId:null, practical:true,
-    cmd:"/study-first-pass Medical Czech — " },
+    completion:{ winter:"credit", summer:"credit" }, examId:null },
 ];
 
 /* Five graded exams. Everything else is a credit, signed off in the last week of teaching. */
@@ -570,6 +619,24 @@ const EXAMS = [
   { id:"pat-s", subject:"pat", period:"summer", label:"Pathology — final exam", place:"Šikl's Dept. of Pathology", big:true },
   { id:"mpe-s", subject:"mpe", period:"summer", label:"Medical Psychology and Ethics — exam", place:"Dept. of Psychology" },
 ];
+
+/* Dated coursework that is yours rather than the whole class's — a seminar you present, an essay
+   you hand in. EXAMS and CREDIT_DUE hold the dates everyone shares; these sit beside them on
+   Today's countdown, on the Timeline and on the subject's card. `confirm` says what is not yet
+   certain and is shown wherever the date is; when in doubt the EARLIER date goes in, because a
+   deadline met a week early costs nothing.
+   Psychology: the seminar sign-up sheet of 1 Oct 2026, group 5 — the seminar topic in the
+   "presentation" column, the essay slot in the handwritten "essay" column beside it. */
+const DEADLINES = [
+  { id:"mpe-pres", subject:"mpe", iso:"2026-10-29", time:"11:00", label:"Psychology presentation",
+    short:"with Silvia · the agitated or aggressive patient, the anxious patient",
+    detail:"With Silvia: “Communication with an agitated or aggressive patient. Anxious patient.” 15–25 minutes, then a discussion — an interactive scene rather than PowerPoint." },
+  { id:"mpe-essay", subject:"mpe", iso:"2026-11-11", time:"08:00", label:"Psychology essay due",
+    short:"with Silvia · e-mail it to Prof. Vevera and the seminar group",
+    detail:"About three pages with Silvia, on a topic of your own. E-mail it to Prof. Vevera and the rest of the seminar group by 08:00, then pitch it in two or three minutes at the seminar.",
+    confirm:"The sign-up sheet puts your essay at the 12 Nov seminar, but the department’s list moved that seminar to 19 Nov — if so, it is due Wed 18 Nov. The earlier date stands until that is settled." },
+];
+const DEADLINES_OF = {}; DEADLINES.forEach(function(x){ (DEADLINES_OF[x.subject]=DEADLINES_OF[x.subject]||[]).push(x); });
 
 /* ── the timetable ──────────────────────────────────────────────────────────
    Winter 2026/27, group 3.AVSEOB20-5, transcribed from Linas's SIS timetable on 2026-09-28.
@@ -611,6 +678,7 @@ const TIMETABLE = [
   { id:"cze-sem",  term:"winter", day:3, start:"13:30", end:"15:10", subject:"cze", kind:"seminar",   room:"USL4.21",      teacher:"Kopřivová Tamara, PhD",                  weeks:"all" },
   { id:"pha-prac", term:"winter", day:4, start:"08:00", end:"10:30", subject:"pha", kind:"practical", room:"U2.5",         teacher:"Dědečková Eva, PharmDr. Bc., Ph.D.",     weeks:"all" },
   { id:"mpe-sem",  term:"winter", day:4, start:"11:00", end:"12:40", subject:"mpe", kind:"seminar",   room:"PSY-SEM",      teacher:"Vevera Jan, prof. MUDr.",                weeks:"odd",
+    note:"From 15 Oct, each seminar: one group pitches its essay, another presents the day’s topic.",
     dates:["2026-10-01","2026-10-15","2026-10-29","2026-11-19","2026-11-26","2026-12-10","2027-01-07"] },
   { id:"pat-lec",  term:"winter", day:4, start:"13:10", end:"15:40", subject:"pat", kind:"lecture",   room:"P-HNĚDÁ",      teacher:"Skálová Alena, prof. MUDr., CSc.",       weeks:"all" },
   { id:"pat-prac", term:"winter", day:5, start:"08:00", end:"10:30", subject:"pat", kind:"practical", room:"U3.15",        teacher:"Daumová Magdaléna, MUDr., Ph.D.",        weeks:"all" },
@@ -637,7 +705,7 @@ const TIMETABLE_NOTES = {
   "2026-10-16": { "pat-prac":"01. Cell injury and cell death." },
   "2026-10-22": { "pat-lec":"Hemodynamic disorders: hemostasis, thrombosis, embolism, hemorrhage, hyperemia, congestion, edema, infarction, shock. — Bradová" },
   "2026-10-23": { "pat-prac":"02. Cellular adaptations." },
-  "2026-10-29": { "mpe-sem":"Communication with an agitated or aggressive patient. Anxious patient.",
+  "2026-10-29": { "mpe-sem":"You present today, with Silvia: Communication with an agitated or aggressive patient. Anxious patient.",
                   "pat-lec":"Genetic, environmental, nutritional and infectious etiology of diseases. — Pivovarčíková" },
   "2026-10-30": { "pat-prac":"03. Inflammation." },
   "2026-11-05": { "pat-lec":"Pathology of pregnancy, fetus and newborn. — Daumová" },
@@ -681,7 +749,7 @@ const ROOMS = {
   "P-MODRÁ":  "Blue lecture hall · UniMeC U2 (the older building), entrance level",
   "P4":       "FN Bory hospital, Dr. E. Beneše 13 · 2nd Int. Med. classroom, 1st floor, door 02.3417 — NOT on campus",
   "FN-2IK":   "FN Bory hospital, Dr. E. Beneše 13 · 2nd Dept. of Internal Medicine, on the wards — NOT on campus",
-  "PSY-SEM":  "Dept. of Psychiatry, FN Lochotín · seminar room, 1st floor",
+  "PSY-SEM":  "Dept. of Psychiatry, FN Lochotín, alej Svobody 80 · seminar room, 1st floor",
   "UPF-J":    "Pathophysiology classroom South · UniMeC U2, 2nd floor",
   "U2.5":     "Practical room 2.5 · UniMeC U1, 2nd floor",
   "U3.15":    "Pathology microscopy room 3.15 · UniMeC U1, 3rd floor",
@@ -753,7 +821,7 @@ const SOURCES = {
   "pfy-q":   { label:"Pathophysiology II — oral and practical question lists",
                edition:"2026/27", status:"current",
                where:"SIS · EAP0103090 · 135 oral across four groups, 18 practical",
-               note:"One of two courses with a verified 2026/27 file — the other is Introduction to Internal Medicine II. Uploaded 2 July 2026. Its text is identical to the 2025/26, 2024/25 and 2023/24 editions, so older notes keyed to these numbers still line up." },
+               note:"A verified 2026/27 file, as are Introduction to Internal Medicine II’s and — still pre-final — Pharmacology’s. Uploaded 2 July 2026. Its text is identical to the 2025/26, 2024/25 and 2023/24 editions, so older notes keyed to these numbers still line up." },
   "pat-q":   { label:"Pathology — the three exam-question lists",
                edition:"undated · uploaded Sept 2025", status:"current",
                where:"SIS · EAP0103500 · General 47, Special 108, Oncological 69",
@@ -804,7 +872,7 @@ const ARCHIVE = {
          where:"Lectures in the Biomed blue lecture hall, sometimes PRO first floor in the summer. Practicals Biomed, first floor.",
          absences:"The archive says one a semester; SIS now says two, excused by e-mail within a week.",
          warn:"A missed practical must be made up on the same topic, and all protocols must be handed in and accepted." },
-  pha: { where:"Lectures at UNIMEC 2. Practicals Biomed, ground floor.",
+  pha: { where:"The archive says lectures at UNIMEC 2 and practicals in Biomed, ground floor — out of date. This year the lectures are in the Brown lecture hall and the practicals in room 2.5, both in today’s U1.",
          absences:"One, sometimes at the teacher’s discretion." },
   sim: { where:"The archive says “UNIMEC 2, sixth floor” — that was the 2022 building’s old name. It is today’s U1, Simulation Centre on floors 5–6; your briefing room is 5.21a." },
 };
@@ -1567,14 +1635,22 @@ CURRICULUM.forEach(function(b){
     (CODES_OF[b.subject]=CODES_OF[b.subject]||[]).push(c);
   });
 });
-/* Hours per topic, derived rather than typed. See HOURS_PER_ECTS above. */
-const HRS_OF = {};
+/* Hours per topic, from its size. See SIZE_HOURS above. */
+const HRS_OF = {}, SIZE_OF = {};
+CURRICULUM.forEach(function(b){
+  const h=SIZE_HOURS[b.subject];
+  if(!h) console.warn("SIZE_HOURS: no hours for subject", b.subject);
+  b.topics.forEach(function(t){
+    const z=TOPIC_SIZE[t[0]] || BLOCK_SIZE[b.key] || "M";
+    SIZE_OF[t[0]]=z; HRS_OF[t[0]]=h ? h[z] : 1;
+  });
+});
+Object.keys(TOPIC_SIZE).forEach(function(c){ if(CODE_TITLE[c]===undefined) console.warn("TOPIC_SIZE: no such topic", c); });
+/* The range shown on a subject's card, e.g. "1.5–3.5 h each". */
 SUBJECTS.forEach(function(s){
-  const codes = CODES_OF[s.id]||[];
-  const self  = (s.examEcts||s.ects) * HOURS_PER_ECTS * (s.practical?PRACTICAL_SHARE:SELF_STUDY_SHARE);
-  const per   = codes.length ? Math.round((self/codes.length)*4)/4 : 1;   // to the nearest 15 min
-  s.hrsPerTopic = Math.max(0.25, per);
-  codes.forEach(function(c){ HRS_OF[c]=s.hrsPerTopic; });
+  const hs=(CODES_OF[s.id]||[]).map(function(c){ return HRS_OF[c]; });
+  const lo=Math.min.apply(null,hs), hi=Math.max.apply(null,hs);
+  s.hrsRange = !hs.length ? "" : lo===hi ? String(lo) : lo+"–"+hi;
 });
 const COLOR_OF = function(code){ const s=SUBJECT[SUBJECT_OF[code]]; return s?s.color:UI.accent; };
 const ALL_CODES = CURRICULUM.reduce(function(a,b){ return a.concat(b.topics.map(function(t){return t[0];})); },[]);
@@ -1666,7 +1742,10 @@ function TIMELINE(data){
     .map(function(e){ const w=examWhen(e,data); const s=SUBJECT[e.subject];
       return { kind:"exam", iso:w.iso, label:e.label, big:!!e.big, color:s?s.color:UI.accent,
                detail:fmtLong(w.iso)+(w.time?" · "+w.time:"")+" · "+w.place+" · booked" }; });
-  return base.concat(booked).sort(function(a,b){ return a.iso<b.iso?-1:a.iso>b.iso?1:0; });
+  const mine=DEADLINES.map(function(x){ const s=SUBJECT[x.subject];
+    return { kind:"note", iso:x.iso, label:x.label, color:s?s.color:UI.accent,
+             detail:fmtLong(x.iso)+" · "+x.time+" · "+x.short+(x.confirm?" · date to confirm":"") }; });
+  return base.concat(booked, mine).sort(function(a,b){ return a.iso<b.iso?-1:a.iso>b.iso?1:0; });
 }
 
 /* ── helpers ────────────────────────────────────────────────────────── */
@@ -1782,12 +1861,15 @@ function blockQueue(b, data){
   return b.topics.map(function(t){ return t[0]; }).filter(function(c){ return tierOf(c,data)==="todo"; });
 }
 /* Everything the scheduler needs about one block, in deadline order. Blocks whose deadline has
-   already passed are dropped: nothing is gained by scheduling a credit you have missed. */
+   already passed are dropped: nothing is gained by scheduling a credit you have missed.
+   A block whose topics are all done STAYS: its hours still count towards how far along its
+   subject is (`total`, every topic not skipped), which is what fillDay's shares are measured in. */
 function liveBlocks(data, today){
   return CURRICULUM.map(function(b){
-      return { b:b, key:b.key, subject:b.subject, open:blockOpen(b), due:blockDeadline(b,data) };
+      const total=b.topics.reduce(function(a,t){ return tierOf(t[0],data)==="skip" ? a : a+HRS_OF[t[0]]; }, 0);
+      return { b:b, key:b.key, subject:b.subject, open:blockOpen(b), due:blockDeadline(b,data), total:total };
     })
-    .filter(function(x){ return x.due >= today && blockQueue(x.b,data).length; })
+    .filter(function(x){ return x.due >= today && x.total>0; })
     .sort(function(a,b){ return a.due<b.due ? -1 : a.due>b.due ? 1 : (a.key<b.key?-1:1); });
 }
 function coverageOf(id, data){
@@ -1831,52 +1913,91 @@ function dueForReview(data, today, live){
   }).sort(function(a,b){ return doneAt[a]<doneAt[b] ? -1 : doneAt[a]>doneAt[b] ? 1 : 0; });
 }
 
-/* Round-robin, not block-by-block. Filling each day from one subject's queue would leave
-   Pharmacology untouched until January; touching two to four subjects a day is what a real
-   teaching week looks like anyway. Urgency decides who goes first each day.
+/* Every subject moves, every week. Filling each day from one subject's queue would leave
+   Pharmacology untouched until January.
 
    A second reason, from the pharmacology practical teacher on 1 October 2026: do not park
    pharmacology while you study pathophysiology. Every year the students who go
    pathophysiology-first get late pharmacology exam dates, and can end up with neither exam
-   passed. Her advice is to read pharmacology alongside — which is what this already does.
+   passed. Her advice is to read pharmacology alongside — which is what this does.
 
-   A topic can cost more than a whole day — Pharmacology works out at nearly four hours a topic
+   SHARES, NOT A QUEUE (2 Oct 2026). Linas wants "pathophysio, then pharma and then the rest".
+   With topics of 1.5–3.5 h a three-hour day holds one or two, so a plain order would mean
+   pathophysiology every day and pharmacology never — exactly what the teacher warned against.
+   Instead each topic placed goes to the GROUP (STUDY_PRIORITY: pathophysiology, pharmacology,
+   then everything else as one group) that is least far along its own list once divided by its
+   weight. "Far along" is the share of the group's hours already done, over the blocks being
+   taught that day. So a group with more work gets more days, a weight of 1.3 keeps
+   pathophysiology about 30% further along than the rest, and a group that falls behind its share
+   is the next one chosen: nothing is ever parked. At the start every group is at zero and the tie
+   goes in priority order.
+   Inside the rest, the subject furthest BEHIND AN EVEN PACE goes first: the share of its study
+   time already gone (from the day its blocks open to their deadline) minus the share of its
+   hours already done. So Introduction to Internal Medicine, examined in January, moves faster
+   than Medical Psychology, examined in June, and a small course still gets its turn — ranking by
+   hours left let the big ones win every day, and Simulation Medicine, whose classes need Moodle
+   preparation, was never once put on a day. Inside a subject, the block with most hours left goes
+   first, which keeps its blocks moving together.
+   Measuring by subject and group rather than by block matters: when blocks were ranked one by
+   one, a subject cut into more blocks won more slots — Pharmacology's two Special blocks pushed
+   Pathophysiology off the plan until late October.
+
+   A topic can cost more than a whole day — Pharmacology and Pathophysiology's largest are 3.5 h
    against a three-hour teaching day. Capping its cost at the day's budget is what stops such a
    topic from being unschedulable forever: it simply takes the day. Without the cap those
    subjects sat in overflow from October to January and were never once put on a day. */
-/* Ordering by raw deadline starved the big courses: the two blocks due first ate every day's
-   budget and Pathophysiology — the largest winter exam — went untouched for weeks. Pressure is
-   self-correcting instead. A block that gets ahead drops down the order, another rises, and you
-   end up touching two to four courses a day, which is what a real teaching week looks like. */
-function pressureOf(x, queue, date){
-  const q=queue[x.key]; if(!q.length) return -1;
-  if(date < x.open || date > x.due) return -1;
-  let need=0; for(let i=0;i<q.length;i++) need+=HRS_OF[q[i]];
-  return need / Math.max(1, budgetBetween(date, x.due));
-}
+const GROUP_W = { rest:1 }; STUDY_PRIORITY.forEach(function(g){ GROUP_W[g.id]=g.weight; });
+const GROUP_ORDER = STUDY_PRIORITY.map(function(g){ return g.id; }).concat(["rest"]);
+function groupOf(subject){ return GROUP_W[subject]!==undefined && subject!=="rest" ? subject : "rest"; }
+
 function fillDay(date, blocks, queue){
   const budget=budgetFor(date); let left=budget; const items=[];
-  /* The order has to be TOTAL — pressure, then deadline, then key. Today's list and the week's
-     table are both built by running this from different starting points and are expected to
-     agree; a comparator that leaves two blocks tied lets the sort decide, and then they need not. */
-  const order=blocks.map(function(x){ return { x:x, p:pressureOf(x,queue,date) }; })
-    .filter(function(o){ return o.p>=0; })
-    .sort(function(a,b){ return b.p-a.p || (a.x.due<b.x.due?-1:a.x.due>b.x.due?1:(a.x.key<b.x.key?-1:a.x.key>b.x.key?1:0)); })
-    .map(function(o){ return o.x; });
-  let placed=true;
-  while(placed && left>0.01){
-    placed=false;
-    for(let i=0;i<order.length;i++){
-      const x=order[i];
-      if(date < x.open || date > x.due) continue;   // not yet taught, or its deadline has passed
-      const c=queue[x.key][0]; if(!c) continue;
-      const cost=Math.min(HRS_OF[c], budget);
-      if(cost > left + 0.001) continue;
-      queue[x.key].shift(); items.push({ code:c, subject:x.subject, hrs:HRS_OF[c] });
-      left -= cost; placed=true;
-    }
+  // the blocks being taught today and not yet due, and the hours still queued in each
+  const open=blocks.filter(function(x){ return date >= x.open && date <= x.due; });
+  const rem={}, gone={};
+  open.forEach(function(x){
+    let h=0; const q=queue[x.key]; for(let i=0;i<q.length;i++) h+=HRS_OF[q[i]];
+    rem[x.key]=h;
+    const span=budgetBetween(x.open, x.due);   // the block's whole study time, and the share of it already past
+    gone[x.key]=span>0 ? budgetBetween(x.open, addDays(date,-1))/span : 1;
+  });
+  const opened=open.filter(function(x){ return queue[x.key].length; }).length;
+  const fits=function(x){ const c=queue[x.key][0]; return !!c && Math.min(HRS_OF[c],budget) <= left+0.001; };
+  /* Every comparison below ends on a fixed order — group order, deadline, subject, key. Today's
+     list and the week's table are built by running this from different starting points and are
+     expected to agree; a tie left to the sort would let them differ. */
+  while(left > 0.01){
+    const g={};
+    open.forEach(function(x){
+      const k=groupOf(x.subject), e=g[k]||(g[k]={ total:0, rem:0, any:false });
+      e.total+=x.total; e.rem+=rem[x.key]; if(fits(x)) e.any=true;
+    });
+    let best=null, bestScore=0;
+    GROUP_ORDER.forEach(function(k){
+      const e=g[k]; if(!e || !e.any) return;
+      const score=(e.total>0 ? (e.total-e.rem)/e.total : 1) / GROUP_W[k];
+      if(best===null || score < bestScore-1e-9){ best=k; bestScore=score; }
+    });
+    if(best===null) break;
+    // within the group: the subject furthest behind an even pace …
+    const subj={};
+    open.forEach(function(x){
+      if(groupOf(x.subject)!==best) return;
+      const e=subj[x.subject]||(subj[x.subject]={ id:x.subject, total:0, rem:0, due:x.due, target:0, fit:false });
+      e.total+=x.total; e.rem+=rem[x.key]; e.target+=x.total*gone[x.key];
+      if(x.due<e.due) e.due=x.due; if(fits(x)) e.fit=true;
+    });
+    const behind=function(e){ return (e.target-(e.total-e.rem))/e.total; };
+    const s=Object.keys(subj).map(function(k){ return subj[k]; }).filter(function(e){ return e.fit; })
+      .sort(function(a,b){ return behind(b)-behind(a) || (a.due<b.due?-1:a.due>b.due?1:(a.id<b.id?-1:a.id>b.id?1:0)); })[0];
+    // … then its block with most hours left
+    const x=open.filter(function(y){ return y.subject===s.id && fits(y); })
+      .sort(function(a,b){ return rem[b.key]-rem[a.key] || (a.key<b.key?-1:a.key>b.key?1:0); })[0];
+    const c=queue[x.key].shift();
+    items.push({ code:c, subject:x.subject, hrs:HRS_OF[c] });
+    left -= Math.min(HRS_OF[c], budget); rem[x.key] -= HRS_OF[c];
   }
-  return { items, left, budget, open:order.length };
+  return { items, left, budget, open:opened };
 }
 
 /* What actually does not fit, established by simulating the whole remaining year rather than by
@@ -2012,8 +2133,8 @@ function weekPlan(data, today){
            subjects: SUBJECTS.filter(function(s){ return cells[s.id]; }) };
 }
 
-/* The next thing with a date on it — a booked exam, an exam period opening, or a credit
-   deadline. Countdown and the Subjects tab both read this. */
+/* The next thing with a date on it — a booked exam, an exam period opening, a credit deadline,
+   or one of your own (DEADLINES). Countdown and the Subjects tab both read this. */
 function nextMilestone(data, today){
   const out=[];
   EXAMS.forEach(function(e){
@@ -2026,6 +2147,10 @@ function nextMilestone(data, today){
              detail:"All winter credits signed · "+fmtLong(CREDIT_DUE.winter) });
   out.push({ iso:CREDIT_DUE.summer, label:"Summer credits due", sub:null, booked:true,
              detail:"All summer credits signed · "+fmtLong(CREDIT_DUE.summer) });
+  DEADLINES.forEach(function(x){
+    out.push({ iso:x.iso, label:x.label, sub:SUBJECT[x.subject], booked:true,
+               detail:fmtLong(x.iso)+" · "+x.time+" · "+x.short+(x.confirm?" · date to confirm":"") });
+  });
   const future=out.filter(function(x){ return x.iso>=today; }).sort(function(a,b){ return a.iso<b.iso?-1:1; });
   return future[0]||null;
 }
@@ -2202,33 +2327,17 @@ function CompletionBadge({kind, color}){
 function TopicCard({code, done, onToggle, tier}){
   const title=CODE_TITLE[code]||code;
   const s=SUBJECT[SUBJECT_OF[code]];
-  const [open,setOpen]=useState(false); const [copied,setCopied]=useState("");
   if(!s) return null;
-  const cmd=(s.cmd||"/study-first-pass ")+title;
-  const ping=(w)=>{ setCopied(w); setTimeout(()=>setCopied(""),1600); };
   return (
     <div style={{border:`0.5px solid ${done?s.color+"55":"var(--line)"}`,borderRadius:"var(--r-lg)",background:done?s.color+"0c":"var(--card)",marginBottom:9}}>
       <div style={{display:"flex",alignItems:"center",gap:11,padding:"12px 14px"}}>
         <input type="checkbox" className="cb" style={{"--ck":s.color}} checked={done} onChange={onToggle} aria-label={"Mark "+title+" done"}/>
         <CodeChip code={code}/>
-        <button onClick={()=>setOpen(o=>!o)} style={{flex:1,minWidth:0,textAlign:"left",background:"none",border:0,padding:0,opacity:done?.55:1}}>
+        <div style={{flex:1,minWidth:0,opacity:done?.55:1}}>
           <div style={{fontSize:14,color:"var(--ink)",display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>{title}<TierBadge tier={tier||"todo"} hrs={HRS_OF[code]}/></div>
           <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2}}>{s.short} · {BLOCK_OF[code]}</div>
-        </button>
-        <button className="iconbtn" onClick={()=>setOpen(o=>!o)} aria-label="Toggle detail"><i className={"fa-solid fa-chevron-"+(open?"up":"down")} style={{fontSize:12}} aria-hidden="true"/></button>
-      </div>
-      {open && (
-        <div style={{padding:"0 14px 14px"}}>
-          <hr className="rule" style={{marginBottom:12}}/>
-          <div style={{fontFamily:"var(--mono)",fontSize:12,color:s.color,background:"var(--paper-2)",borderRadius:"var(--r-md)",padding:"8px 11px",wordBreak:"break-word"}}>{cmd}</div>
-          <div style={{display:"flex",flexWrap:"wrap",gap:8,alignItems:"center",marginTop:12}}>
-            <a className="ln-btn" href={PROJECT_STUDY} target="_blank" rel="noopener noreferrer" onClick={()=>{copyText(cmd);ping("g");}}><i className="fa-solid fa-feather" aria-hidden="true"/> New guide <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/></a>
-            <a className="ln-btn" href={PROJECT_STUDY} target="_blank" rel="noopener noreferrer" onClick={()=>{copyText("/discussion topics — "+title);ping("d");}}><i className="fa-solid fa-comments" aria-hidden="true"/> Discuss <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/></a>
-            {copied==="g" && <span className="copied">guide command copied — paste it in the project</span>}
-            {copied==="d" && <span className="copied">/discussion topics copied — paste &amp; add your objectives</span>}
-          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -2908,8 +3017,9 @@ function PlanView({data, A}){
       <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 6px"}}>
         Days are filled to a budget that follows the academic calendar — {phaseById("wteach").hrs} h on a
         teaching day, {phaseById("wteach").hrs+WEEKEND_BONUS} h at the weekend, {phaseById("wexam").hrs} h inside an
-        exam period. Topic length is derived from credits, not guessed: {HOURS_PER_ECTS} h per
-        credit at {Math.round(SELF_STUDY_SHARE*100)}% self-study, split across that course’s topics.
+        exam period. Each topic has an estimated length — small, medium or large, with hours per
+        size for each course — and pathophysiology gets the largest share of the time, then
+        pharmacology, then the rest.
       </p>
       <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px"}}>
         You have ticked <strong>{cov.done} of {cov.total}</strong> topics across the year.
@@ -3071,7 +3181,8 @@ function FreshnessPanel(){
           <p style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.55,margin:"0 0 10px"}}>
             The 2026/27 curricula are not all published yet — several departments post the new
             edition only once teaching starts. Everything here is the most recent list that
-            exists, which is not always the current one. Check this panel again in October.
+            exists, which is not always the current one. Check this panel again whenever a
+            department announces a new list.
           </p>
           {rows.map(function(r){
             const t=SRC_STATUS[r.status]||SRC_STATUS.recent;
@@ -3204,9 +3315,16 @@ function SubjectCard({s, data, A, today, over}){
               : <>{w.periodLabel} · {fmtShort(w.from)} – {fmtShort(w.to)} · <span style={{color:"var(--warn)"}}>date not booked</span></>)
           : <>Credit due {fmtLong(due)} — no exam</>}
       </div>
+      {(DEADLINES_OF[s.id]||[]).filter(function(x){ return x.iso>=today; }).map(function(x){ return (
+        <div key={x.id} style={{marginTop:7,padding:"7px 10px",borderLeft:"2px solid "+s.color,background:s.color+"0c",borderRadius:"0 var(--r-md) var(--r-md) 0"}}>
+          <div style={{fontSize:12.5,color:"var(--ink)"}}>{x.label} · {fmtDay(x.iso)}, {x.time} <span style={{color:"var(--ink-3)"}}>· {countLabel(daysUntil(x.iso))}</span></div>
+          <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2,lineHeight:1.45}}>{x.detail}</div>
+          {x.confirm && <div style={{fontSize:11.5,color:"var(--warn)",marginTop:2,lineHeight:1.45}}>{x.confirm}</div>}
+        </div>
+      ); })}
       {cov.total>0 && pace.remaining>0 && (
         <div style={{fontSize:12,color:behind?"var(--warn)":"var(--ink-3)",marginTop:3}}>
-          {pace.remaining} topic{pace.remaining>1?"s":""} left · about {pace.perWeek} a week to be ready · ~{s.hrsPerTopic} h each
+          {pace.remaining} topic{pace.remaining>1?"s":""} left · about {pace.perWeek} a week to be ready · {s.hrsRange} h each
         </div>
       )}
       {cov.total===0 && <div style={{fontSize:12,color:"var(--ink-3)",marginTop:3}}>No topic list captured yet.</div>}

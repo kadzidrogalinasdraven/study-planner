@@ -1834,6 +1834,19 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   the body of its `page.evaluate`.
 - 2026-10-02 · Still worth knowing: `EXAMS.mpe-s.place` says "Dept. of Psychology", but every
   document this year comes from the **Dept. of Psychiatry**. Unverified, so unchanged.
+- 2026-10-02 · **Deployed as `a964832`.** Live `index.html` byte-identical to the commit at 17:18.
+  Checked on the live origin in the built-in pane (clean profile): 678 topics, 1,312.5 h, Today's
+  countdown "Psychology presentation · 27 days", Today's list one 2.5 h Pathophysiology topic,
+  overflow 548 h, no "New guide"/"Discuss" buttons, both psychology deadlines, no console errors.
+  **This log entry is committed on `test` only, not pushed** — he asked for fewer deploys, so it
+  goes out with the next real change.
+- 2026-10-02 · **Open, for him:** (1) Netlify: Stop builds or delete the site — his account, his
+  clicks; until then every push is also built there (free plan, so it cannot be billed). (2) The
+  four "Ask:" events answer themselves at the practicals: 5A/5B (Tue 6 Oct), the final
+  pharmacology list and credit rules (Thu 8 Oct), the Pathophysiology practical programme (Mon
+  5 Oct), the essay date and the textbook (Thu 15 Oct). Put each answer into the planner.
+  (3) Whether the hour estimates feel right after a week of real study — the lever is
+  `SIZE_HOURS`. (4) The 548 h overflow: his daily budget, late exam dates, or skips.
 
 ---
 

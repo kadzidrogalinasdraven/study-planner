@@ -34,7 +34,7 @@ const ROOT = path.resolve(TOOLS, "..");
 const args = process.argv.slice(2);
 const AUTO = args.includes("--auto");
 const BASE = args.includes("--base") ? args[args.indexOf("--base") + 1] : "origin/main";
-const AUTO_FILES = ["index.html", "tools/state/sources.json", "docs/planner-updates.md"];
+const AUTO_FILES = ["index.html", "tools/state/sources.json", "tools/state/recordings-read.json", "docs/planner-updates.md"];
 const TABS = ["Today", "Plan", "Classes", "Subjects", "Progress", "Goals", "Timeline", "Productivity"];
 
 const problems = [];

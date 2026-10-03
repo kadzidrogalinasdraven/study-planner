@@ -1,12 +1,9 @@
 # The planner check — rulebook for the automatic runs
 
 Linas asked on 3 Oct 2026 for a planner that keeps itself up to date ("I never want outdated
-information"). Two automatic runs follow this file, and nothing else:
-
-| Run | Where | When | Reads |
-| --- | --- | --- | --- |
-| **Planner check** | cloud routine "morning briefing" | 04:30 and 16:30 UTC (06:30 / 18:30 Prague in summer time, an hour earlier in winter) | Gmail, SIS, the planner |
-| **Class recordings** | scheduled task on his Mac | 20:30 local, when the Mac is awake | his marked Wispr Flow recordings |
+information"). One automatic run follows this file: the **planner check**, a cloud routine that
+fires at 04:30 and 16:30 UTC (06:30 and 18:30 in Prague in summer time, an hour earlier in winter)
+and reads Gmail, SIS, his marked Wispr Flow recordings and the planner itself. It needs no Mac.
 
 He chose the scope himself: **official facts are applied automatically; everything else waits for
 his OK.** This file is public — never write anything private into it.
@@ -34,6 +31,7 @@ first live run), and write in the briefing "Would change: …". From that date o
    - **SIS and department pages:** `python3 tools/watch_sources.py`. Exit 0 no change, 3 changed
      (the report says what), 2 unreachable — in the cloud that means the network allowlist lacks
      `is.cuni.cz` / `lfp.cuni.cz`; say so in the briefing and carry on.
+   - **Class recordings** he has marked: §5.
    - **What the planner says now** about the next 14 days: grep `index.html` for `TIMETABLE`,
      `TIMETABLE_CANCELLED`, `TIMETABLE_NOTES`, `DEADLINES`, `EXAMS`. Never read the whole file.
 3. **Sort every finding** into one of: apply (§2), ask (§3), calendar only, ignore. Before
@@ -89,40 +87,39 @@ says the same. If a PR cannot be created, list the question in the briefing inst
 
 - Never touch `physio_flashcards*.html` or `make_silvia_copy.py`; never touch `CLAUDE.md`,
   `README.md` or this file — the gate refuses any file outside `index.html`,
-  `tools/state/sources.json` and `docs/planner-updates.md`.
+  `tools/state/sources.json`, `tools/state/recordings-read.json` and `docs/planner-updates.md`.
 - **The repo is public.** Never write classmates' names, anyone's private phone number or e-mail,
   a Moodle enrolment key, a password, or anything about his health or private life — not in the
   code, not in a commit message, not in a pull request. Staff already named in `TIMETABLE` may be
   named. The briefing card is in his private calendar and may say more.
 - Never send, reply to, forward, delete, archive or mark read any e-mail. Labels only.
+- Never open a recording whose title carries no marker (§5).
 - Never delete a Calendar event. Never edit a class series' own rule: find an instance by listing
   that day's events, never by building its id — the fortnightly series consist of moved instances
   whose ids still carry their original dates.
 
-## 5. Class recordings (the Mac task)
+## 5. Class recordings
 
-`python3 ~/.claude/projects/-Users-linas-Projects-study-planner/automation/recordings.py new` lists
-the recordings he has marked ("Pharma introduction 01.10.26", "… information …") that have not been
-read; nothing else in the Wispr Flow database is ever opened. Read the summary; open the transcript
-(`recordings.py transcript <id>`) only when the summary points at something planner-relevant and is
-vague about it. Then `recordings.py mark <id> "<what was taken>"` — every recording is read once.
+He marks the recordings worth reading with a word in the title — "Pharma introduction 01.10.26",
+"… information …" (his words, 3 Oct 2026). Through the Wispr Flow connector, `search_meetings` with
+`field: "title"` and `since` seven days ago, once for each of `introduction`, `intro`,
+`information`, `info`, `announcement`, `organisation`, `organization`. **Never list or search
+recordings any other way:** the unmarked ones are private and are never opened.
+
+Skip every id already in `tools/state/recordings-read.json`. For a new one, read the summary
+(`get_meeting` without a transcript); ask for the transcript only when the summary points at
+something planner-relevant and is vague about it. Then add its id and today's date to that file —
+ids only, never titles or content, because the file is public. Every recording is read once.
 
 Speech-to-text mishears numbers. So from a recording alone: notes, tasks and announced tests with a
 clearly stated date are applied, written as "(from your recording of <class>, <date>)"; a **changed**
 date, time or room is a question unless an official e-mail or SIS says the same.
 
-The Mac task works in its own checkout, `~/Projects/study-planner-auto`, never in the folder he
-works in. It is a worktree kept DETACHED at `origin/main` — a worktree that checked out `main`
-itself would stop him from checking out `main` in his own folder. So: `git fetch origin && git
-checkout --detach origin/main`, commit, gate, then `git push origin HEAD:main`. If the folder is
-missing: `git -C ~/Projects/study-planner worktree add --detach ../study-planner-auto origin/main`
-and `npm ci --prefix tools` inside it.
-
 ## 6. The briefing card
 
 One all-day event per day in his primary calendar, titled `📋 Daily Briefing — YYYY-MM-DD`; the
-planner shows it at the top of Today. The morning run creates it; the evening run and the Mac task
-add a section to the same event instead of creating another. Plain lines, most important first:
+planner shows it at the top of Today. The morning run creates it; the evening run adds a section to the
+same event instead of creating another. Plain lines, most important first:
 
 ```
 Morning check 06:31 · Gmail 4 new · SIS no change · planner 1 change

@@ -1,0 +1,13 @@
+{
+  "name": "planner-tools",
+  "private": true,
+  "description": "Test-only tooling for the planner's publishing gate (tools/check.mjs). Never loaded by the app.",
+  "type": "module",
+  "scripts": { "check": "node check.mjs" },
+  "devDependencies": {
+    "@babel/standalone": "7.23.5",
+    "jsdom": "^26.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}

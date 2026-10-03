@@ -1,0 +1,620 @@
+{
+ "file:pfy-syllabus-2026-27": {
+  "bytes": 254990,
+  "sha256": "0b24b6d914d0a4807bc6bef70ce1dcf656077974f2ce16e738ec49fb9586027b",
+  "url": "https://lfp.cuni.cz/wp-content/uploads/2025/09/Syllabus-of-Pathological-Physiology-II-2026_27.pdf"
+ },
+ "sis:EAP0103050": {
+  "fields": {
+   "E-Credits": "1",
+   "Examination process": "winter s.:",
+   "Guarantor": "Mgr. Alena Holá\nPhDr. Tamara Kopřivová",
+   "Hours per week, examination": "winter s.:0/2, C [HT]\nsummer s.:0/2, C [HT]",
+   "Interchangeability": "EAV050X09 , EA0306002",
+   "Semester": "winter",
+   "State of the course": "taught"
+  },
+  "files": {
+   "358528": {
+    "added_by": "Dagmar Clareová, BA",
+    "comment": "EAP0103050 Learning outcomes",
+    "name": "EAP0103050 Czech for Medical Practice in Hospital 2026-2027 EN.pdf"
+   }
+  },
+  "sections": {
+   "Annotation": {
+    "lang": "ENG",
+    "text": "Czech for Medical Practice in Hospital\nThe course is aimed at using medical Czech in hospital. It helps students with communication with patients in hospital. Students deepen their knowledge from the subject Medical Terminology II - Czech, the emphasis is put on patient’s examination, taking personal and family history, taking past medical history (diseases,injuries, surgeries); understanding patient’s complaints, giving instructions and advice. Students are also encouraged to discuss the problems they meet in their practice in hospital (patient: misunderstanding, pronunciation problems, vocabulary..). The method of role play is often used for practising communication skills.",
+    "updated": "Duchková Barbora (11.09.2023)"
+   },
+   "Course assessment methods and requirements for successful completion, grading scheme": {
+    "lang": "ENG",
+    "text": "active participation, 2 absences allowed, credit test",
+    "updated": "Kopřivová Tamara, PhDr. (26.09.2024)"
+   },
+   "Course completion requirements": {
+    "lang": "ENG",
+    "text": "Winter term ─ credit: attendance (2 absences allowed), credit test (70% and higher)\nSummer term ─ credit: attendance (2 absences allowed), credit test (70% and higher)",
+    "updated": "Clareová Dagmar, BA (01.10.2026)"
+   },
+   "Learning outcomes": {
+    "lang": "ENG",
+    "text": "After completing the course , students will be able to:\n•    use instructions when examining a patient (imperative, modal verbs );\n•    ask patients questions and understand their answers ;\n•    use basic communication phrases to conduct a simple dialogue with the patient and keep\nthe patient on topic ;\n•    take the patient's cardiovascular , urological , gastroenterological , ENT, respiratory ,\ngynecological , neurological , and ophthalmological history (basic questions in a simple\nform );\n•    use compensatory strategies to prevent misunderstandings and achieve communication\ngoals ;\n•    respond to patients in a manner appropriate to the sociocultural context ;\n•    recognize and name basic medical tools and instruments , e xplain their purpose .\nNotes:\n•    The output level corresponds to level A2 according to the CEFR + language specifics for specific purposes ;\n•    the student is able to communicate using simple sentences and understands their communication partner if they also use simple sentences . If the communication partner uses more complex sentence structures , the student is able to pick up key words in order to understand basic factual information .\nDetailed learning outcomes: see above.",
+    "updated": "Clareová Dagmar, BA (01.10.2026)"
+   },
+   "Learning resources": {
+    "lang": "CZE",
+    "text": "Čeština on-line",
+    "updated": "Křikavová Lenka, Ing. (26.04.2021)"
+   },
+   "Literature": {
+    "lang": "ENG",
+    "text": "Obligatory literature: I. Čermáková: Talking medicine (Czech for Medical Students); Karolinum 2018\nTeacher’s own materials\nRecommended literature: I. Čermáková, T. Bakusová: Talking medicine 2 Case Studies in Czech; Karolinum 2021",
+    "updated": "Kopřivová Tamara, PhDr. (11.09.2026)"
+   },
+   "Syllabus": {
+    "lang": "ENG",
+    "text": "TOPICS:\nCardiology\nG astroenterology\nUrology and gynaecology\nPneumology and allergology\nNeurology\nOphthalmology\nENT\nInjuries (orthopaedics, surgery)\nADDITIONAL ACTIVITIES\nUseful phrases\nAn integral part of the Czech for Medical Practice in Hospital course is combining practical training in the Department of Internal Medicine with Czech classes. That is why we also work with the full medical histories of patients during the practical classes.\nGRAMMAR:\nGrammar is practised according to the students’ needs.",
+    "updated": "Clareová Dagmar, BA (01.10.2026)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103050&fak=11140&skr=2026"
+ },
+ "sis:EAP0103090": {
+  "fields": {
+   "E-Credits": "5",
+   "Examination process": "winter s.:",
+   "Guarantor": "prof. MUDr. Jan Cendelín, Ph.D.\nMUDr. Jan Barcal, Ph.D.\nMUDr. Karel Blahna, Ph.D.",
+   "Hours per week, examination": "winter s.:2/3, C+Ex [HT]",
+   "Interchangeability": "EA0106014",
+   "Note": "deregister from the credit exam date if a requisite was not fulfilled\nderegister from the exam date if a requisite was not fulfilled",
+   "Pre-requisite": "EAP0102070 , EAP0102080 , EAP0102090",
+   "Semester": "winter",
+   "State of the course": "taught"
+  },
+  "files": {
+   "332633": {
+    "added_by": "prof. MUDr. Jan Cendelín, Ph.D.",
+    "comment": "oral exam questions for general medicine 2025/2026",
+    "name": "Oral exam questions_general 2025_26.pdf"
+   },
+   "332634": {
+    "added_by": "prof. MUDr. Jan Cendelín, Ph.D.",
+    "comment": "practical exam questions for general medicine 2025/2026",
+    "name": "Practical exam questions_general 2025_26.pdf"
+   },
+   "354571": {
+    "added_by": "prof. MUDr. Jan Cendelín, Ph.D.",
+    "comment": "oral exam questions for general medicine 2026/2027",
+    "name": "Oral exam questions_general 2026_27.pdf"
+   },
+   "354572": {
+    "added_by": "prof. MUDr. Jan Cendelín, Ph.D.",
+    "comment": "practical exam questions for general medicine 2026/2027",
+    "name": "Practical exam questions_general 2026_27.pdf"
+   }
+  },
+  "sections": {
+   "Annotation": {
+    "lang": "ENG",
+    "text": "The subject of pathological physiology II follows on from the subject of pathological physiology I. Pathological physiology II includes in the all knowledge and skills that are the content of the subject of pathological physiology I. Pathological physiology II adds other areas of general and special pathophysiology. General pathophysiology deals with the general principles of origin, development and course of diseases and pathological conditions and pathological phenomena of a general nature. The subject of special pathophysiology is the etiology and pathogenesis of diseases and disorders of specific organs, organ systems and particular diseases. Practical skills related to basic medical procedures and their pathophysiological aspects in the context of theoretical knowledge are also taught. Prerequisites are knowledge from the fields to which pathological physiology follows, i.e. anatomy, histology, embryology, biology, genetics, chemistry and biochemistry, biophysics, physiology and microbiology. The subject includes practicing and extending knowledge and skills from the subject pathological physiology I and explaining them in the context of new knowledge and skills.",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (02.07.2026)"
+   },
+   "Course assessment methods and requirements for successful completion, grading scheme": {
+    "lang": "ENG",
+    "text": "The condition for registration for the exam is to obtain a credit in pathological physiology I and pathological physiology II, if not set differently for a specific term.\nThe student is obliged to register for the exam using SIS (other ways of registration will not be accepted) within the deadline specified in SIS for the given exam date. Registration is necessary for the regular term as well as for potential 1st re-examination or 2nd re-examination. The condition for registration for the exam is to obtain credit (if not specified differently for a particular exam date). For exam dates, the impossibility of registering if less than 5 days before this date the student’s regular or 1 st re-examination term was classified \"fail\" can be set. Some exam dates can be limited to regular examination, the 1 st re-examination or the 2 nd re-examination.\nThe required knowledge contains curriculum of both subjects pathological physiology I and pathological physiology II. Knowledge of other subjects to which pathological physiology follows is also necessary (see syllabus).\nThe required knowledge is based on the list of exam questions, detailed syllabi and goals of teaching of the subjects pathological physiology I and pathological physiology II available on the website of the Department of Pathological Physiology:\nhttps://lfp.cuni.cz/ustav-patologicke-fyziologie/\nThe exam consists of a practical exam and oral exam.\nPractical exam consists of 1 question and description, diagnosis and pathophysiological analysis of 3 ECG records. Failure in the practical exam means classification of the exam “fail”.\nOral exam consists of 4 questions. To pass the oral exam, the student must show sufficient knowledge in each of these 4 questions.\nFinal classification takes into consideration not only the performance in the oral exam but also the classification of the practical exam.\nPractical and oral exams constitute one complex and cannot be separated into two examination terms. In the case of classification of any part of the exam \"failed\", the student is subjected to both the practical and oral exam again in the 1st or 2nd reexamination.\nDuring preparation for the exam, from the moment the first exam question is given, or during the exam itself, students are not allowed to use or carry any electronic devices, including mobile phones, or text or other study materials and aids, except for tools and material provided by the teacher for the purposes of the practical exam. From the moment of giving the first question, during the subsequent preparation and during the exam itself, students are not allowed to leave the room. To prepare for the exam, the student has 30 minutes from the time the questions are given. During the preparation, the student can write notes only on paper and with a pencil, which are provided to the student by a staff member of the Department of Pathological Physiology. It is not allowed to carry any other paper or notepad.\nDue to capacity reasons, the exam can be divided into several days within the given exam date. Students are required to attend the appropriate stage of the exam according to the schedule or examiner's instructions.\nAn excuse from an exam can only be made for serious and demonstrable reasons. The excuse must be sent by e-mail to both the secretary and head of the Department of Pathological Physiology, Faculty of Medicine, Charles University in Pilsen, within the deadlines set by the study regulations. Include: \"Exam excuse\" in the subject of the message. Any other form of excuse will not be considered.",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (02.07.2026)"
+   },
+   "Course completion requirements": {
+    "lang": "ENG",
+    "text": "The subject pathological physiology II is completed with a credit and an exam. The required knowledge includes also the full content of the course pathological physiology I.\nConditions for the credit – pathological physiology II:\n1. Active attending practical exercises – 2 absences from serious reasons per semester are allowed.\nThe substitution of absences above this limit is possible only in the case of a proper excuse for missed practical exercises for serious and demonstrable reasons. The excuse must be sent by e-mail to both the main teacher of the subject for the given study group (see the department's website) and to the secretary of the Department of Pathological Physiology within 1 week of the missed practical exercise. In the case of substituting for several consecutive practical exercises missed for the same reason, the excuse must be sent within 1 week after the last of these absences. In the subject of the message, indicate: \"Excuse for classes\".\nFor the practical exercises, the student must be theoretically prepared for the topic of the given class and is obliged to acquaint himself with the guideline for the given experiment or task (see study literature). Prerequisites are knowledge from the fields to which the subject pathological physiology II follows, i.e. pathological physiology I, anatomy, histology, embryology, biology, genetics, chemistry and biochemistry, biophysics, physiology and microbiology. Students, who did not attend the class in time, will be not admitted to the class.\n2. Submitting of correctly elaborated protocols of all experiments and practical exercises to the teacher, who assesses their correctness and confirms them as fulfilled, or returns them for revision.\nStudents who are enrolled in the subject repeatedly must also fulfill the conditions for credit in full.",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (02.07.2026)"
+   },
+   "Course registration requirements": {
+    "lang": "ENG",
+    "text": "For the practical exercises, the student must be theoretically prepared for the topic of the given class and is obliged to acquaint himself with the guideline for the given experiment or task (see study literature). Students, who did not attend the class in time, will be not admitted to the class.\nPrerequisites are knowledge from the fields to which the subject pathological physiology follows, i.e. anatomy, histology, embryology, biology, genetics, chemistry and biochemistry, biophysics, physiology, microbiology, and pathological physiology I.",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (23.09.2024)"
+   },
+   "Learning outcomes": {
+    "lang": "ENG",
+    "text": "The subject pathological physiology II follows the subject pathological physiology I. The subject pathological physiology II includes in full extent knowledge and skills of the subject pathological physiology I.\nThe student knows the facts in the areas of general and special pathophysiology defined in the syllabus of the subjects pathological physiology I and II, he can present and logically organize them, recognize and evaluate their importance, present examples of described phenomena.\nThe student can define and explain terms and concepts listed in the syllabus of the subject, he can list, define and explain related terms.\nFor the diseases, pathological states, phenomena and processes listed in the syllabus, the student is able to enumerate and define related terms, describe and explain their causes, origin and risk factors, pathogenesis, manifestations, consequences, potential complications and pathophysiological aspects of basic therapeutic or preventive approaches.\nThe student can evaluate importance of etiological, risk and pathogenetic factors of diseases.\nThe student is oriented in the problems and can explain pathophysiological mechanisms of diseases, explain how and why the pathological processes proceed, can use the knowledge of general pathophysiological rules to understand and explain pathophysiology of particular organ systems and diseases and pathological states.\nThe student knows, understands and can explain relations between various parts of special pathophysiology. The student understands and can apply interrelations of individual organ systems under normal and pathological conditions.\nThe student has knowledge of subjects which pathophysiology follows up on, i.e. anatomy, histology, embryology, biology chemistry and biochemistry, biophysics, physiology, microbiology and pathological physiology I. The student can use this knowledge to understand pathophysiology and can find and explain their relations.\nThe student is able to search in the study literature and other sources for relevant information on the areas defined by exam questions and the syllabus of subjects pathological physiology I and II.\nThe student has practical skills in the range defined in the syllabus of the subject and can perform correctly given tasks.\nThe student practices and extends knowledge and skills in the topics of the subject pathological physiology I and puts them into the context of new knowledge.",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (23.09.2024)"
+   },
+   "Literature": {
+    "lang": "ENG",
+    "text": "Mandatory literature:\nSobotka et al.: Pathophysiology – Laboratory Exercises. 2013, Karolinum, 2013\nMcPhee, Hammer et al.: Pathophysiology of Disease: An Introduction to Clinical Medicine. The McGraw-Hill Companies, Inc., 6th Edition 2010 (or later issues)\nEducational materials of the Department of Pathophysiology published on educational portals of the Faculty of Medicine in Pilsen, Charles University or the webpage of the department or provided to students in printed or electronic form.\nRecommended literature:\nHueher et al.: Understanding Pathophysiology. Elsevier, 2017\nMcCance and Huether: Pathophysiology, the Biologic Basis for Disease in Adults and Children. Elsevier, 2019\nBanasik and Copstead: Pathophysiology. Elsevier, 2019\nHulín et al.: Pathophysiology. Slovak Academic Press, 1997 (or later issues)\nSilbernagl and Lang: Color Atlas of Pathophysiology. 3rd edition, Georg Thieme Verlag KG, 2016\nPrice and Wilson et al.: Pathophysiology – Clinical concepts of disease processes. Mosby, Inc., 2003\nGuyton: Human physiology and mechanisms of disease. W. B. Saunders Company, the latest issue",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (23.09.2024)"
+   },
+   "Syllabus": {
+    "lang": "ENG",
+    "text": "Pathological physiology II: Syllabus of the subject - General medicine\nThe subject pathological physiology II includes in full extent knowledge and skills of the subject pathological physiology I (see syllabus of Pathological Physiology I). Individual topics can be moved between the subjects pathological physiology I and pathological physiology II.\nGeneral pathophysiology II\nStress, stress diseases, psychosomatic interactions\nSpecial pathophysiology II\nPathophysiology of the excretory system\nAnuria, oliguria, polyuria, proteinuria, hematuria, urolithiasis, excretory system inflammations\nDisorders of kidney perfusion, glomerular, tubular and endocrine functions of the kidneys\nAcute and chronic renal failure, uremic syndrome, nephrotic and nephritic syndromes\nMethods of substitution of renal functions\nPathophysiology of the respiratory system\nHypoxia, hypoxemia, asphyxia, hypercapnia, hypocapnia, dyspnea, orthopnea, cyanosis\nRespiratory insufficiency\nDisorders of pulmonary ventilation, diffusion, perfusion, disorders of breathing control\nDisorders of particular diseases of the respiratory system\nPathophysiology of the pleural cavity, pathophysiology of symptoms of respiratory diseases\nPathophysiology of metabolism\nPathophysiology of energetic metabolism, basal metabolism, obesity, emaciation\nPathophysiology of metabolism of proteins, lipids, saccharides, minerals, trace elements\nDisorder of glycaemia regulation, diabetes mellitus, metabolic syndrome, insulin resistance\nAcid-base balance and its disorders\nPathophysiology of body fluids\nPathophysiology of mineral metabolism\nPathophysiology of nutrition\nPathophysiology of the liver\nCauses, mechanisms and manifestation of hepatic disorders, hepatic insufficiency\nLiver cirrhosis, hepatitis, portal hypertension, ascites, hyperbilirubinemia and icterus\nPathophysiology of the bile tract\nPathophysiology of the nervous system\nGeneral causes and mechanisms of diseases and disorders of function of the nervous system\nPathophysiology of the cerebrospinal fluid, synaptic and non-synaptic transmission\nPathophysiology of individual anatomical parts of the peripheral and central nervous system\nPathophysiology of vegetative nervous system, motor function, behavior, affectivity, learning, memory, phatic, gnostic, practic functions, sleep and biorhythms, disorders of consciousness\nDevelopmental disorders, injuries, inflammation in the nervous system, neurodegenerative, demyelinating, cerebrovascular diseases, metabolic disorders, secondary brain injuries\nPathophysiology of the epilepsy, intracranial hypertension, brain edema\nPathophysiology of the sensory systems\nPathophysiology of vision, hearing, vestibular system, somesthesia, olfaction and taste, pain\nPractical knowledge and skills II\nAssessment of body fitness and cardiovascular response to load, examination of pulmonary ventilation, electroencephalography, stereotaxis\nVaria\nPracticing, extension of knowledge and skills in the topics of pathological physiology I and their explanation in the context of new knowledge\nDetailed syllabi of pathological physiology I and II are available on the website of the Department of Pathological Physiology : https://lfp.cuni.cz/ustav-patologicke-fyziologie/",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (25.09.2024)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103090&fak=11140&skr=2026"
+ },
+ "sis:EAP0103091": {
+  "fields": {
+   "E-Credits": "4",
+   "Examination process": "summer s.:",
+   "Guarantor": "prof. MUDr. Jan Cendelín, Ph.D.\ndoc. MUDr. Lada Eberlová, Ph.D.\nprof. MUDr. Mgr. Zbyněk Tonar, Ph.D.",
+   "Hours per week, examination": "summer s.:0/3, C [HT]",
+   "Note": "deregister from the credit exam date if a requisite was not fulfilled",
+   "Semester": "summer",
+   "State of the course": "taught"
+  },
+  "files": {},
+  "sections": {
+   "Annotation": {
+    "lang": "ENG",
+    "text": "The subject is focused on multidisciplinary problem-oriented teaching of neurobehavioral sciences, combination of theoretical, preclinical and clinical emphasizing general phenomena occurring across all pathological situations that are common to many medical disciplines. The subject follows up on clinical propaedeutic and precedent preclinical and theoretical disciplines. The course mainly discusses morphological, functional and imaging aspects related to the diagnosis of movement disorders, behavioral disorders, memory disorders, speech disorders. The basics of psychiatric disorders are also discussed.",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (26.09.2024)"
+   },
+   "Course assessment methods and requirements for successful completion, grading scheme": {
+    "lang": "ENG",
+    "text": "Presence at seminars, a maximum of 3 justified absences are allowed.\nCredit test",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (02.07.2026)"
+   },
+   "Course completion requirements": {
+    "lang": "ENG",
+    "text": "Presence at seminars, a maximum of 3 justified absences are allowed.\nCredit test",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (02.07.2026)"
+   },
+   "Learning outcomes": {
+    "lang": "ENG",
+    "text": "The student has knowledge of previous subjects (anatomy, histology, embryology, physiology, pathophysiology) related to the nervous system.\nThe student will acquire the knowledge needed as a starting point in subsequent subjects dealing fully or partially with the nervous system (neurology, neurosurgery, psychiatry, imaging methods of ophthalmology, otorhinolaryngology), especially knowledge that is needed in several subjects.\nThe student will gain an interdisciplinary view of the nervous system and will be able to transfer knowledge from one subject to the issues of other subjects.",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (26.09.2024)"
+   },
+   "Literature": {
+    "lang": "ENG",
+    "text": "Mandatory literature:\nTeaching materials provided by teachers in the form of a course in Moodle or in another form.\nRecommended literature:\nZigmond M. J. et al.: Fundamental Neuroscience. Academic Press, San Diego, 1999 or later issues",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (26.09.2024)"
+   },
+   "Syllabus": {
+    "lang": "ENG",
+    "text": "Introduction to neuroscience, basic concepts, neurotransmitters, neural plasticity\nDevelopment of the nervous system and factors influencing it in health and disease\nFunctional morphology of the nervous system at microscopic and macroscopic levels, neural pathways\nSpecifics of nervous system imaging, functional imaging methods\nElectrophysiological examinations\nIntroduction to neurology\nIntroduction to neurosurgery\nIntroduction to psychiatry\nCase studies from the perspectives of the neurologist, neurosurgeon, and psychiatrist\nPathogenesis and classification of movement disorders\nNeurogenic visual disorders\nNeurogenic hearing disorders\nPhysiology and pathophysiology of behavior\nSpeech and speech disorders\nConsciousness and disorders of consciousness\nMemory and memory disorders\nBiological rhythms and their medical significance, physiology and pathophysiology of sleep",
+    "updated": "Cendelín Jan, prof. MUDr., Ph.D. (11.09.2026)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103091&fak=11140&skr=2026"
+ },
+ "sis:EAP0103100": {
+  "fields": {
+   "E-Credits": "4",
+   "Examination process": "winter s.:",
+   "Guarantor": "prof. PharmDr. Radek Kučera, Ph.D.\nPharmDr. Bc. Eva Dědečková, Ph.D.",
+   "Hours per week, examination": "winter s.:3/3, C+Ex [HT]",
+   "Interchangeability": "EA0107015",
+   "Note": "deregister from the credit exam date if a requisite was not fulfilled\nderegister from the exam date if a requisite was not fulfilled",
+   "Pre-requisite": "EAP0102070 , EAP0102080 , EAP0102100",
+   "Semester": "winter",
+   "State of the course": "taught"
+  },
+  "files": {},
+  "sections": {
+   "Annotation": {
+    "lang": "ENG",
+    "text": "Pharmacology is a preclinical subject, in which students acquire knowledge of basic principles of pharmacodynamics, pharmacokinetics and mechanism of action of individual drugs.\nRational pharmacotherapy taught during seminars focuses on suitable individual drug choice for each patient and avoiding drug interaction or adverse effects. Students also get familiar with the fundamentals of drug prescription in a theoretical and practical way.",
+    "updated": "Dědečková Eva, PharmDr. Bc., Ph.D. (27.09.2021)"
+   },
+   "Course assessment methods and requirements for successful completion, grading scheme": {
+    "lang": "CZE",
+    "text": "The exam consists of the content of both semesters, Pharmacology I and Pharmacology II.\nExam requirements: Successful completion of a computer test and oral examination. The computer test consists of 50 randomly generated questions with 4 possible answers, only one of which is correct. To successfully pass the test, you need to get 35 or more points (min. 70 % success rate). For the oral examination, the student is asked to draw three questions: one from general pharmacology and two from special pharmacology. The list of exam topics/questions is published in advance and is available for download in the SIS.",
+    "updated": "Dědečková Eva, PharmDr. Bc., Ph.D. (20.11.2025)"
+   },
+   "Course completion requirements": {
+    "lang": "CZE",
+    "text": "Attendance at seminars is mandatory. Active participation in seminars, independent home preparation and elaboration of assigned tasks, completion of progress tests, and a final credit test are required for the credit to be awarded. The student can obtain credit in pharmacology in one regular and two corrective terms at the end of the semester.",
+    "updated": "Dědečková Eva, PharmDr. Bc., Ph.D. (27.09.2021)"
+   },
+   "Literature": {
+    "lang": "CZE",
+    "text": "Rang-Dale-Ritter: Pharmacology - 7 th Edit., (Churchill - Livingstone).\nLippincott Illustrated Reviews - 7 th International Edition\nDale - Haylett: Pharmacology Condensed, (Churchill - Livingstone)\nA.J.Trevor, B.G.Katzung, S.B.Masters: Katzung and Trevor's Pharmacology McGraw - Hill\nBritish National Formulary (latest edition)",
+    "updated": "Dědečková Eva, PharmDr. Bc., Ph.D. (27.09.2021)"
+   },
+   "Syllabus": {
+    "lang": "CZE",
+    "text": "Seminars - topics:\nPhytotherapy and phytotoxicology.\nIntroduction of toxicology. Toxic metals. Antidotes.\nAnimal toxicology\nPharmacotherapy of respiratory diseases.\nPharmacotherapy of gastrointestinal diseases.\nHormonal substitution treatment and contraceptives.\nDrugs in the treatment of benign prostatic hyperplasia.\nDrug addiction.\nAntidiabetics.\nAnticancer drugs\nDrug interaction.\nTotal repetition.\nCredit test.\nLectures:\n1. Antibiotics I.\n2. Antibiotics II.\n3. Antifungals, antivirals, antiparasitics. Disinfectants.\n4. Pharmacotherapy used in dermatology. Pharmacotherapy used in ophthalmology.\n5. Drugs affecting cardiovascular system – overview.\n6. Antihypertensive and lipid-lowering drugs.\n7. Treatment of heart failure and antidysrhythmic drugs.\n8. Antithrombotic treatment (anticoagulants, anti-platelet drugs, fibrinolytics).\n9. Pharmacotherapy in the treatment of endocrine diseases including diabetes mellitus.\n10. Substances affecting the immune system (immunosuppression and immunostimulation). Pharmacotherapy in rheumatology.\n11. Pharmacotherapy of osteoarthrosis and osteoporosis.\n12. Anticancer drugs. Contrast agents and radiopharmaceuticals.\n13. Acute pharmacotherapy.",
+    "updated": "Dědečková Eva, PharmDr. Bc., Ph.D. (24.10.2024)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103100&fak=11140&skr=2026"
+ },
+ "sis:EAP0103320": {
+  "fields": {
+   "E-Credits": "3",
+   "Examination process": "summer s.:",
+   "Guarantor": "prof. MUDr. Jitka Mlíková Seidlerová, Ph.D.\ndoc. MUDr. Jana Hirmerová, Ph.D.",
+   "Hours per week, examination": "summer s.:2/2, C [HT]",
+   "Interchangeability": "EA0106023 , EA0106024",
+   "Note": "deregister from the credit exam date if a requisite was not fulfilled",
+   "Pre-requisite": "EAP0102070 , EAP0102080 , EAP0102320 , EAP0103322",
+   "Semester": "summer",
+   "State of the course": "taught"
+  },
+  "files": {
+   "266796": {
+    "added_by": "Jana Kličková",
+    "comment": "The exam in Propedeutics of internal medicine/Internal medicine I - II.IK school year 2021/2022 - Questions",
+    "name": "Exam_Propedeutics and Internal Medicine I.pdf"
+   },
+   "283818": {
+    "added_by": "Jana Kličková",
+    "comment": "Clinical examination of internal medicine",
+    "name": "Clinical Examination in Internal Medicine.pdf"
+   },
+   "346546": {
+    "added_by": "Jana Kličková",
+    "comment": "Lectures - summer semester 2026",
+    "name": "lectures 3rd year summer 24-25 (003).pdf"
+   },
+   "346547": {
+    "added_by": "Jana Kličková",
+    "comment": "Practicals summer semester 2026",
+    "name": "Pract. Int I 3rd yeargen.med summer 25-26.pdf"
+   }
+  },
+  "sections": {
+   "Annotation": {
+    "lang": "CZE",
+    "text": "Obsahem předmětu je kompletní kardiovaskulární medicína a část pneumologie. Výskyt, diagnostické metody a\nléčba jsou tři základní pohledy na každou chorobu.",
+    "updated": "Křikavová Lenka, Ing. (28.05.2020)"
+   },
+   "Course assessment methods and requirements for successful completion, grading scheme": {
+    "lang": "CZE",
+    "text": "Zápočet, zkouška",
+    "updated": "Křikavová Lenka, Ing. (28.05.2020)"
+   },
+   "Literature": {
+    "lang": "CZE",
+    "text": "R. Češka a kol. Interna, Triton 2010",
+    "updated": "Křikavová Lenka, Ing. (28.05.2020)"
+   },
+   "Syllabus": {
+    "lang": "CZE",
+    "text": "Kardiovaskulární onemocnění\n1. Ischemická choroba srdeční I - akutní formy\n2. Ischemická choroba srdeční II - chronické formy. Přehled kardiovaskulární farmakoterapie\n3. Akutní a chronické srdeční selhání. Klasifikace, patofyziologie, klinický obraz, diagnostika a léčba.\n4. Poruchy srdečního rytmu I - diagnostika a léčba.\n5. Poruchy srdečního rytmu II, synkopa, život ohrožující arytmie.\n6. Onemocnění chlopní.\n7. Onemocnění perikardu, myokardu, infekční endokarditida.\n8. Onemocnění aorty a periferních tepen, ICHDK, disekce aorty. Cévní mozková příhoda.\n9. Onemocnění žil a lymfatických cév. Hluboká žilní trombóza, chronická žilní insuficience, lymfedém.\n10. Plicní embolie, plicní hypertenze.\nPneumologie\n11. Úvod do pneumologie. Celospolečenský význam onemocnění dýchacích cest a plic, vymezení pneumologické problematiky. Vrozené vady plic a průdušek, mukoviscidosa v dospělém věku. Komunitní a nozokomiální záněty plic, etiologie, diferenciální diagnostika a terapie.\n12. Tuberkulóza a mykobakteriózy plic a tuberkulóza mimoplicní. Etiopatogeneze, diagnostika, klinické obrazy a léčba. Komplikace tuberkulóz.\n13. Intersticiální plicní procesy: fibrotizující záněty plic, sarkoidóza, Wegenerova granulomatóza, diagnostika a terapie. Pleurální syndrom, pleuritida suchá a exsudativní, diagnostický algoritmus a terapie.\n14. Nemoci průdušek. Akutní a chronická bronchitis, bronchiektázie. Chronická obstrukční plicní nemoc (CHOPN). Diagnostické metody a léčba, prognóza. Transplantace plic.",
+    "updated": "Křikavová Lenka, Ing. (28.05.2020)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103320&fak=11140&skr=2026"
+ },
+ "sis:EAP0103322": {
+  "fields": {
+   "E-Credits": "7",
+   "Examination process": "winter s.:",
+   "Guarantor": "prof. MUDr. Jitka Mlíková Seidlerová, Ph.D.\ndoc. MUDr. Jana Hirmerová, Ph.D.",
+   "Hours per week, examination": "winter s.:2/3, C+Ex [HT]",
+   "Note": "deregister from the credit exam date if a requisite was not fulfilled",
+   "Pre-requisite": "EAP0102320",
+   "Semester": "winter",
+   "State of the course": "taught"
+  },
+  "files": {
+   "336406": {
+    "added_by": "Jana Kličková",
+    "comment": "Applicatin for the practical exam",
+    "name": "Přihláška k praktické zkoušce.pdf"
+   },
+   "357554": {
+    "added_by": "Jana Kličková",
+    "comment": "Internal Medicine I + II - QUESTIONS to Academic year 2026/2027",
+    "name": "The exam in Introduction to Internal Medicine I+II - 2nd Dpt.of Internal Medicine, winter semester, academic year 2026 2027.pdf"
+   },
+   "358386": {
+    "added_by": "Jana Kličková",
+    "comment": "Practicals winter semester 2026 2027",
+    "name": "Practicals int._3rd year_gen.med._winter 2026-27.pdf"
+   },
+   "358387": {
+    "added_by": "Jana Kličková",
+    "comment": "Rules general medicine 3rd year winter 2026 2027",
+    "name": "Rules general medicine 3rd year winter 26-27.pdf"
+   }
+  },
+  "sections": {
+   "Annotation": {
+    "lang": "CZE",
+    "text": "Klinická propedeutika je úvodem do klinické medicíny. Student by měl získat teoretické znalosti:\no vztahu lékaře a pacienta, seznámit se s principy odebírání anamnézy pacienta (efektivně, citlivě a věcně) a\nprincipy fyzikálního vyšetření\ninterpretovat všechny dostupné informace a data k definování aktuálních obtíží, jak a kde verifikovat údaje ze\nsekundárních zdrojů (rodina, zdravotní záznamy apod.)\njak získat souhlas pacienta s vyšetřením\no právech pacienta\nBude podán teoretický přehled o základních diagnostických testech zejména rutinní biochemická, hematologická\na koagulační vyšetření, analýza krevních plynů, RTG hrudníku, EKG, funkční vyšetření plic, analýza moči a dalších\ntělesných tekutin. Bude představena lékařská dokumentace, informační systém a jeho dokumenty (Lékařská\nzpráva, Úmrtní list, ambulantní kontrola, předpis léků apod.)",
+    "updated": "Křikavová Lenka, Ing. (09.05.2023)"
+   },
+   "Course assessment methods and requirements for successful completion, grading scheme": {
+    "lang": "CZE",
+    "text": "Test, zápočet.",
+    "updated": "Křikavová Lenka, Ing. (09.05.2023)"
+   },
+   "Literature": {
+    "lang": "CZE",
+    "text": "Chrobák L., Gral T., Kvasnička J. et al: Physical Examination in Internal Medicine. Grada Praha, last edition\nKarlíček V.: Practical Quide to Physical Examination and Electrocardiography. Charles University Faculty of Medicine Plzeň, last edition\nMlikova Seidlerova et al. Introduction to Internal Medicine. Triton 2019.\nWin Medicalc",
+    "updated": "Křikavová Lenka, Ing. (09.05.2023)"
+   },
+   "Syllabus": {
+    "lang": "CZE",
+    "text": "1.Úvod do klinické propedeutiky - seznámení se základní terminologií (anamnéza, fyzikální vyšetření atd.). Úloha laboratorních a zobrazovacích vyšetření, stanovení prozatímní/diferenciální diagnózy a plán léčby. Zásady v přístupu a komunikaci s pacientem. Organizace práce na nemocničním oddělení.\n2.Zdravotnická dokumentace, práva a povinnosti pacientů, informovaný souhlas. Systém WinMedicalc.\n3.Klinická anamnéza. Nynější onemocnění. Specifika v komunikaci a ve vyšetření křehkých nemocných, nemocných v akutním stavu, nemocných v terminálním stadiu.\n4.Základní klinické pojmy: symptomy, objektivní nálezy (bolest, dušnost, kašel, zácpa, průjem, nauzea, zvracení, dysurie atd.) - terminologie a popis.\n5.Celkový stav nemocného: stav vědomí, stavy hydratace, habitus, stoj a chůze, barva kůže, otoky, teplota, kožní adnexa a další.\n6.Základní vyšetřovací postupy v interně - vyšetření pohledem, poslechem, pohmatem, poklepem, čichové vjemy. Vyšetření hlavy, krku a prsou.\n7.Zobrazovací vyšetření používaná pro vyšetření kardiovaskulárního a dýchacího systému.\n8.Zobrazovací vyšetření používaná pro vyšetření onemocnění ledvin, endokrinologických a metabolických.\n9.Zobrazovací vyšetření používané pro vyšetření trávicího traktu, v hematologii a revmatologii.\n10.Zásady laboratorního vyšetřování klinické medicíně. Indikace a účelnost laboratorního vyšetření. Preanalytická, analytická a postanalytická část vyšetření. Odběr biologického materiálu. Laboratorní screening používaný u hospitalizovaných nemocných.\n11.Speciální laboratorní metody používané u jednotlivých typů interních onemocnění.\n12.Symptomy a známky srdečních onemocnění. Fyzikální vyšetření srdce.\n13.EKG - princip, určení akce, frekvence, rytmu, vektoru QRS, přechodové zóny, popis jednotlivých intervalů a segmentů.\n14.EKG - nejdůležitější patologické nálezy.",
+    "updated": "Křikavová Lenka, Ing. (09.05.2023)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103322&fak=11140&skr=2026"
+ },
+ "sis:EAP0103390": {
+  "fields": {
+   "E-Credits": "5",
+   "Examination process": "winter s.:",
+   "Guarantor": "prof. MUDr. Jan Vevera, Ph.D.\ndoc. MUDr. Jiří Beran, CSc.\ndoc. MUDr. Luděk Fiala, MBA, Ph.D.",
+   "Hours per week, examination": "winter s.:3/1, C [HT]\nsummer s.:0/1, C+Ex [HT]",
+   "Interchangeability": "EA0106113",
+   "Note": "deregister from the credit exam date if a requisite was not fulfilled\nderegister from the exam date if a requisite was not fulfilled",
+   "Pre-requisite": "EAP0102080",
+   "Semester": "winter",
+   "State of the course": "taught"
+  },
+  "files": {
+   "290507": {
+    "added_by": "Alena Korelusová",
+    "comment": "Syllabus ENG Medical Psychology and Ethics",
+    "name": "Syllabus Medical Psychology and Ethics.pdf"
+   }
+  },
+  "sections": {
+   "Annotation": {
+    "lang": "ENG",
+    "text": "Psychological aspects of medicine. Communication skills. Crisis intervention. Conveying the diagnosis of a serious disease. Chronic and old patient in medical care. Family issues, family therapy. Nonverbal communication. Psychotherapy, supportive psychotherapy. Ethical aspects of medicine. Troubles and conficts in doctor - patients communication.",
+    "updated": "Křikavová Lenka, Ing. (04.06.2020)"
+   },
+   "Course assessment methods and requirements for successful completion, grading scheme": {
+    "lang": "ENG",
+    "text": "To be allowed to sit the final oral exam, student is to achieve both credits - for the winter and the summer semester.",
+    "updated": "Korelusová Alena (18.07.2025)"
+   },
+   "Course completion requirements": {
+    "lang": "ENG",
+    "text": "winter semester credit: Attendance at practical seminars (one absence in a semester allowed) + essay\nsummer semester credit: Attendance at practical seminars (one absence in a semester allowed) + participation in the student´s scientific activity/ in the survey\nStudent is allowed to sit the final oral exam not earlier than after achieving of both credits.\nMore details for the given academic year are always published in the study platform MOODLE.",
+    "updated": "Korelusová Alena (17.09.2026)"
+   },
+   "Learning outcomes": {
+    "lang": "ENG",
+    "text": "Subject Medical Psychology and Ethics is included into the programme of the third year of General Medicine Course. Beside the mandatory attendance in practical seminars, the condition for achieving the credit in the winter semester is the written work – a scientific essay in the field of medical psychology and/or ethics. A particular topic is the matter of students choice. In the summer semester, student cooses between the options to submit the second written work – essay or to participate at the scientific activity/survay . Meeting these conditions is necessary to obtain credit for the relevant semester.\nLectures and practical seminars are elaborating topics according syllabus. Practical teaching is based on specific problems from the clinical medicine, e.g.informing, psychological quidance, counselling, communication with handicapped etc. During the practical training we use role playing, video feedback and small goups dynamics. Students are sharing their experiences from clinical training and from literature dealing with psychology and ethics topics.\nThe goal of this teaching programme is the support of humanisation of medicine, sensibilisation of students to psychological and ethical aspects of clinical medicine and training of communication in specific situations of medical practice.",
+    "updated": "Korelusová Alena (18.07.2025)"
+   },
+   "Literature": {
+    "lang": "ENG",
+    "text": "Introduction to medical psychology. Doctor - patient communication, Beran. J.,Praha, Universita Karlova 2005.\nMedical Humanities, An introduction. Cambridge University Press, 2015. Thomas R. Cole, Nathan Carlin, Ronald A. Carson\nPsychology for medicine, SAGE 2011, Susan Ayers, Richard de Visser",
+    "updated": "Korelusová Alena (05.01.2023)"
+   },
+   "Syllabus": {
+    "lang": "ENG",
+    "text": "1. A complex view of a patient:the biopsycholosocial model of disease. Psychotherapy and medicine:the integration of psychotherapy into medicine. The psychotherapeutic approach: a targeted use of communication skills and doctor – patient relationship in clinical practice.\n2. The relationship between the doctor and the patient : contribution of M. Balint to understanding problems in the doctor – patient relationship.\n3. Basic communication skills: listening,empathy,understanding,interpretation,interest and support advice and counselling.Integration of communication skills.\n4. Nonverbal communication between doctor and patient : verbal,nonverbal and paraverbal components of communication. Description and classification of nonverbal behaviour. Application of the study of nonverbal bahaviour in doctor-patient interaction.\n5. Anamnesis (a case history ) aimed at patient’s psychological problems:examples of forms of specific anamnestic question (e.g.open introductory question, „ yes – no“ questions, questions about patient’s opinion etc.)\n6. Doctor - patient interview: history taking versus doctor – patient interview ( dialogue), defining the framework of the interview, specially oriented interview (e.g. crisis intervertion, conveying the diagnosis of a serious disease,approach to depressive patiens etc.)\n7. Supportive psychotherapy : introduction, definition, basic characteristics of supportivepsychotherapy.\n8. Supportive psychotherapy as an independent method of treatment: e.g. in problem situations of life, in a crisis of life values etc.\n9. Psychogical aspects of pharmacotherapy: psychological factors on the side of the doctor and on the side of the patient, psychotherapy and psycho – pharmacotherapy.Placebo effect.\n10. Problem situations ( complications) in communication between the doctor and the patient: factors on the side of the doctor, patient and his /her family.\n11. Lifespan approach to human development: newborn,long term effects of early experience, maternal deprivation, hospitalisation of children . Adolescence,development tasks, development of identity,sex roles. Ageing,development tasks, adjustment to losses associated with old age , abnormal ageing.\n12.Personality: definition,personality development, introversion /extraversion,personality disorders.Inteligence: definition, IQ , mental retardation.\n13. Pain : psychogenic pain, gate – control theory, endorphins ,assessment methods, chronic pain managment.\n14. Sleep : stages of sleep, functions of sleep,dreaming, sleep disorders ,sleep hygiene. Mental hygiene and selfcare. Prevention of burnout syndrome.\n15. Social psychology: relevance of social priciples to medicine,behaviour in groups , sick role. Mental health programmes.\n16. Psychotherapy : definition ( e.g. dynamic, behavioural,cognitive).\n17. Family issues : parenting, violence and sexual abuse, family therapy.\n18. Sexual function and dysfunction : psychological influences, cultural influences, therapeutic interventions. Transgenders.\n19. Addition : alcoholism and drug addiction, sociocultural and psychological factors, treatment and prevention programmes.\n20. Normal versus abnormal behaviour : classification of abnormal behaviour ( anxiety,somatoform disorder,dissociative disorder,depression, obsessive – compulsive disoreder, psychosis,dementia ).",
+    "updated": "Korelusová Alena (22.07.2025)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103390&fak=11140&skr=2026"
+ },
+ "sis:EAP0103400": {
+  "fields": {
+   "E-Credits": "3",
+   "Examination process": "summer s.:",
+   "Guarantor": "prof. MUDr. Jiří Moláček, Ph.D.\nprof. MUDr. Josef Vodička, Ph.D.",
+   "Hours per week, examination": "summer s.:2/2, C [HT]",
+   "Interchangeability": "EA0107033",
+   "Note": "deregister from the credit exam date if a requisite was not fulfilled",
+   "Semester": "summer",
+   "State of the course": "taught"
+  },
+  "files": {},
+  "sections": {
+   "Annotation": {
+    "lang": "ENG",
+    "text": "Surgery – history and future. Asepsis, anti-sepsis, disinfection, sterilisation. Wounds – classification, healing, healing disorders, temporary and definite treatment. Strategy for diagnostics and therapy of infections in surgery. Sepsis. Anaerobic and mixed infections. Purulent infections of skin, subcutaneous tissue and skin adnexa. Panaritia and purulent infections of the hand. Nosocomial infections. Pathophysiological changes caused by surgery and trauma. Metabolic disorders in surgical patients and their correction. Nutritional issues and intensive care in surgery. Basic algorithm for diagnostics of surgical disorders. General basis of surgical therapy. Preparation of a patient for surgery. Surgical procedure – general rules, terminology of basic surgeries, instrumentation. Basic surgical procedures. Basic rules for post-operation care. Complications in the surgical wound. Post-operation gastrointestinal complications. Post-operation respiratory complications. Post-operation circulatory and thromboembolic complications. Post-operation urinary, allergic and neurological complications. Blood transfusion. Shock. Basic procedures in the first aid and pre-hospital life support. Heat injury. Crush syndrome, reperfusion syndrome, blast syndrome. Basic characteristics of war surgery. Basics of plastic and reconstructive surgery. General issues of oncosurgery. Transplantology.",
+    "updated": "Vodička Josef, prof. MUDr., Ph.D. (29.08.2023)"
+   },
+   "Course completion requirements": {
+    "lang": "ENG",
+    "text": "Credit after meeting attendance requirements and successfully completing an electronic credit test. A 75% correct answer rate is required to pass the electronic credit test. A student has by default 3 attempts to pass the electronic credit test.",
+    "updated": "Vodička Josef, prof. MUDr., Ph.D. (29.08.2023)"
+   },
+   "Literature": {
+    "lang": "ENG",
+    "text": "Valenta J., Gral T. et al. Introduction to Surgery. Praha, Galén Karolinum, 2002. Garden O.J., Bradbury A.W., Forsythe J.L.R., Parks R.W. Principles & Practice of Surgery. 5 th Edition. Philadelphia, Churchill Livingstone Elsevier, 2007. Henry M.M., Thompson J.N. Clinical Surgery. 3 rd Edition. Philadelphia, Saunders Elsevier, 2012.",
+    "updated": "Vodička Josef, prof. MUDr., Ph.D. (14.09.2021)"
+   },
+   "Syllabus": {
+    "lang": "ENG",
+    "text": "Surgery – history and future. Asepsis, anti-sepsis, disinfection, sterilisation. Wounds – classification, healing, healing disorders, temporary and definite treatment. Strategy for diagnostics and therapy of infections in surgery. Sepsis. Anaerobic and mixed infections. Purulent infections of skin, subcutaneous tissue and skin adnexa. Panaritia and purulent infections of the hand. Nosocomial infections. Pathophysiological changes caused by surgery and trauma. Metabolic disorders in surgical patients and their correction. Nutritional issues and intensive care in surgery. Basic algorithm for diagnostics of surgical disorders. General basis of surgical therapy. Preparation of a patient for surgery. Surgical procedure – general rules, terminology of basic surgeries, instrumentation. Basic surgical procedures. Basic rules for post-operation care. Complications in the surgical wound. Post-operation gastrointestinal complications. Post-operation respiratory complications. Post-operation circulatory and thromboembolic complications. Post-operation urinary, allergic and neurological complications. Blood transfusion. Shock. Basic procedures in the first aid and pre-hospital life support. Heat injury. Crush syndrome, reperfusion syndrome, blast syndrome. Basic characteristics of war surgery. Basics of plastic and reconstructive surgery. General issues of oncosurgery. Transplantology.",
+    "updated": "Vodička Josef, prof. MUDr., Ph.D. (29.08.2023)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103400&fak=11140&skr=2026"
+ },
+ "sis:EAP0103430": {
+  "fields": {
+   "E-Credits": "3",
+   "Examination process": "winter s.:",
+   "Guarantor": "prof. MUDr. Jan Beneš, Ph.D., MHA\ndoc. MUDr. Jan Zatloukal, Ph.D.\nMUDr. Olga Smékalová",
+   "Hours per week, examination": "winter s.:0/2, C [HT]\nsummer s.:0/2, C [HT]",
+   "Note": "deregister from the credit exam date if a requisite was not fulfilled",
+   "Semester": "winter",
+   "State of the course": "taught"
+  },
+  "files": {},
+  "sections": {
+   "Annotation": {
+    "lang": "ENG",
+    "text": "The course Simulation Medicine uses advanced simulation technologies to train the diagnosis and management of acutely ill patients in a safe and controlled environment. Students work in small groups, mastering the ABCDE approach, both basic and advanced practical skills, and non-technical skills, including communication, teamwork, and situation awareness. The course combines theoretical preparation via e-learning, practical lessons, and structured audio-visual debriefing after each scenario to support reflection and performance improvement.\nIt builds upon the First Aid and Basics of Clinical Medicine and Nursing courses.",
+    "updated": "Smékalová Olga, MUDr. (15.08.2025)"
+   },
+   "Course completion requirements": {
+    "lang": "ENG",
+    "text": "Course Completion Requirements:\nAttendance at all practical sessions\nCompletion of e-learning for each block before the practical session\nActive participation in simulation scenarios and debriefing\nThe course is completed with a credit.",
+    "updated": "Smékalová Olga, MUDr. (15.08.2025)"
+   },
+   "Learning outcomes": {
+    "lang": "ENG",
+    "text": "During the course, the student will:\nacquire the knowledge required to perform primary assessment and treatment of a patient at risk of vital function failure,\npractise the necessary procedures on a simulator in a safe environment, without risk to the patient and with the possibility of repeated training,\nmaster practical skills ranging from basic procedures (e.g., peripheral venous cannulation) to complex interventions (e.g., management of a critically ill child),\ndevelop teamwork and non-technical skills, including leadership, cooperation, ability to seek advice, situation awareness, task management, and crisis management,\nreflect on their performance and identify areas for improvement through structured debriefing and feedback,\ndemonstrate the ability to apply the acquired knowledge and skills in simulated clinical situations.",
+    "updated": "Smékalová Olga, MUDr. (15.08.2025)"
+   },
+   "Literature": {
+    "lang": "ENG",
+    "text": "Required:\nStudy materials and e-learning modules available in the Simulation Medicine course in Moodle\nAdvanced:\nMultimedial educational decision-making algorithms AKUTNE.CZ",
+    "updated": "Smékalová Olga, MUDr. (15.08.2025)"
+   },
+   "Syllabus": {
+    "lang": "ENG",
+    "text": "Each block includes e-learning preparation and practical training of clinical scenarios in the simulation environment.\nWinter semester:\nIntroduction to simulation medicine\nAirway management\nVascular access, infusion and transfusion therapy\nBasic Life Support\nAdvanced Life Support\nABCDE approach, basic monitoring, patient handover\nSummer semester:\nApproach to a patient in shock\nApproach to a trauma patient\nApproach to a patient with impaired consciousness\nApproach to a patient with dyspnoea\nApproach to a patient with chest pain\nApproach to a critically ill child",
+    "updated": "Smékalová Olga, MUDr. (15.08.2025)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103430&fak=11140&skr=2026"
+ },
+ "sis:EAP0103440": {
+  "fields": {
+   "E-Credits": "1",
+   "Examination process": "summer s.:",
+   "Guarantor": "prof. MUDr. Jiří Ferda, Ph.D.\nprof. MUDr. Hynek Mírka, Ph.D.\nMUDr. Filip Heidenreich, Ph.D.",
+   "Hours per week, examination": "summer s.:0/2, C [HT]",
+   "Note": "deregister from the credit exam date if a requisite was not fulfilled",
+   "Semester": "summer",
+   "State of the course": "taught"
+  },
+  "files": {},
+  "sections": {
+   "Annotation": {
+    "lang": "ENG",
+    "text": "The course RADIOLOGICAL ANATOMY is focused on the clinical application of anatomy in tomographic imaging methods. The electronic course leads to an understanding of both basic and advanced anatomical relationships and allows the application of the anatomy knowledge in imaging routine. The course also develops knowledge from of the e-learning subject \"Technical equipments in radiology, nuclear medicine and radiotherapy\"",
+    "updated": "Křikavová Lenka, Ing. (08.01.2025)"
+   },
+   "Course assessment methods and requirements for successful completion, grading scheme": {
+    "lang": "CZE",
+    "text": "Electronic course ending with credit. Credit will be written for obtaining 23 points out of 25 in the test in the Moodle course. The availability of the test is limited in time, students who do not pass the online test will be examined in person.",
+    "updated": "Baxa Jan, prof. MUDr., Ph.D. (24.05.2022)"
+   },
+   "Learning outcomes": {
+    "lang": "ENG",
+    "text": "The student will getacquainted with the anatomy of human organs using imaging methods as they are used in clinical practice and he will practice complex knowledge of anatomy using many examples using various imaging methods.",
+    "updated": "Křikavová Lenka, Ing. (08.01.2025)"
+   },
+   "Syllabus": {
+    "lang": "ENG",
+    "text": "Radiological anatomy of the intracranial space, neurocranium and base of the skull\nRadiological anatomy of the facial bones, orbits, temporal bones and oral cavity\nRadiological anatomy of the neck\nRadiological anatomy of the chest and chest wall\nRadiological anatomy of the abdomen I. - peritoneal spaces, stomach, small and large intestine\nRadiological anatomy of the abdomen II.- liver, bile ducts and pancreas\nRadiological anatomy of the retroperitoneum\nRadiological anatomy of the male pelvis\nRadiological anatomy of the female pelvis\nRadiological anatomy of the lower limb\nRadiological anatomy of the upper limb\nRadiological anatomy of the spine\nTest",
+    "updated": "Křikavová Lenka, Ing. (08.01.2025)"
+   },
+   "Teaching methods": {
+    "lang": "ENG",
+    "text": "Teaching takes place in the Moodle course https://lms.lfp.cuni.cz/enrol/index.php?id=561",
+    "updated": "Křikavová Lenka, Ing. (15.02.2022)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103440&fak=11140&skr=2026"
+ },
+ "sis:EAP0103500": {
+  "fields": {
+   "E-Credits": "20",
+   "Examination process": "winter s.:",
+   "Guarantor": "doc. MUDr. Květoslava Michalová, Ph.D.",
+   "Hours per week, examination": "winter s.:6/3, C [HT]\nsummer s.:6/3, C+Ex [HT]",
+   "Interchangeability": "EA0106013",
+   "Note": "deregister from the credit exam date if a requisite was not fulfilled\nderegister from the exam date if a requisite was not fulfilled",
+   "Pre-requisite": "EAP0102070 , EAP0102080",
+   "Semester": "winter",
+   "State of the course": "taught"
+  },
+  "files": {
+   "245665": {
+    "added_by": "prof. MUDr. Ondřej Daum, Ph.D.",
+    "comment": "",
+    "name": "List of exam slides.pdf"
+   },
+   "245862": {
+    "added_by": "prof. MUDr. Ondřej Daum, Ph.D.",
+    "comment": "You have to download this file to your tablet (or large-screen smartphone). And do not forget to bring it to the practical each week!",
+    "name": "Description of slides.pdf"
+   },
+   "280700": {
+    "added_by": "prof. MUDr. Ondřej Daum, Ph.D.",
+    "comment": "Detailed syllabus of the subject",
+    "name": "Detailed Syllabus of Pathology.pdf"
+   },
+   "280705": {
+    "added_by": "prof. MUDr. Ondřej Daum, Ph.D.",
+    "comment": "Sylabus předmětu Patologie",
+    "name": "Patologie - detailní sylabus.pdf"
+   },
+   "335807": {
+    "added_by": "MUDr. Magdaléna Daumová, Ph.D.",
+    "comment": "Practicals Winter Semester 2025-2026",
+    "name": "Practicals Winter Semester 2025-2026 gm.pdf"
+   },
+   "335822": {
+    "added_by": "MUDr. Magdaléna Daumová, Ph.D.",
+    "comment": "Exam questions - General pathology",
+    "name": "Exam questions - General Pathology.pdf"
+   },
+   "335828": {
+    "added_by": "MUDr. Magdaléna Daumová, Ph.D.",
+    "comment": "Exam questions - Special pathology",
+    "name": "Exam questions - Special Pathology.pdf"
+   },
+   "335830": {
+    "added_by": "MUDr. Magdaléna Daumová, Ph.D.",
+    "comment": "Exam questions - Oncological pathology",
+    "name": "Exam questions - Oncological Pathology.pdf"
+   },
+   "338277": {
+    "added_by": "MUDr. Magdaléna Daumová, Ph.D.",
+    "comment": "Conditions for Fulfilling Course Requirements",
+    "name": "Conditions for Fulfilling Course Requirements.docx"
+   },
+   "357295": {
+    "added_by": "MUDr. Magdaléna Daumová, Ph.D.",
+    "comment": "Lectures Winter Semester 2026-2027",
+    "name": "Lectures General Medicine Winter Semester 2026-2027.pdf"
+   },
+   "357296": {
+    "added_by": "MUDr. Magdaléna Daumová, Ph.D.",
+    "comment": "Practicals Winter Semester 2026-2027",
+    "name": "Practicals General Medicine Winter Semester 2026-2027.pdf"
+   }
+  },
+  "sections": {
+   "Aim of the course": {
+    "lang": "ENG",
+    "text": "Students should master the basic principles of human diseases and become familiar with the principles and morphological appearances of individual diseases. Furthermore, they should learn the proper principles of sampling, fixation, labeling, and submission of material for biopsy examination and, in the future, be able to understand a histopathological finding in a biopsy report. Another aim of teaching pathology is to understand the discipline itself and the essential role of the pathologist as a key member of the interdisciplinary team, closely connected with most surgical disciplines and with oncology",
+    "updated": "Daumová Magdaléna, MUDr., Ph.D. (23.09.2025)"
+   },
+   "Annotation": {
+    "lang": "ENG",
+    "text": "The subject of Pathology, as part of the preclinical curriculum and medical complement, introduces students to the morphology and principles of human diseases. At the theoretical level, teaching is provided through lectures. In the winter semester, these are devoted primarily to the general principles of disease; in its final weeks and subsequently in the summer semester, the focus shifts to special pathology, including both non-neoplastic and neoplastic diseases. Practical classes are conducted in the microscopy classroom, which also contains macroscopic specimens demonstrating selected diseases. The aim of the practicals is to acquire basic skills in morphological examination of the patient, both macroscopic and microscopic, which are applicable across medical disciplines.",
+    "updated": "Daumová Magdaléna, MUDr., Ph.D. (23.09.2025)"
+   },
+   "Course assessment methods and requirements for successful completion, grading scheme": {
+    "lang": "ENG",
+    "text": "Physical presence at the practicals is required for the credits in both semesters.\nFurthermore, to get a summer semester credit you have to undergo a \"microscopic pathology\" practical exam.\nYou can not sign in for the oral exam without credits for both semesters.",
+    "updated": "Daumová Magdaléna, MUDr., Ph.D. (22.09.2025)"
+   },
+   "Course completion requirements": {
+    "lang": "ENG",
+    "text": "Winter semester credit: physical presence at the practicals.\nSummer semester credit: physical presence at the practicals + practical microscopy exam at the end of semester (you cannot sign for oral exam without the credit).\n1. Practical microscopy exam\nThis precedes the main examination and is part of the criteria for awarding the credit for the summer semester. The score achieved in the practical exam also contributes to the overall assessment of the oral exam.\nRequirements of the practical microscopy exam :\nEvaluation of 1 microscopic slide: determine localization, establish a diagnosis, optionally offer a relevant differential diagnostic consideration, and answer additional questions from the examiner.\nMaximum score: 5 points\n2. Oral examination (in person)\nConsists of three questions: General Pathology, Special Pathology, and Oncologic Pathology.\nGrading of the oral exam :\nThe total score includes the points earned from the practical microscopy exam (0–5 points), plus points for answering the three oral exam questions (3 questions, each graded 0–10 points).\nGrade\nPoints\nPercentage\nAdditional requirement\n1 (Excellent)\n32–35\n91–100 %\nMinimum 1 point from each oral exam question\n2 (Very Good)\n26–31\n74–89 %\nMinimum 1 point from each oral exam question\n3 (Good)\n21–25\n60–71 %\nMinimum 1 point from each oral exam question\nFail\n0–20\nor 0 points on any oral exam question",
+    "updated": "Daumová Magdaléna, MUDr., Ph.D. (23.09.2025)"
+   },
+   "Learning outcomes": {
+    "lang": "ENG",
+    "text": "Homo sapiens sapiens",
+    "updated": "Daum Ondřej, prof. MUDr., Ph.D. (17.08.2024)"
+   },
+   "Learning resources": {
+    "lang": "ENG",
+    "text": "Moodle: https://lms.lfp.cuni.cz/course/view.php?id=527",
+    "updated": "Daumová Magdaléna, MUDr., Ph.D. (22.09.2025)"
+   },
+   "Literature": {
+    "lang": "ENG",
+    "text": "1. Kumar, Abbas, Aster: Robbins & Cotran Pathologic Basis of Disease, 9th. ed., Elsevier, PA, 2015.\n2. Moodle ( https://lms.lfp.cuni.cz/course/view.php?id=527 ) containing videolectures, pdf versions of lectures and practicals, additional materials, self-study tests and Amboss sessions. Keyword is going to be sent via SIS. Contact: DAUMOVAM@fnplzen.cz\n3. Scans of exam histologic slides available online here: https://lfp.smartzoom.com/s11/course2683/",
+    "updated": "Daumová Magdaléna, MUDr., Ph.D. (22.09.2025)"
+   },
+   "Syllabus": {
+    "lang": "ENG",
+    "text": "Schedules of lectures and practicals in pdf can be found in the \"Files\" section.\nPracticals : LFP UK, alej Svobody 76, Campus, clasroom 3.15\nLectures : LFP UK, slej Svodoby 76, Campus, Brown lecture hall\nIn Winter Semester each week one lecture is going to be held in the lecture hall according to the schedule, and one lecture is going to be uploaded to Moodle.\nIn Summer Semester each week both lectures are going to be held in the lecture hall. Only in case of unexpected circumstances leading to cancellation of a lecture, the lecture is going to be uploaded to Moodle.\n\"Detailed Syllabus\" is, due to formatting issues for print, located in the \" Files\" section.",
+    "updated": "Daumová Magdaléna, MUDr., Ph.D. (22.09.2025)"
+   }
+  },
+  "url": "https://is.cuni.cz/studium/eng/predmety/index.php?do=predmet&kod=EAP0103500&fak=11140&skr=2026"
+ }
+}

@@ -111,8 +111,12 @@ Speech-to-text mishears numbers. So from a recording alone: notes, tasks and ann
 clearly stated date are applied, written as "(from your recording of <class>, <date>)"; a **changed**
 date, time or room is a question unless an official e-mail or SIS says the same.
 
-The Mac task works in its own checkout, `~/Projects/study-planner-auto` (create it with
-`git worktree add ../study-planner-auto main` if missing), never in the folder he works in.
+The Mac task works in its own checkout, `~/Projects/study-planner-auto`, never in the folder he
+works in. It is a worktree kept DETACHED at `origin/main` — a worktree that checked out `main`
+itself would stop him from checking out `main` in his own folder. So: `git fetch origin && git
+checkout --detach origin/main`, commit, gate, then `git push origin HEAD:main`. If the folder is
+missing: `git -C ~/Projects/study-planner worktree add --detach ../study-planner-auto origin/main`
+and `npm ci --prefix tools` inside it.
 
 ## 6. The briefing card
 

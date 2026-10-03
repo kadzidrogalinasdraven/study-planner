@@ -165,6 +165,28 @@ until fourth year, and that the Pathology exam involves museum specimens. None o
 now. The archive is still worth reading for logistics and for what examiners actually ask; it is
 not worth reading for format, dates, or which year a subject falls in.
 
+### It keeps itself up to date
+
+Twice a day, at about 06:30 and 18:30, a routine in the cloud looks for anything that changes the
+planner, so you never have to tell it:
+
+- school e-mail — SIS messages, Moodle announcements, the departments, the hospital — picked out
+  by sender rather than by keyword;
+- the eleven SIS course pages, compared with the last copy so that only what changed is read;
+- the class recordings you mark with a word like "introduction" or "information" in the title,
+  each read once;
+- anything you e-mail yourself with "planner" in the subject — a WhatsApp message, something said
+  in class.
+
+Official facts for your group — a cancelled or moved class, a room, a deadline, a credit rule —
+go into the planner and into the matching Calendar entry by themselves, and only after a check has
+confirmed that the page still loads and the plan still adds up. Everything else waits for you:
+topic lists, hours, anything from classmates, anything unclear about 5A or 5B. It all shows on the
+📋 card at the top of Today — what changed and where it came from, then what needs your OK,
+numbered; say "apply 2" in a Claude chat. No card means the check did not run. Until 7 October it
+only reports what it would change. Every change it makes is listed in `docs/planner-updates.md`,
+and the rules it follows are in `AUTOMATION.md`.
+
 | | |
 | --- | --- |
 | Winter teaching | 1 Oct 2026 – 8 Jan 2027 |

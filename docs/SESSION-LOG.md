@@ -486,3 +486,42 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   → `{checks, fails, failed}`. The copy under `~/.claude/projects/…/tests/` is superseded.
 
 ---
+- 2026-10-03 · **Deployed as `9654c8c`**: shares of the hours (40/30/20/7/3), General Pathology
+  paced to the June exam, Simulation Medicine prep on the day before each class. Live `index.html`
+  byte-identical to the commit. A copy of `fillDay` reproduced the shipped one on every day of the
+  year before anything was changed, and the real engine then reproduced the simulated numbers
+  exactly (3.7 / 2.9 / 1.5 / 1.1 topics a teaching week; winter shortfall 441 h, banner 505 h).
+- 2026-10-03 · **The planner check built**: `AUTOMATION.md` (the rulebook), `tools/watch_sources.py`
+  with its snapshot `tools/state/sources.json` (the eleven SIS course pages and the 2026/27
+  pathophysiology syllabus PDF; run again straight after a snapshot it prints "No change in 12
+  sources"), `tools/check.mjs` (the gate; it caught five deliberately broken changes out of five),
+  `docs/planner-updates.md`. Gmail label "Planner read" created, id `Label_3`; the three school
+  e-mails already handled by hand (Simulation Medicine, the Pathology lecture notice, the essay
+  anthology) were labelled so the first run skips them.
+- 2026-10-03 · Recordings: first built as a Mac task reading the Wispr Flow SQLite database (his
+  titles look like "Pharma introduction 01.10.26" — the marker sits anywhere in the title), then
+  replaced the same afternoon: his claude.ai account has a **Wispr Flow connector**
+  (`search_meetings` by title, the same ids as on the Mac), so the cloud routine reads the marked
+  recordings itself and no Mac is needed. The Mac helper and its worktree were removed. Read log:
+  `tools/state/recordings-read.json`, ids only, seeded with the seven recordings that existed (the
+  1 Oct pharmacology introduction and psychology seminar had been read by hand on 1–2 Oct).
+- 2026-10-03 · **Cloud test 1** (one-time routine `trig_01Hun5FLb5eQ9GxvJKgU4yvZ`): clone, Node
+  22.22 and `npm ci --prefix tools` fine, and **SIS is reachable from the cloud on the default
+  network** — no allowlist change needed. But the cloud's auto-mode safety check **denied the
+  commit step as "Production Deploy"**, and `gh auth status` says the cloud's GH_TOKEN is invalid,
+  so no pull requests from there. The run sent him a push notification saying it stopped at
+  step 4.
+- 2026-10-03 · **He allowed publishing explicitly** — this routine only, after the gate passes.
+  The rule is the routine's `session_request.config.auto_mode_allow` plus
+  `auto_mode_environment`. **Writing `auto_mode_*` under `job_config.ccr.session_context` is
+  silently dropped; use the `session_request` form.** And a routine created without
+  `mcp_connections` gets every claude.ai connector: pass the list, or `clear_mcp_connections`.
+  Questions now go on the briefing card, numbered, instead of pull requests.
+- 2026-10-03 · CLAUDE.md halved, 135 → 72 KB: this log moved here verbatim, the second-year
+  history and the flashcard pipeline to `docs/HISTORY.md`; every line of the old file is in one of
+  the three. The memory note on keeping a log now points here.
+- 2026-10-03 · **Cloud test 2** (`trig_012X9WgQRzSaTtYQ42Pn8SND`, with the permission): `npm ci`,
+  the gate in the cloud (`39/39`, 8 tabs, `GATE PASSED`) and `git push origin HEAD:main` all
+  succeeded — commit `eaa2efb`, one line in `docs/planner-updates.md`, 95 seconds in all. The two
+  one-time test routines stay in his routines list as "Ran"; routines cannot be deleted through
+  the API, only at claude.ai/code/routines.

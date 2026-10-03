@@ -31,14 +31,14 @@ first live run), and write in the briefing "Would change: …". From that date o
      OR workshop OR session OR "save the date")` → genuine dated events go into Calendar as they
      always have; marketing that borrows event words is skipped.
    - **SIS and department pages:** `python3 tools/watch_sources.py`. Exit 0 no change, 3 changed
-     (the report says what), 2 unreachable — in the cloud that means the network allowlist lacks
-     `is.cuni.cz` / `lfp.cuni.cz`; say so in the briefing and carry on.
+     (the report says what), 2 a source could not be fetched — name it in the briefing and carry
+     on (the cloud reached SIS without trouble on 3 Oct 2026, so it is the site, not a setting).
    - **Class recordings** he has marked: §5.
    - **What the planner says now** about the next 14 days: grep `index.html` for `TIMETABLE`,
      `TIMETABLE_CANCELLED`, `TIMETABLE_NOTES`, `DEADLINES`, `EXAMS`. Never read the whole file.
 3. **Sort every finding** into one of: apply (§2), ask (§3), calendar only, ignore. Before
    applying anything, check the planner does not already say it.
-4. **Apply** the "apply" findings (§2, §4), then `python3 tools/watch_sources.py --update` if the
+4. **Apply** the "apply" findings (§2, always within §4), then `python3 tools/watch_sources.py --update` if the
    watcher reported a change, then one line per change in `docs/planner-updates.md`.
 5. **Gate, then publish.** One commit for the run, then `node tools/check.mjs --auto`. Push to
    `main` only if it prints `GATE PASSED`. If it fails: `git reset --hard origin/main`, change
@@ -121,7 +121,7 @@ date, time or room is a question unless an official e-mail or SIS says the same.
 
 One all-day event per day in his primary calendar, titled `📋 Daily Briefing — YYYY-MM-DD`; the
 planner shows it at the top of Today. The morning run creates it; the evening run adds a section to the
-same event instead of creating another. Plain lines, most important first:
+same event instead of creating another, and creates the card only if the morning left none. Plain lines, most important first:
 
 ```
 Morning check 06:31 · Gmail 4 new · SIS no change · planner 1 change

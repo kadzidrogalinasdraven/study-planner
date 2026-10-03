@@ -84,20 +84,18 @@ overflow banner reads about 505 h. The planner check — a cloud routine, mornin
 in dry run until 6 Oct and live from 7 Oct (see "The planner check" below).
 
 **Open, for him — his clicks and his answers:**
-1. **Netlify → Stop builds** (or delete the site). Every push to `main`, the automatic ones
-   included, is also built there until he does; the free plan cannot bill, it only e-mails.
-2. **5A or 5B** for the internal-medicine practical. The 2 Oct e-mail from the 2nd Dept. of
+1. **5A or 5B** for the internal-medicine practical. The 2 Oct e-mail from the 2nd Dept. of
    Internal Medicine secretary carries the attendance lists as an attachment; otherwise his first
    class, Tue 6 Oct, settles it.
-3. The four **"Ask:" events** in his Calendar (Mon 5, Tue 6, Thu 8, Thu 15 Oct): the answers go
+2. The four **"Ask:" events** in his Calendar (Mon 5, Tue 6, Thu 8, Thu 15 Oct): the answers go
    into the planner, by the planner check if they arrive by official mail.
-4. The **final pharmacology list** (pre-final since 1 Oct): diff by content, new codes from
+3. The **final pharmacology list** (pre-final since 1 Oct): diff by content, new codes from
    `PHA335` — "Pharmacology: the official list is in".
-5. The **essay date**: 11 Nov stands, flagged, until 18 Nov is confirmed.
-6. **Sign-in:** the no-popup sign-in is deferred ("we'll do it later"); whether Reconnect still
+4. The **essay date**: 11 Nov stands, flagged, until 18 Nov is confirmed.
+5. **Sign-in:** the no-popup sign-in is deferred ("we'll do it later"); whether Reconnect still
    appears after an hour is unanswered, and so is whether Chrome's pop-up default was already
    "allow" before 30 Sep.
-7. Whether the **hour estimates** (`SIZE_HOURS`) feel right after a week of real study.
+6. Whether the **hour estimates** (`SIZE_HOURS`) feel right after a week of real study.
 
 **Due later, for whichever session touches the engine then:**
 - **February**, with the summer timetable: decide the summer split — the shares stop on 15 Feb and
@@ -894,6 +892,11 @@ page and "How credits work" doc, checked 2026-10-02), so about twenty pushes emp
 the push of `b4856e4`. **Proof it was building:** the live Netlify `index.html` is `b4856e4`
 byte for byte, plus one comment Netlify injects ("This site is hosted on Netlify…"); GitHub's
 deployments API shows only `github-pages`, so do not look for Netlify there.
+
+**Builds were stopped on 2026-10-03** (Project configuration → Developer settings → Build settings →
+Build status: Stopped), at Linas's request, through his Chrome. The old copy stays online, frozen at
+`b4856e4`. The team's other projects were left as they were: `studentforstudents.com` is his live
+Student for Students site and keeps building.
 
 So the advice "push less" is wrong: **GitHub Pages costs nothing per push.** The cost is the second,
 unwanted Netlify build. The Free plan cannot bill — out of credits, it pauses deploys and keeps

@@ -536,3 +536,7 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   three things: 5A or 5B (the 2 Oct attendance-sheet e-mail's attachment cannot be opened through
   the connector), whether to add an optional SPPČ meeting (Mon 5 Oct 14:00), and the Mobility Fund
   deadline (30 Oct). It labelled the run "evening" because it fired after noon.
+- 2026-10-03 · **Netlify builds stopped** for `peppy-lokum-2c5109`, at his request, in his Chrome:
+  Build status "Stopped", confirmed after a reload ("Builds are stopped" in the project list). The
+  team's other projects untouched — `studentforstudents.com` is live and keeps building; `flashd`
+  and `super-mandazi-33675d` build only when their own repos change.

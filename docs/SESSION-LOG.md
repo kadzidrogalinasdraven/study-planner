@@ -525,3 +525,14 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   succeeded — commit `eaa2efb`, one line in `docs/planner-updates.md`, 95 seconds in all. The two
   one-time test routines stay in his routines list as "Ran"; routines cannot be deleted through
   the API, only at claude.ai/code/routines.
+- 2026-10-03 · **The real routine switched over** (`trig_012JocxLdZg1M2UpMpU4EfHP`): renamed
+  "Planner check (morning + evening)", cron `30 4,16 * * *`, repo source, Sonnet 5.5, connectors
+  Gmail + Google Calendar + Wispr Flow only, the permission above, push notifications on. First
+  scheduled run 16:30 UTC tonight.
+- 2026-10-03 · **First dry run, fired by hand at 12:43 UTC, 40 seconds:** watcher "No change in 12
+  sources"; Wispr searched by every marker, the one marked recording recognised as already read;
+  10 unprocessed school e-mails; nothing to change in the planner, nothing pushed or labelled;
+  an "Evening check (dry run)" section appended to the day's card, not a second card. It asked
+  three things: 5A or 5B (the 2 Oct attendance-sheet e-mail's attachment cannot be opened through
+  the connector), whether to add an optional SPPČ meeting (Mon 5 Oct 14:00), and the Mobility Fund
+  deadline (30 Oct). It labelled the run "evening" because it fired after noon.

@@ -6,12 +6,14 @@ fires at 04:30 and 16:30 UTC (06:30 and 18:30 in Prague in summer time, an hour 
 and reads Gmail, SIS, his marked Wispr Flow recordings and the planner itself. It needs no Mac.
 
 He chose the scope himself: **official facts are applied automatically; everything else waits for
-his OK.** This file is public — never write anything private into it.
+his OK.** The routine's permission to push to `main` — after the gate passes, nothing else — was
+given by him explicitly on 3 Oct 2026, after the cloud's safety check had stopped a test run. This
+file is public — never write anything private into it.
 
 ## 0. Mode
 
 `LIVE_FROM: 2026-10-07`. Before that date a run is a dry run: do everything up to the gate, push
-nothing, open no pull request, label no mail (the seven-day search window carries it over to the
+nothing, label no mail (the seven-day search window carries it over to the
 first live run), and write in the briefing "Would change: …". From that date on, publish.
 
 ## 1. A run, step by step
@@ -41,7 +43,7 @@ first live run), and write in the briefing "Would change: …". From that date o
 5. **Gate, then publish.** One commit for the run, then `node tools/check.mjs --auto`. Push to
    `main` only if it prints `GATE PASSED`. If it fails: `git reset --hard origin/main`, change
    nothing else, and put the gate's message at the top of the briefing.
-6. **Ask** (§3): one pull request per question.
+6. **Ask** (§3): numbered, in the briefing card.
 7. **Report** in the briefing card (§6). Label the processed mail.
 
 ## 2. Applied automatically
@@ -77,11 +79,11 @@ What may change, and where:
 - Anything that contradicts another official source, or that fits only 5A or only 5B.
 - Anything that would delete or retire something.
 
-**How to ask:** a branch `claude/ask-<date>-<slug>` with the proposed change, the gate run on it,
-and a pull request whose title is the question in plain English and whose body says what the
-source says and what the change does. He merges with one tap, or closes it. Before opening a new
-one, rebase any open question PR onto `main` and re-run the gate on it; close it if `main` already
-says the same. If a PR cannot be created, list the question in the briefing instead.
+**How to ask:** under "Needs your OK" in the briefing card, numbered, each with what the source
+says (and which source) and the exact change you would make. He answers in a Claude chat —
+"apply 2" — and that session makes the change; it reads the card through the Calendar connector.
+A question stays on every morning card until the planner says it or he has answered. (Pull
+requests were the first idea; `gh` has no valid token in the cloud, so they are not used.)
 
 ## 4. Never
 
@@ -127,7 +129,8 @@ Morning check 06:31 · Gmail 4 new · SIS no change · planner 1 change
 Planner updated:
 • Pathology practical Fri 9 Oct cancelled (SIS message from the department)
 Needs your OK:
-• Is the 12 Nov seminar your essay date? — pull request #4
+1. Essay date: the department's list moves the 12 Nov seminar to 19 Nov — make the essay due
+   Wed 18 Nov instead of 11 Nov?
 Calendar: added "Faculty open day" Wed 14 Oct 16:00
 Skipped: 2 newsletters, 1 library notice
 ```

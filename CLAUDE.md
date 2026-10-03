@@ -523,6 +523,11 @@ Things that are easy to get wrong:
   `meetings/<id>/refined.ndjson`), holds all his dictation: read-only and by title only, if ever.
 - **A routine gets every claude.ai connector unless told otherwise.** Keep its list to Gmail,
   Google Calendar and Wispr Flow.
+- **The cloud's auto-mode safety check blocks an unattended push to `main`** ("Production Deploy"):
+  the first test run on 3 Oct was stopped at the commit. Linas then allowed it explicitly, for this
+  routine only, and only after the gate passes — the rule sits in the routine's
+  `auto_mode_allow`. Do not widen it without asking him. `gh` has no valid token in the cloud, so
+  the routine opens no pull requests: questions go on the briefing card and he answers in a chat.
 - The SIS watcher compares only the edited parts of a course page (section texts with their
   "Last update" stamps, the attachment list, a few header fields); SIS changes the rest on its own.
   Re-running it right after a snapshot must print "No change".

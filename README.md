@@ -211,20 +211,25 @@ topic. The figures sit at the top of `index.html` (`SIZE_HOURS`, `TOPIC_SIZE`); 
 three numbers to re-pace it. They replaced a formula from credit values that gave 45 minutes a
 question, which was never enough.
 
-Four things the scheduler does that are worth knowing:
+Five things the scheduler does that are worth knowing:
 
-- **It plans by block, not by course.** Pathology's winter blocks are due at the January credit,
-  its summer blocks at the June final. Treating Pathology as one deadline in May would hide the
-  January credit entirely.
+- **It plans by block, not by course.** A block is due when something actually examines it:
+  Simulation Medicine's winter sessions at the January credit, Pathology's general questions at
+  the June final — the winter Pathology credit is attendance only, so nothing is due in January.
 - **It will not schedule a course before the semester that teaches it.** Propedeutics of Surgery
   is a summer course, so it does not appear in October.
-- **It shares the time in your order: Pathophysiology, then Pharmacology, then the rest.** Each
-  topic goes to whichever of the three is least far along its own list, with Pathophysiology
-  weighted to stay furthest ahead. Followed exactly, the winter comes out at about 42%
-  Pathophysiology, 32% Pharmacology and the rest for everything else — and none of them is ever
-  parked, which is what the pharmacology teacher warned against.
-- **Inside "the rest", the course furthest behind an even pace goes first**, so a January exam
-  moves faster than a June one and a small course like Simulation Medicine still gets its turn.
+- **It shares the winter's hours in your order:** Pathophysiology 40%, Pharmacology 30%,
+  Introduction to Internal Medicine 20%, Pathology 7% — about one or two of its shorter topics a
+  week — and 3% for everything else. Each topic goes to whichever group is furthest below its
+  share, so none of them is ever parked, which is what the pharmacology teacher warned against.
+  Followed exactly, a teaching week holds about four pathophysiology topics, three pharmacology,
+  one or two internal medicine and one pathology. The numbers are `STUDY_SHARE` near the top of
+  `index.html`. From the summer semester every course is paced to its own deadline instead.
+- **Class preparation falls on the day before the class.** Simulation Medicine's Moodle work is
+  checked at the door, so each of its six winter topics sits on the day before its session; a
+  missed one comes first the next day.
+- **Inside "everything else", the course furthest behind an even pace goes first**, so a January
+  deadline moves faster than a June one and a small course still gets its turn.
 
 Anything that will not fit before its deadline is reported, per subject, rather than quietly
 dropped. A schedule that silently loses a third of the work is worse than one that admits it does

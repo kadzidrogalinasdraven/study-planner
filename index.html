@@ -547,11 +547,15 @@ const TOPIC_SIZE = {
   PAT206:"S", PAT210:"S", PAT214:"S", PAT215:"S",
 };
 
-/* Linas's order (2 Oct 2026): "pathophysio, then pharma and then the rest". It is a SHARE of the
-   study time, not a queue — see fillDay. A larger weight keeps that group further along its
-   own list than the others are along theirs; every group still gets days, so pharmacology is
-   never parked behind pathophysiology, which its practical teacher warned against. */
-const STUDY_PRIORITY = [ { id:"pfy", weight:1.3 }, { id:"pha", weight:1.15 } ];   // the rest: 1
+/* Linas's order (3 Oct 2026): "pathophysio, then pharma, then internal, and if still time once or
+   twice a week patho". Each group is owed a fixed SHARE OF THE WINTER STUDY HOURS — see fillDay.
+   Pathology is examined in June and its winter credit is attendance only, so 7% is about one or
+   two of its shorter topics a week; "the rest" (Medical Czech, Psychology) shares what is left.
+   Simulation Medicine is outside the shares: its preparation is pinned to the day before each
+   class (PREP_PIN). From the summer semester the shares stop and every course is paced to its
+   own deadline. To re-balance, change the numbers — only their ratios count. */
+const STUDY_SHARE = [ { id:"pfy", share:40 }, { id:"pha", share:30 }, { id:"iim", share:20 }, { id:"pat", share:7 } ];
+const REST_SHARE = 3;
 
 const SUBJECTS = [
   { id:"pat", key:"PAT", sis:"EAP0103500", title:"Pathology",
@@ -883,7 +887,7 @@ const ARCHIVE = {
    so Pathology's winter blocks are paced to the January credit and not to the June final.
    Topic codes are globally unique — that is what lets data.done stay a flat code → bool map. */
 const CURRICULUM = [
-  { key:"PAT-G", src:"pat-q", subject:"pat", sem:"winter", name:"General pathology", topics:[
+  { key:"PAT-G", src:"pat-q", subject:"pat", sem:"winter", paceTo:"exam", name:"General pathology", topics:[
     ["PAT001","Fundamentals of pathology (definition, classification, methods used in pathology\u2026"],
     ["PAT002","Adaptation"],
     ["PAT003","Cellular death"],
@@ -1669,11 +1673,16 @@ function deadlineOf(s, data){
                 if(e) return addDays(examWhen(e,data).iso, -1); }
   return CREDIT_DUE[s.sem==="winter" ? "winter" : "summer"];
 }
-/* Block-level deadline: Pathology's winter blocks are examined by the January credit, not by the
-   June final, and pacing the whole 20-credit course to June would hide that entirely. */
+/* Block-level deadline. A winter block of a two-semester course is due at the January credit when
+   that credit needs it — Simulation Medicine's winter sessions. A block marked paceTo:"exam" is
+   due at the course's exam instead. General Pathology is taught in the winter, but the winter
+   credit is "physical presence at the practicals" (SIS, checked 3 Oct 2026) and its questions
+   are examined at the June final. Until that date this comment said the winter blocks were
+   "examined by the January credit"; they never were, and the planner was charging Pathology's
+   general questions against January for nothing. */
 function blockDeadline(b, data){
   const s=SUBJECT[b.subject]; if(!s) return CREDIT_DUE.summer;
-  if(b.sem==="winter" && s.sem==="both") return CREDIT_DUE.winter;
+  if(b.sem==="winter" && s.sem==="both" && b.paceTo!=="exam") return CREDIT_DUE.winter;
   return deadlineOf(s, data);
 }
 /* A block cannot be studied before the semester that teaches it. Propedeutics of Surgery is a
@@ -1921,34 +1930,60 @@ function dueForReview(data, today, live){
    pathophysiology-first get late pharmacology exam dates, and can end up with neither exam
    passed. Her advice is to read pharmacology alongside — which is what this does.
 
-   SHARES, NOT A QUEUE (2 Oct 2026). Linas wants "pathophysio, then pharma and then the rest".
-   With topics of 1.5–3.5 h a three-hour day holds one or two, so a plain order would mean
-   pathophysiology every day and pharmacology never — exactly what the teacher warned against.
-   Instead each topic placed goes to the GROUP (STUDY_PRIORITY: pathophysiology, pharmacology,
-   then everything else as one group) that is least far along its own list once divided by its
-   weight. "Far along" is the share of the group's hours already done, over the blocks being
-   taught that day. So a group with more work gets more days, a weight of 1.3 keeps
-   pathophysiology about 30% further along than the rest, and a group that falls behind its share
-   is the next one chosen: nothing is ever parked. At the start every group is at zero and the tie
-   goes in priority order.
+   SHARES OF THE HOURS (3 Oct 2026). Linas's order is "pathophysio, then pharma, then internal,
+   and if still time once or twice a week patho". With topics of 1.5–3.5 h a three-hour day holds
+   one or two, so a plain order would mean pathophysiology every day and pharmacology never.
+   Instead each topic placed goes to the GROUP (STUDY_SHARE: pathophysiology 40, pharmacology 30,
+   internal medicine 20, pathology 7, everything else 3) whose hours done so far are furthest
+   below its share — hours done divided by the share, lowest first. At the start every group is
+   at zero and the tie goes in that order; after that the hours settle into the shares, and a
+   group that falls behind its share is the next one chosen, so nothing is ever parked.
+   The shares hold until the summer semester opens. From then on Pathology and the summer
+   courses are all "the rest", paced to their deadlines.
+
+   Why hours, and not how far along each list (the rule from 2 to 3 Oct 2026): a weight on the
+   share of a list DONE gives each subject time roughly in proportion to the length of its list,
+   so the 42-question internal-medicine list got 0.9 topics a week — fewer than Pathology's 1.4,
+   which was also being pushed towards a January deadline it did not have. And a weight on the
+   hours REMAINING front-loads: tried on paper, 1.3 on pathophysiology meant about three weeks of
+   nothing else. Hours done, divided by a share, does neither.
+
    Inside the rest, the subject furthest BEHIND AN EVEN PACE goes first: the share of its study
    time already gone (from the day its blocks open to their deadline) minus the share of its
-   hours already done. So Introduction to Internal Medicine, examined in January, moves faster
-   than Medical Psychology, examined in June, and a small course still gets its turn — ranking by
-   hours left let the big ones win every day, and Simulation Medicine, whose classes need Moodle
-   preparation, was never once put on a day. Inside a subject, the block with most hours left goes
-   first, which keeps its blocks moving together.
-   Measuring by subject and group rather than by block matters: when blocks were ranked one by
-   one, a subject cut into more blocks won more slots — Pharmacology's two Special blocks pushed
-   Pathophysiology off the plan until late October.
+   hours already done. So a January deadline moves faster than a June one, and a small course
+   still gets its turn. Inside a subject, the block with most hours left goes first, which keeps
+   its blocks moving together. Measuring by subject and group rather than by block matters: when
+   blocks were ranked one by one, a subject cut into more blocks won more slots.
+
+   Preparation pinned to a class (PREP_PIN) is placed before any of this, on its own day.
 
    A topic can cost more than a whole day — Pharmacology and Pathophysiology's largest are 3.5 h
    against a three-hour teaching day. Capping its cost at the day's budget is what stops such a
    topic from being unschedulable forever: it simply takes the day. Without the cap those
    subjects sat in overflow from October to January and were never once put on a day. */
-const GROUP_W = { rest:1 }; STUDY_PRIORITY.forEach(function(g){ GROUP_W[g.id]=g.weight; });
-const GROUP_ORDER = STUDY_PRIORITY.map(function(g){ return g.id; }).concat(["rest"]);
-function groupOf(subject){ return GROUP_W[subject]!==undefined && subject!=="rest" ? subject : "rest"; }
+const GROUP_SHARE = { rest:REST_SHARE }; STUDY_SHARE.forEach(function(g){ GROUP_SHARE[g.id]=g.share; });
+const GROUP_ORDER = STUDY_SHARE.map(function(g){ return g.id; }).concat(["rest"]);
+const SHARE_TOTAL = STUDY_SHARE.reduce(function(a,g){ return a+g.share; }, REST_SHARE);
+function groupOf(subject, date){
+  return date < SEM_OPEN.summer && GROUP_SHARE[subject]!==undefined && subject!=="rest" ? subject : "rest";
+}
+
+/* Preparation that belongs to a class rather than to a share. Simulation Medicine's Moodle
+   theory and assignments are checked at the start of every practical and are a condition for
+   being let in (the course coordinator's e-mail of 1 Oct 2026), so the k-th topic of the block
+   is due the day before the k-th date of its timetable slot. The e-mail gives no topic per date;
+   it says each topic builds on the one before, so syllabus order is taken as class order. A
+   pinned topic that was missed is placed first on the next day it fits. Summer sessions get
+   pinned once their dates are in TIMETABLE; until then SIM-S is paced like any other block. */
+const PREP_PIN = { "SIM-W":"sim-prac" };
+const PIN_DAY = {};
+Object.keys(PREP_PIN).forEach(function(key){
+  const b=CURRICULUM.filter(function(x){ return x.key===key; })[0];
+  const slot=TIMETABLE.filter(function(t){ return t.id===PREP_PIN[key]; })[0];
+  if(!b || !slot || !slot.dates){ console.warn("PREP_PIN: no block or no class dates for", key); return; }
+  if(slot.dates.length!==b.topics.length) console.warn("PREP_PIN:", key, "has", b.topics.length, "topics but", slot.dates.length, "class dates");
+  b.topics.forEach(function(t, i){ if(slot.dates[i]) PIN_DAY[t[0]]=addDays(slot.dates[i], -1); });
+});
 
 function fillDay(date, blocks, queue){
   const budget=budgetFor(date); let left=budget; const items=[];
@@ -1963,26 +1998,37 @@ function fillDay(date, blocks, queue){
   });
   const opened=open.filter(function(x){ return queue[x.key].length; }).length;
   const fits=function(x){ const c=queue[x.key][0]; return !!c && Math.min(HRS_OF[c],budget) <= left+0.001; };
+  const place=function(x){
+    const c=queue[x.key].shift();
+    items.push({ code:c, subject:x.subject, hrs:HRS_OF[c] });
+    left -= Math.min(HRS_OF[c], budget); rem[x.key] -= HRS_OF[c];
+  };
+  // first, preparation pinned to a class: today's, and any that was missed, in class order
+  open.forEach(function(x){
+    if(!PREP_PIN[x.key]) return;
+    while(queue[x.key].length && PIN_DAY[queue[x.key][0]] && PIN_DAY[queue[x.key][0]] <= date && fits(x)) place(x);
+  });
+  const shared=open.filter(function(x){ return !PREP_PIN[x.key]; });
   /* Every comparison below ends on a fixed order — group order, deadline, subject, key. Today's
      list and the week's table are built by running this from different starting points and are
      expected to agree; a tie left to the sort would let them differ. */
   while(left > 0.01){
     const g={};
-    open.forEach(function(x){
-      const k=groupOf(x.subject), e=g[k]||(g[k]={ total:0, rem:0, any:false });
-      e.total+=x.total; e.rem+=rem[x.key]; if(fits(x)) e.any=true;
+    shared.forEach(function(x){
+      const k=groupOf(x.subject, date), e=g[k]||(g[k]={ done:0, any:false });
+      e.done+=x.total-rem[x.key]; if(fits(x)) e.any=true;
     });
     let best=null, bestScore=0;
     GROUP_ORDER.forEach(function(k){
       const e=g[k]; if(!e || !e.any) return;
-      const score=(e.total>0 ? (e.total-e.rem)/e.total : 1) / GROUP_W[k];
+      const score=e.done / GROUP_SHARE[k];
       if(best===null || score < bestScore-1e-9){ best=k; bestScore=score; }
     });
     if(best===null) break;
     // within the group: the subject furthest behind an even pace …
     const subj={};
-    open.forEach(function(x){
-      if(groupOf(x.subject)!==best) return;
+    shared.forEach(function(x){
+      if(groupOf(x.subject, date)!==best) return;
       const e=subj[x.subject]||(subj[x.subject]={ id:x.subject, total:0, rem:0, due:x.due, target:0, fit:false });
       e.total+=x.total; e.rem+=rem[x.key]; e.target+=x.total*gone[x.key];
       if(x.due<e.due) e.due=x.due; if(fits(x)) e.fit=true;
@@ -1991,11 +2037,9 @@ function fillDay(date, blocks, queue){
     const s=Object.keys(subj).map(function(k){ return subj[k]; }).filter(function(e){ return e.fit; })
       .sort(function(a,b){ return behind(b)-behind(a) || (a.due<b.due?-1:a.due>b.due?1:(a.id<b.id?-1:a.id>b.id?1:0)); })[0];
     // … then its block with most hours left
-    const x=open.filter(function(y){ return y.subject===s.id && fits(y); })
+    const x=shared.filter(function(y){ return y.subject===s.id && fits(y); })
       .sort(function(a,b){ return rem[b.key]-rem[a.key] || (a.key<b.key?-1:a.key>b.key?1:0); })[0];
-    const c=queue[x.key].shift();
-    items.push({ code:c, subject:x.subject, hrs:HRS_OF[c] });
-    left -= Math.min(HRS_OF[c], budget); rem[x.key] -= HRS_OF[c];
+    place(x);
   }
   return { items, left, budget, open:opened };
 }
@@ -3018,8 +3062,10 @@ function PlanView({data, A}){
         Days are filled to a budget that follows the academic calendar — {phaseById("wteach").hrs} h on a
         teaching day, {phaseById("wteach").hrs+WEEKEND_BONUS} h at the weekend, {phaseById("wexam").hrs} h inside an
         exam period. Each topic has an estimated length — small, medium or large, with hours per
-        size for each course — and pathophysiology gets the largest share of the time, then
-        pharmacology, then the rest.
+        size for each course. Over the winter the study time is shared out in your order —{" "}
+        {STUDY_SHARE.map(function(g){ return SUBJECT[g.id].short+" "+Math.round(g.share/SHARE_TOTAL*100)+"%"; }).join(", ")},
+        everything else {Math.round(REST_SHARE/SHARE_TOTAL*100)}% — and Simulation Medicine's
+        preparation falls on the day before each class.
       </p>
       <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px"}}>
         You have ticked <strong>{cov.done} of {cov.total}</strong> topics across the year.

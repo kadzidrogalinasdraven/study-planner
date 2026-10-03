@@ -177,7 +177,8 @@ classes L, single narrow causes or drug groups S. `HOURS_PER_ECTS`, `SELF_STUDY_
 
 **The consequence he must keep seeing: the winter does not fit.** The three January exams, the
 Pathology and Simulation winter blocks need ~846 h; at his 3 h teaching days the calendar holds
-384 h to 10 Jan. The overflow banner read **544 h** on 2 Oct, up from 52 h. That is the honest
+384 h to 10 Jan. The overflow banner read **544 h** on 2 Oct, up from 52 h, and **505 h** on
+3 Oct once General Pathology stopped being charged to January. That is the honest
 number, not a bug — **never shrink `SIZE_HOURS` to make the banner smaller.** The levers are his:
 the daily budget (`PHASES`), booking exam dates late in the period (each booked day adds up to
 8 h of runway), and skipping blocks.
@@ -191,30 +192,52 @@ freeze the page for no benefit.
 
 Five rules that are load-bearing and easy to break:
 
-- **The scheduling unit is a curriculum BLOCK, not a subject.** Pathology's winter blocks are due
-  at the January credit and its summer blocks at the June final. Scheduling per subject made the
-  January credit invisible, which is a genuine way to fail a course.
+- **The scheduling unit is a curriculum BLOCK, not a subject.** A block is due when something
+  examines it. Simulation Medicine's winter block is due at the January credit, which needs every
+  session. **General Pathology (`PAT-G`) carries `paceTo:"exam"` since 3 Oct 2026** and is due at
+  the June final: SIS's completion requirements say the winter credit is "physical presence at
+  the practicals" — nothing else (checked 3 Oct 2026). Until then the code charged its 47
+  questions against January on the claim that the January credit examined them; it never did.
+  Before giving any other block a January deadline, check in SIS that the credit examines it.
 - **A block cannot be scheduled before the semester that teaches it** (`SEM_OPEN`). Without this
   the planner had you studying Propedeutics of Surgery in October, against lectures that happen
   in March.
 - **A topic costing more than a whole day is capped at the day's budget** in `fillDay`. With the
   2026-10-02 hours the largest topics are 3.5 h against a 3 h teaching day; without the cap they
   would be unschedulable forever and sit permanently in overflow.
-- **The day is filled by SHARES, not by a ranking of blocks (2026-10-02).** Linas: "pathophysio,
-  then pharma and then the rest". `STUDY_PRIORITY` makes three groups — `pfy` (weight 1.3), `pha`
-  (1.15), everything else (1). Each topic placed goes to the group least far along its own list
-  (hours done ÷ hours of its blocks open that day) divided by its weight; ties in priority order.
-  Inside the rest, the subject furthest **behind an even pace** to its own deadline goes first;
-  inside a subject, the block with most hours left. Followed exactly from 2 Oct to 10 Jan this
-  gives Pathophysiology 42%, Pharmacology 32%, Intro to Internal Medicine 13%, Pathology 9%,
-  Simulation and Czech 2% each, and every one of them is on the plan within a week.
+- **The day is filled by SHARES OF THE HOURS (2026-10-03).** Linas: "pathophysio, then pharma,
+  then internal, and if still time once or twice a week patho". `STUDY_SHARE` gives the winter
+  groups `pfy` 40, `pha` 30, `iim` 20, `pat` 7, and `REST_SHARE` 3 for everything else (Czech,
+  Psychology). Each topic placed goes to the group whose **hours done ÷ share** is lowest; ties in
+  that order. Only the ratios count. **The shares stop when summer teaching opens**
+  (`groupOf(subject, date)` returns "rest" from `SEM_OPEN.summer`): in the summer every course is
+  paced to its own deadline, and the summer split is a decision for February. Inside the rest,
+  the subject furthest **behind an even pace** to its own deadline goes first; inside a subject,
+  the block with most hours left. Followed exactly from 3 Oct, a teaching week holds 3.7
+  pathophysiology, 2.9 pharmacology, 1.5 internal-medicine and 1.1 pathology topics (0–2 a
+  week); by 10 Jan that is 59/153, 45/134, 28/42 and 18/224.
+  **Why hours and not "how far along each list"** — the rule of 2–3 Oct, `STUDY_PRIORITY` with
+  weights 1.3/1.15/1 on the share of a list done: it gives each subject time roughly in
+  proportion to the length of its list, so the 42-question internal-medicine list got 0.9 topics
+  a week, fewer than Pathology's 1.4 — the reverse of his order — and making internal medicine
+  third would have needed it to carry the LARGEST weight, which reads as nonsense. Shares of
+  hours say what he said.
+  **Class preparation is outside the shares (`PREP_PIN`, 2026-10-03).** The k-th topic of
+  `SIM-W` is pinned to the day before the k-th date of the `sim-prac` slot (`PIN_DAY`), because
+  the Moodle work is checked at the door and is a condition for being let in. The coordinator's
+  e-mail gives no topic per date, only that each topic builds on the one before, so syllabus
+  order is taken as class order. A missed prep is placed first on the next day it fits — so a
+  week with a missed prep re-flows differently from one without (the engine test for "behind"
+  uses the week of 12 Oct for that reason). Under the shares Simulation Medicine had only five of
+  its six winter preps placed by 10 Jan, none tied to a class. SIM-S gets pinned when the summer
+  dates are in `TIMETABLE`.
   Three reasons it is built like this, all learned the hard way:
   - **A plain priority order would park pharmacology.** At 1.5–3.5 h a topic a teaching day holds
     one; "pathophysiology first" would be pathophysiology every day for weeks — exactly what the
     pharmacology teacher warned against (see the comment above `fillDay`).
   - **Weights on REMAINING hours front-load.** Multiplying need or pressure by a weight builds the
     whole lead at the start: tried on paper, 1.3 on pathophysiology meant about three weeks of
-    nothing else. Weighting the share DONE builds the lead gradually from zero.
+    nothing else. Shares of the hours DONE build the lead gradually from zero.
   - **Ranking BLOCKS lets the cutting decide.** When blocks were ranked one by one (until
     2026-10-02), a subject in more blocks won more slots: Pharmacology's two Special blocks
     pushed Pathophysiology off the plan until 25 October. And ranking by hours left inside the
@@ -346,8 +369,9 @@ this ring, and do not read a 100% coursework week as "on track for the exams".
 week holds 19 topics, not 21, because with 17 h less pharmacology the days take more of the
 dearer Pathology and Internal Medicine topics; the first, short week is still 12.
 **Since the topic-size hours (2026-10-02) a full week holds 11 topics and the first week 8, and
-the overflow is about 544 h** — see "Hours are estimated per topic". The ring is unchanged in kind:
-100% still means "did what the Plan put in this week".
+the overflow is about 544 h** — see "Hours are estimated per topic". **Since the shares of hours
+(2026-10-03) a full week holds 11–12 and the overflow banner reads 505 h.** The ring is unchanged
+in kind: 100% still means "did what the Plan put in this week".
 
 The week grid carries the coursework under Gym and Languages: one row per course, one
 `TopicTick` per planned topic, under the day the Plan gives it. **It is the same tick as
@@ -1847,6 +1871,34 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   5 Oct), the essay date and the textbook (Thu 15 Oct). Put each answer into the planner.
   (3) Whether the hour estimates feel right after a week of real study — the lever is
   `SIZE_HOURS`. (4) The 548 h overflow: his daily budget, late exam dates, or skips.
+- 2026-10-03 · **Planning session: the study priority and an automatic planner check.** He asked
+  for "pathophysio, then pharma, then internal and if still time once or twice a week patho", and
+  for the planner to keep itself up to date automatically ("I never want outdated information").
+  Simulated four ways of weighting on a copy of `fillDay` that matched the shipped one on every
+  day of the year; he chose shares of the hours, 40/30/20/7/3, General Pathology paced to June,
+  Simulation Medicine prep pinned. For the automation he chose: official facts applied
+  automatically, everything else waits for his OK; runs morning and evening; and his class
+  recordings read from the start — he will mark the Wispr Flow sessions worth reading with titles
+  like "Introduction …" or "Information …", and **a log of what has been read must be kept so
+  nothing is read twice.**
+- 2026-10-03 · Found on the way: his existing "morning briefing" is a **cloud routine**
+  (`trig_012JocxLdZg1M2UpMpU4EfHP`, cron `0 5 * * *` UTC, Gmail + Calendar connectors, no repo,
+  Sonnet). Its Gmail query is event keywords only, so it misses most school mail: on 3 Oct it
+  scanned one e-mail, and it never saw the 2 Oct e-mail from the internal-medicine secretary
+  (`KLICKOVAJ@fnplzen.cz`, "Prezenční listina 5 AB kruhu…") whose attachment holds the 5A/5B
+  attendance lists. Official school mail does reach his Gmail: SIS course messages
+  (`studium.noreply@is.cuni.cz`, and teachers' own addresses with a "This message in SIS" footer),
+  Moodle news-forum posts (`noreply@moodle.lfp.cuni.cz`), department staff (`@lfp.cuni.cz`),
+  hospital staff (`@fnplzen.cz`), the study department (`medstudy@lfp.cuni.cz`).
+- 2026-10-03 · **Engine: shares of the hours.** `STUDY_PRIORITY` → `STUDY_SHARE` + `REST_SHARE`,
+  `GROUP_W` → `GROUP_SHARE`, `groupOf(subject, date)`, `PREP_PIN`/`PIN_DAY`, `PAT-G` `paceTo:"exam"`,
+  `blockDeadline` honours it. Rules under "The plan engine". The Plan tab's sentence about the
+  split is generated from `STUDY_SHARE`. **The engine tests now live in the repo**,
+  `tools/engine-tests.js` (39 checks: the old 34 with the "behind" week moved to 12–18 Oct, plus
+  shares within 2 points, every prep on the day before its class, General Pathology due in June,
+  shares off in summer, a missed prep first the next day). To run them: load `planner-clean`,
+  then in the page `(0,eval)(await (await fetch('/tools/engine-tests.js?r='+Date.now())).text())`
+  → `{checks, fails, failed}`. The copy under `~/.claude/projects/…/tests/` is superseded.
 
 ---
 

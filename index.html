@@ -672,7 +672,7 @@ const TERMS = {
 const TIMETABLE = [
   { id:"pfy-prac", term:"winter", day:1, start:"08:00", end:"10:30", subject:"pfy", kind:"practical", room:"UPF-J",        teacher:"Purkartová Zdeňka, MUDr., Ph.D.",        weeks:"all" },
   { id:"pha-lec",  term:"winter", day:1, start:"11:00", end:"13:30", subject:"pha", kind:"lecture",   room:"P-HNĚDÁ",      teacher:"Kučera Radek, prof. PharmDr., Ph.D.",    weeks:"all" },
-  { id:"iim-prac", term:"winter", day:2, start:"08:00", end:"10:30", subject:"iim", kind:"practical", room:"FN-2IK",       teacher:"5A doc. Hirmerová · 5B Dr. Nussbaumerová", weeks:"all",
+  { id:"iim-prac", term:"winter", day:2, start:"08:00", end:"10:30", subject:"iim", kind:"practical", room:"FN-2IK",       teacher:"Dr. Nussbaumerová · group 5B",           weeks:"all",
     note:"Bring a white coat, slippers, a stethoscope and a visible ID card." },
   { id:"iim-lec",  term:"winter", day:2, start:"11:00", end:"12:40", subject:"iim", kind:"lecture",   room:"P4",           teacher:"Mlíková Seidlerová Jitka, prof. MUDr.",  weeks:"all" },
   { id:"sim-prac", term:"winter", day:3, start:"07:30", end:"09:10", subject:"sim", kind:"practical", room:"USIM5.21A",    teacher:"Smékalová Olga, MUDr.",                  weeks:"even",
@@ -696,12 +696,14 @@ const TIMETABLE_CONFIRM   = {};   // empty since 1 Oct 2026: Simulation Medicine
 const TIMETABLE_EXTRA     = {};   // date → slot ids forced on against the week rule
 /* What the department's own schedule says about one session. Psychology: "Practicals schedules
    groups 1 - 5 GM.pdf", group 5. Internal medicine: "Rules general medicine 3rd year winter
-   26-27.pdf" — the practical exam is sat in class time "in the last two weeks of semester". */
+   26-27.pdf" — the practical exam is sat in class time "in the last two weeks of semester".
+   Group 5B, Dr. Nussbaumerová: the department's 5B attendance sheet (Tue 08:00–10:30, the same
+   eleven Tuesdays the week rule gives); Linas swapped into 5B from 5A on 4 Oct 2026. */
 const TIMETABLE_NOTES = {
   "2026-10-01": { "pha-prac":"First practical. No credit test this semester — an optional short test after each practical instead. A pre-term needs 100% attendance. The question list in SIS gets small changes this week; the teacher will announce the final version. Moodle: the same practicals course as before, with the first two lectures — antidiarrheals and laxatives — now at the top.",
                   "mpe-sem":"Introduction to medical psychology.", "pat-lec":"No lecture in week 1." },
   "2026-10-02": { "pat-prac":"No practicals in week 1." },
-  "2026-10-06": { "iim-prac":"First class: go to the Clinic Office (Secretariat) — your teacher meets you there." },
+  "2026-10-06": { "iim-prac":"First class: go to the Clinic Office (Secretariat) — Dr. Nussbaumerová (5B) meets you there. You swapped into 5B from 5A: ask her to put your name on the 5B attendance sheet, because the credit counts the practicals recorded there." },
   "2026-10-08": { "pat-lec":"Introduction to pathology, methods. Cell injury and death, adaptations, intracellular accumulations, calcification, stones. Tissue repair. — Michalová, Bradová" },
   "2026-10-09": { "pat-prac":"00. Introduction. Methods and death." },
   "2026-10-15": { "mpe-sem":"Doctor–patient relationship. Chronic patient, acute patient. Joined with group 1.",
@@ -727,10 +729,10 @@ const TIMETABLE_NOTES = {
   "2026-12-10": { "mpe-sem":"Communication with elderly patients. Important aspects of senior age.",
                   "pat-lec":"Pathology of the cardiovascular system. — Skálová" },
   "2026-12-11": { "pat-prac":"08. Mesenchymal and other tumors." },
-  "2026-12-15": { "iim-prac":"Practical exam window: it is sat in class time in the last two weeks, with the parallel group’s teacher if possible." },
+  "2026-12-15": { "iim-prac":"Practical exam window: it is sat in class time in the last two weeks, with the parallel group’s teacher — 5A, doc. Hirmerová — if possible." },
   "2026-12-17": { "pat-lec":"Pathology of the endocrine system. — Daumová" },
   "2026-12-18": { "pat-prac":"14. Gastrointestinal tract." },
-  "2027-01-05": { "iim-prac":"Practical exam window: it is sat in class time in the last two weeks, with the parallel group’s teacher if possible." },
+  "2027-01-05": { "iim-prac":"Practical exam window: it is sat in class time in the last two weeks, with the parallel group’s teacher — 5A, doc. Hirmerová — if possible." },
   "2027-01-07": { "mpe-sem":"Evaluation of essays.", "pat-lec":"Pathology of the lung, pleura and mediastinum. — Vaňková" },
   "2027-01-08": { "pat-prac":"10. Cardiovascular system. Credits." },
 };

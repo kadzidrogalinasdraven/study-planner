@@ -76,7 +76,7 @@ PY
 
 ---
 
-## Now — state and open items (updated 2026-10-03)
+## Now — state and open items (updated 2026-10-04)
 
 **Live:** the third-year planner on GitHub Pages. Since 3 Oct the winter's study time is shared
 40/30/20/7/3 (pathophysiology, pharmacology, internal medicine, pathology, the rest) and the
@@ -84,18 +84,16 @@ overflow banner reads about 505 h. The planner check — a cloud routine, mornin
 in dry run until 6 Oct and live from 7 Oct (see "The planner check" below).
 
 **Open, for him — his clicks and his answers:**
-1. **5A or 5B** for the internal-medicine practical. The 2 Oct e-mail from the 2nd Dept. of
-   Internal Medicine secretary carries the attendance lists as an attachment; otherwise his first
-   class, Tue 6 Oct, settles it.
-2. The four **"Ask:" events** in his Calendar (Mon 5, Tue 6, Thu 8, Thu 15 Oct): the answers go
-   into the planner, by the planner check if they arrive by official mail.
-3. The **final pharmacology list** (pre-final since 1 Oct): diff by content, new codes from
+1. The four **"Ask:" events** in his Calendar (Mon 5, Tue 6, Thu 8, Thu 15 Oct): the answers go
+   into the planner, by the planner check if they arrive by official mail. Tue 6 Oct: tell
+   Dr. Nussbaumerová he swapped into 5B, and ask for his practical-exam date (15 Dec or 5 Jan).
+2. The **final pharmacology list** (pre-final since 1 Oct): diff by content, new codes from
    `PHA335` — "Pharmacology: the official list is in".
-4. The **essay date**: 11 Nov stands, flagged, until 18 Nov is confirmed.
-5. **Sign-in:** the no-popup sign-in is deferred ("we'll do it later"); whether Reconnect still
+3. The **essay date**: 11 Nov stands, flagged, until 18 Nov is confirmed.
+4. **Sign-in:** the no-popup sign-in is deferred ("we'll do it later"); whether Reconnect still
    appears after an hour is unanswered, and so is whether Chrome's pop-up default was already
    "allow" before 30 Sep.
-6. Whether the **hour estimates** (`SIZE_HOURS`) feel right after a week of real study.
+5. Whether the **hour estimates** (`SIZE_HOURS`) feel right after a week of real study.
 
 **Due later, for whichever session touches the engine then:**
 - **February**, with the summer timetable: decide the summer split — the shares stop on 15 Feb and
@@ -393,7 +391,9 @@ date. The full story with every correction is in `docs/SESSION-LOG.md` (28–30 
 - **Public holidays (28 Oct, 17 Nov) are not in `TERMS.breaks`:** a break week is skipped when
   teaching weeks are counted, a single day is not.
 - Lectures are the whole year group; practicals and seminars are group 5. Internal medicine splits
-  into 5A (doc. Hirmerová) and 5B (Dr. Nussbaumerová) — which one he is in is still open.
+  into 5A (doc. Hirmerová) and 5B (Dr. Nussbaumerová). **He is in 5B** since 4 Oct 2026, by a
+  swap with a classmate: the department's 5B sheet, as sent, still lists the classmate and not
+  him, until the teacher changes it. Same Tuesdays, same time, so only the teacher changed.
 - `ROOMS` decodes the SIS room codes; `P4` is at FN Bory, across town.
 - **The Calendar copy:** 12 recurring series in his primary calendar, a 30-minute popup each, tagged
   `[planner:class <subject>]` in the description so the planner's own feed hides them; the series

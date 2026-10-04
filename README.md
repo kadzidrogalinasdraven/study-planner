@@ -181,7 +181,7 @@ planner, so you never have to tell it:
 Official facts for your group — a cancelled or moved class, a room, a deadline, a credit rule —
 go into the planner and into the matching Calendar entry by themselves, and only after a check has
 confirmed that the page still loads and the plan still adds up. Everything else waits for you:
-topic lists, hours, anything from classmates, anything unclear about 5A or 5B. It all shows on the
+topic lists, hours, anything from classmates, anything meant only for 5A (you are in 5B). It all shows on the
 📋 card at the top of Today — what changed and where it came from, then what needs your OK,
 numbered; say "apply 2" in a Claude chat. No card means the check did not run. Until 7 October it
 only reports what it would change. Every change it makes is listed in `docs/planner-updates.md`,

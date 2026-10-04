@@ -540,3 +540,15 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   Build status "Stopped", confirmed after a reload ("Builds are stopped" in the project list). The
   team's other projects untouched — `studentforstudents.com` is live and keeps building; `flashd`
   and `super-mandazi-33675d` build only when their own repos change.
+- 2026-10-04 · **Internal medicine: he is in 5B, Dr. Nussbaumerová.** He sent the department's
+  5B attendance sheet (II. IK, "prezenční listina", winter 2026/27) and said he is swapping with a
+  5B classmate, so the sheet does not yet carry his name. The sheet: Tue 08:00–10:30, 6 Oct to
+  5 Jan, 17 Nov, 22 and 29 Dec marked no teaching. That gives the same 11 Tuesdays `classesOn`
+  already gave (checked in the gate's jsdom). Oddity: every row's "Kruh" column reads "5 A",
+  while the header and filename say 5B. The teacher decides, so it is 5B. Changed: the
+  `iim-prac` teacher, the 6 Oct note (ask her to put his name on the 5B sheet, because the credit
+  counts recorded practicals), and the two exam-window notes, which now name the parallel
+  teacher, doc. Hirmerová. In Calendar: the series' description, the Tue 6 Oct "Ask:" event
+  (retitled; the exam-date question stays open), and question 1 on today's briefing card marked
+  answered. `AUTOMATION.md`: 5B applies, 5A-only is reported and never applied. The sheet lists
+  classmates' names, so it stays out of the repo.

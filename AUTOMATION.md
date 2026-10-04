@@ -55,7 +55,9 @@ All three must hold, or it is a question (§3):
   (`noreply@moodle.lfp.cuni.cz`), a SIS course page, or a teacher's own words in a marked recording
   (§5, with its own limits).
 - **For him.** Third year, English General Medicine (`AVSEOB`), his group 5 — or the whole year.
-  He has not said whether he is 5A or 5B: anything for only one of them is a question.
+  For internal medicine he is in **5B (Dr. Nussbaumerová)** since 4 Oct 2026, by a swap with a
+  classmate, so the department's own lists may still put him in 5A. Anything for 5B, or for both,
+  is for him; anything for 5A only is reported in the briefing, never applied.
 - **Unambiguous.** One clear date, time or room, not conditional, and no other official source
   says otherwise.
 
@@ -76,7 +78,7 @@ What may change, and where:
 - Hours, shares, budgets, priorities: `SIZE_HOURS`, `TOPIC_SIZE`, `STUDY_SHARE`, `PHASES`.
 - Anything from classmates or unofficial channels — including what he forwards himself, unless his
   forward says "apply".
-- Anything that contradicts another official source, or that fits only 5A or only 5B.
+- Anything that contradicts another official source.
 - Anything that would delete or retire something.
 
 **How to ask:** under "Needs your OK" in the briefing card, numbered, each with what the source

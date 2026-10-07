@@ -43,8 +43,10 @@ first live run), and write in the briefing "Would change: …". From that date o
 5. **Gate, then publish.** One commit for the run, then `node tools/check.mjs --auto`. Push to
    `main` only if it prints `GATE PASSED`. If it fails: `git reset --hard origin/main`, change
    nothing else, and put the gate's message at the top of the briefing.
-6. **Ask** (§3): numbered, in the briefing card.
-7. **Report** in the briefing card (§6). Label the processed mail.
+6. **Draft the answers** (§2a): a Gmail draft for every processed message that needs a reply or
+   an e-mail from him. Never sent — he clicks Send.
+7. **Ask** (§3): numbered, in the briefing card.
+8. **Report** in the briefing card (§6). Label the processed mail.
 
 ## 2. Applied automatically
 
@@ -71,6 +73,28 @@ What may change, and where:
 | A credit or exam rule, stated by the department | `SUBJECTS[].creditRule` / `examFormat` — quote the source's sentence, do not interpret | — |
 | Exam dates published in SIS | nothing (he books them himself) | — ; put it **first** in the briefing: good dates go fast |
 
+## 2a. Draft e-mails, ready to send (his request, 7 Oct 2026)
+
+He asked for "draft responses I just have to click send". So when a processed message needs an
+answer or a follow-up e-mail from him, write it as a **Gmail draft**, never send it:
+
+- **When:** a teacher or office asks him something or asks him to do something by e-mail ("ask the
+  Study Department to enrol you"), approves or refuses a request of his, or a deadline needs a
+  confirmation from him. Not for circulars, newsletters, automatic SIS notices or anything only
+  informative.
+- **Which:** a reply in the same thread (`replyToMessageId`), plus a new e-mail when the reply
+  sends him elsewhere — e.g. to the English Study Department, `medstudy@lfp.cuni.cz`, with the
+  approving teacher in Cc and the approval quoted.
+- **How:** English, short, polite, in his own style. Sign-off as in his own sent mail:
+  "Kind regards, / Linas Kadzidroga / 3rd year, General Medicine (English programme) / Faculty of
+  Medicine in Pilsen, Charles University". Read his own message in the thread first so the
+  answer fits it, and correct nothing he did not ask about.
+- **Never twice:** `list_drafts` (full view) before creating one; if a draft to the same people
+  on the same matter exists, leave it. Never send, never delete or edit a draft he has touched.
+- **Report:** under "Drafts ready:" on the card, one line each: to whom, about what.
+- Drafts are private (Gmail), so they may contain what the public repo may not — but nothing
+  about drafts goes into the repo beyond "a draft was prepared".
+
 ## 3. Never applied automatically — a question instead
 
 - Topic lists: anything in `CURRICULUM`, codes included. When the final pharmacology list arrives,
@@ -96,7 +120,8 @@ requests were the first idea; `gh` has no valid token in the cloud, so they are 
   a Moodle enrolment key, a password, or anything about his health or private life — not in the
   code, not in a commit message, not in a pull request. Staff already named in `TIMETABLE` may be
   named. The briefing card is in his private calendar and may say more.
-- Never send, reply to, forward, delete, archive or mark read any e-mail. Labels only.
+- Never send, reply to, forward, delete, archive or mark read any e-mail. Labels and drafts
+  (§2a) only.
 - Never open a recording whose title carries no marker (§5).
 - Never delete a Calendar event. Never edit a class series' own rule: find an instance by listing
   that day's events, never by building its id — the fortnightly series consist of moved instances
@@ -114,6 +139,22 @@ Skip every id already in `tools/state/recordings-read.json`. For a new one, read
 (`get_meeting` without a transcript); ask for the transcript only when the summary points at
 something planner-relevant and is vague about it. Then add its id and today's date to that file —
 ids only, never titles or content, because the file is public. Every recording is read once.
+
+**Two advisors work on this planner** (agreed 7 Oct 2026): Claude (this routine and chat sessions)
+and Kimi, another assistant he uses on his Mac. So that neither does the other's work twice:
+
+- `tools/state/recordings-read.json` is the single record of "this recording has been read and its
+  planner facts applied". Whoever reads one — automatically or by hand, Claude or Kimi — adds its
+  id and the date. Ids only.
+- Before applying anything from a recording or a transcript, check (a) that file, (b) the planner
+  itself, and (c) his Calendar on the dates concerned. If the fact is already in any of them, do
+  not add it again: a second Calendar event or a duplicate note is what reaches him.
+- Kimi's own log is on his Mac (`~/Projects/advisor/study-planner advisor/ADVISOR_LOG.md`, §0.3
+  open items, §7 dated journal, newest on top). A cloud run cannot read it; a session on the Mac
+  should, before comparing content. Transcripts he forwards to Kimi by hand never reach
+  `recordings-read.json` unless Kimi adds them.
+- Commit messages on `main` are the shared channel: say plainly what was done and what was
+  deliberately skipped.
 
 Speech-to-text mishears numbers. So from a recording alone: notes, tasks and announced tests with a
 clearly stated date are applied, written as "(from your recording of <class>, <date>)"; a **changed**
@@ -133,6 +174,9 @@ Planner updated:
 Needs your OK:
 1. Essay date: the department's list moves the 12 Nov seminar to 19 Nov — make the essay due
    Wed 18 Nov instead of 11 Nov?
+Drafts ready:
+• Reply to Doc. Ježek — thanks, will attend 13 Oct
+• To the English Study Department (Cc Ježek) — enrol me in EAV090X02
 Calendar: added "Faculty open day" Wed 14 Oct 16:00
 Skipped: 2 newsletters, 1 library notice
 ```

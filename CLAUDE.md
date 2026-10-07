@@ -76,7 +76,7 @@ PY
 
 ---
 
-## Now — state and open items (updated 2026-10-04)
+## Now — state and open items (updated 2026-10-07)
 
 **Live:** the third-year planner on GitHub Pages. Since 3 Oct the winter's study time is shared
 40/30/20/7/3 (pathophysiology, pharmacology, internal medicine, pathology, the rest) and the
@@ -94,6 +94,11 @@ in dry run until 6 Oct and live from 7 Oct (see "The planner check" below).
    appears after an hour is unanswered, and so is whether Chrome's pop-up default was already
    "allow" before 30 Sep.
 5. Whether the **hour estimates** (`SIZE_HOURS`) feel right after a week of real study.
+6. **Core elective EAV090X02** (Brain, Doc. Ježek, Neuroseminar, Tue 16:00, 8 dates 13 Oct–8 Dec,
+   credit = 6 of 8): approved by Ježek on 7 Oct; two Gmail drafts wait for his Send — a thank-you
+   reply and the enrolment request to the Study Department. Calendar series is in. Not in the
+   planner's `TIMETABLE` (electives are not modelled) — ask before adding it. **ECG Principles**
+   (EAV090X03, prof. Cendelín): asked 7 Oct, no answer yet.
 
 **Due later, for whichever session touches the engine then:**
 - **February**, with the summer timetable: decide the summer split — the shares stop on 15 Feb and
@@ -505,6 +510,17 @@ works.** What a session needs to know:
 | Other read logs | `tools/state/sources.json` (the SIS snapshot), `tools/state/recordings-read.json` (Wispr ids only — the file is public) |
 | Gate | `node tools/check.mjs`; the routine adds `--auto`. Install once: `npm ci --prefix tools` |
 | Public log | `docs/planner-updates.md` |
+
+**Since 7 Oct it also writes Gmail drafts** for mail that needs an answer from him (AUTOMATION.md
+§2a) — never sends. **And there are two advisors:** Kimi (another assistant, on his Mac) works on
+the same planner. `tools/state/recordings-read.json` is the shared record of read recordings for
+both; check it, the planner and the Calendar before applying anything from a recording, and say in
+commit messages what was done and skipped. Kimi keeps its own log on the Mac (path in
+AUTOMATION.md §5). Rules in AUTOMATION.md §5.
+
+**Recordings without a marker word in the title are never read automatically** — "Czech class
+overview" or "Pathophysio class" would be missed. Tell him to put intro / info / organisation in
+the title of any recording the planner should read.
 
 Things that are easy to get wrong:
 - **`main` moves under you.** The routine commits to `main`. Before deploying from `test`:

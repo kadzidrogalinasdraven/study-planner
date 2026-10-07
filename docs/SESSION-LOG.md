@@ -552,3 +552,19 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   (retitled; the exam-date question stays open), and question 1 on today's briefing card marked
   answered. `AUTOMATION.md`: 5B applies, 5A-only is reported and never applied. The sheet lists
   classmates' names, so it stays out of the repo.
+- 2026-10-07 · **First live run** of the planner check (morning): Pathophysiology II exam dates
+  announced in SIS (3 notices) put first on the card; SPPČ meeting (13 Oct 14:00) into Calendar;
+  one recording read. Pushed only `recordings-read.json`.
+- 2026-10-07 · He asked whether the check reads all his Wispr notes: no — only titles with a
+  marker word. He then asked for the unchecked ones by hand: six read (`deecd79`). Applied: Tue
+  13 Oct internal-medicine note (heart examination), the teacher's exam advice as the IIM card's
+  `note`, Wed 14 Oct Czech homework. Not duplicated: the 13 Oct "HEART examination" Calendar event,
+  which Kimi had already made. Pathophysiology lecture recordings and a bedside case: content only.
+- 2026-10-07 · **Kimi** (another assistant he uses) proposed a protocol; recorded in AUTOMATION.md §5
+  and CLAUDE.md. Its log is on the Mac, unreachable from the cloud.
+- 2026-10-07 · **Drafts:** he wants e-mail drafts he only has to send — AUTOMATION.md §2a. First
+  two: reply to Doc. Ježek (elective EAV090X02 approved) and the enrolment request to the English
+  Study Department with Ježek in Cc. Neuroseminar series in Calendar (8 dates via RDATE); "Azure
+  lecture hall" taken to be the Blue hall (P-MODRÁ, U2) — unconfirmed. **Model:** he wants Opus 5.5
+  at medium or high effort; the routine still runs Sonnet 5.5 — only he can change it at
+  claude.ai/code/routines.

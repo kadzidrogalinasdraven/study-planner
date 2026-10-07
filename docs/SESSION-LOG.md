@@ -571,3 +571,6 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 - 2026-10-07 · He confirmed the student number. Stored, with his other details, in a private Gmail
   draft "📌 Student profile — for assistants (do not send)"; CLAUDE.md and AUTOMATION.md §2a point
   there. Not in the repo.
+- 2026-10-07 · He asked for Instagram through Claude in Chrome and maybe uni WhatsApp groups. This
+  cloud session has no Chrome tools; the bridge (a Mac scheduled task that mails a "planner: social
+  digest" the cloud check already reads) is designed in AUTOMATION.md §1a, not built.

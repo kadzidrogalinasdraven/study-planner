@@ -99,6 +99,9 @@ in dry run until 6 Oct and live from 7 Oct (see "The planner check" below).
    reply and the enrolment request to the Study Department. Calendar series is in. Not in the
    planner's `TIMETABLE` (electives are not modelled) — ask before adding it. **ECG Principles**
    (EAV090X03, prof. Cendelín): asked 7 Oct, no answer yet.
+7. **Instagram (via Claude in Chrome) and uni WhatsApp groups** as sources: wanted 7 Oct; a cloud
+   run cannot reach Chrome. Design in AUTOMATION.md §1a (a Mac scheduled task e-mails a
+   `planner: social digest`). **Not set up** — needs a session on the Mac, and his list of groups.
 
 **Due later, for whichever session touches the engine then:**
 - **February**, with the summer timetable: decide the summer split — the shares stop on 15 Feb and

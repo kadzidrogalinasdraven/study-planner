@@ -73,6 +73,23 @@ What may change, and where:
 | A credit or exam rule, stated by the department | `SUBJECTS[].creditRule` / `examFormat` — quote the source's sentence, do not interpret | — |
 | Exam dates published in SIS | nothing (he books them himself) | — ; put it **first** in the briefing: good dates go fast |
 
+## 1a. Instagram and WhatsApp — read on the Mac, delivered by e-mail (planned 7 Oct 2026)
+
+He wants the school Instagram accounts read through **Claude in Chrome** (the API never worked
+reliably), and possibly his university WhatsApp groups. Neither can be read by this cloud run: the
+Chrome extension lives in his Chrome on his Mac. The design, **not yet set up**:
+
+- A **scheduled task in the Claude desktop app on the Mac**, a little before each cloud run, reads
+  them in Chrome (Instagram: the `insta-checkup` skill's account list; WhatsApp Web: only the
+  groups he names) and e-mails him **one message to himself, subject `planner: social digest`**,
+  with one line per dated finding and its source ("Instagram @…, post of 6 Oct").
+- This run already reads that mail (`from:me to:me subject:planner`). Instagram posts by
+  **official faculty or department accounts** count as official (§2). **WhatsApp is classmates**:
+  unofficial, so every WhatsApp finding is a question (§3) unless the digest line says "apply".
+- If the Mac is asleep, no digest comes: say "no social digest" on the card, nothing else.
+- WhatsApp holds classmates' names and phone numbers: they never go into the digest, the card's
+  public counterpart or the repo — only what was announced, when, and in which group.
+
 ## 2a. Draft e-mails, ready to send (his request, 7 Oct 2026)
 
 He asked for "draft responses I just have to click send". So when a processed message needs an

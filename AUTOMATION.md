@@ -80,8 +80,8 @@ reliably), and possibly his university WhatsApp groups. Neither can be read by t
 Chrome extension lives in his Chrome on his Mac. The design, **not yet set up**:
 
 - A **scheduled task in the Claude desktop app on the Mac**, a little before each cloud run, reads
-  them in Chrome (Instagram: the `insta-checkup` skill's account list; WhatsApp Web: only the
-  groups he names) and e-mails him **one message to himself, subject `planner: social digest`**,
+  them in Chrome (Instagram: the `insta-checkup` skill's account list; WhatsApp Web: **only the
+  group "Group 5 2.0"** — his choice, 7 Oct 2026, "that's enough") and e-mails him **one message to himself, subject `planner: social digest`**,
   with one line per dated finding and its source ("Instagram @…, post of 6 Oct").
 - This run already reads that mail (`from:me to:me subject:planner`). Instagram posts by
   **official faculty or department accounts** count as official (§2). **WhatsApp is classmates**:

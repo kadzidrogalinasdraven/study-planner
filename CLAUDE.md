@@ -518,6 +518,11 @@ both; check it, the planner and the Calendar before applying anything from a rec
 commit messages what was done and skipped. Kimi keeps its own log on the Mac (path in
 AUTOMATION.md §5). Rules in AUTOMATION.md §5.
 
+**His personal details** — student number (confirmed 7 Oct), group, study-department address,
+e-mail sign-off — are kept in a private Gmail **draft** titled "📌 Student profile — for assistants
+(do not send)", so any assistant with Gmail can find them. **Never copy them into this public repo**;
+the safety check blocked a commit that tried (7 Oct).
+
 **Recordings without a marker word in the title are never read automatically** — "Czech class
 overview" or "Pathophysio class" would be missed. Tell him to put intro / info / organisation in
 the title of any recording the planner should read.

@@ -89,6 +89,9 @@ answer or a follow-up e-mail from him, write it as a **Gmail draft**, never send
   "Kind regards, / Linas Kadzidroga / 3rd year, General Medicine (English programme) / Faculty of
   Medicine in Pilsen, Charles University". Read his own message in the thread first so the
   answer fits it, and correct nothing he did not ask about.
+- **His details** (student number, group, study department, sign-off) are in the Gmail draft
+  "📌 Student profile — for assistants (do not send)". Read them there; never copy the student
+  number or any of it into the repo.
 - **Never twice:** `list_drafts` (full view) before creating one; if a draft to the same people
   on the same matter exists, leave it. Never send, never delete or edit a draft he has touched.
 - **Report:** under "Drafts ready:" on the card, one line each: to whom, about what.

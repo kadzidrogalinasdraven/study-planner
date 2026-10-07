@@ -568,3 +568,6 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   lecture hall" taken to be the Blue hall (P-MODRÁ, U2) — unconfirmed. **Model:** he wants Opus 5.5
   at medium or high effort; the routine still runs Sonnet 5.5 — only he can change it at
   claude.ai/code/routines.
+- 2026-10-07 · He confirmed the student number. Stored, with his other details, in a private Gmail
+  draft "📌 Student profile — for assistants (do not send)"; CLAUDE.md and AUTOMATION.md §2a point
+  there. Not in the repo.

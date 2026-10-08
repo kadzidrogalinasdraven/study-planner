@@ -581,3 +581,9 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   Neuroseminar is in the Azure hall (U1), so the Calendar series' "most likely the Blue hall" was
   corrected. Five ECG Calendar events added. Clash Tue 20 Oct flagged, not decided. This answers
   the briefing card's "Needs your OK" item on the ECG seminars.
+- 2026-10-08 · He sent the SIS link to the internal-medicine exam PDF (`did=357554`) and asked if
+  it was in the planner. It was, since 30 Sep; re-read from the scan, all 42 questions match. Two
+  gaps filled: ten question titles cut with "…" now carry their full text (codes unchanged, so
+  no tick moves), and the practical-exam form (`did=336406`, "Application for the practical exam
+  / Examination record") — print it, fill in his half, hand it in at the 2nd Dept. office after
+  the examiner writes the result — is on the subject card and the 8 Dec, 15 Dec and 5 Jan notes.

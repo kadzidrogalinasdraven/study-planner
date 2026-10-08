@@ -205,6 +205,11 @@ which went up in September, two months earlier than last year's. One question wa
 **The new question has the code `IIM042` although it sits eighteenth in its block.** Codes are
 tick keys, not question numbers: renumbering 18–41 would have moved any existing tick onto the
 wrong question. The PDF prints the second group as "III. ECG + varia"; there is no group II.
+**The PDF is a scan with no text layer** — read its page images. Re-read 8 Oct 2026: unchanged.
+Since then all 42 titles carry the **full printed text**; ten had been cut with "…", which hid
+examinable parts (holter monitoring, sensitivity and specificity, barrier precautions). The
+"Examination record" form for the practical exam is `did=336406` on the same page; he hands it in
+at the department office afterwards (on the card and on the 8 Dec, 15 Dec and 5 Jan class notes).
 
 **The extractor lives at `<scratchpad>/extract.py`** and asserts an exact topic count per subject,
 because two courses in the source notes carry the byte-identical heading

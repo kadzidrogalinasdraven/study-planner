@@ -479,7 +479,7 @@ const EXAM_PERIODS = {
   resit: { id:"resit",  from:"2027-07-01", to:"2027-09-15", label:"Resit window" },
 };
 
-/* ── the eleven compulsory third-year courses ───────────────────────────────
+/* ── the eleven compulsory third-year courses, then his two core electives ──
    Source: Charles University SIS, study plan EAVSEOB2023 ("Angl. Všeobecné lékařství … od roku
    2023"), Faculty of Medicine in Pilsen, academic year 2026/2027. Codes, semesters, completion
    types and credit values are transcribed from that plan, not inferred.
@@ -614,6 +614,18 @@ const SUBJECTS = [
     creditRule:"Attendance with two absences allowed, then a credit test: 70%, three attempts, in both semesters.",
     short:"Medical Czech", dept:"14-50", ects:1, color:"#185FA5", sem:"both",
     completion:{ winter:"credit", summer:"credit" }, examId:null },
+  /* His two core electives (8 Oct 2026). Both are attendance credits: no topic list, so no study
+     hours, only classes. `creditDue` is the last session, when attendance is complete. */
+  { id:"ecg", key:"ECG", sis:"EAV090X03", title:"ECG Principles", elective:true,
+    short:"ECG Principles", dept:"14-90", ects:4, color:"#0E7490", sem:"winter",
+    completion:{ winter:"credit" }, examId:null, creditDue:"2026-10-23",
+    note:"Core elective, a block week: five seminars, Mon 19 to Fri 23 Oct (SIS timetable). Enrolled late on 8 Oct 2026 by the English Study Department, with prof. Cendelín’s consent.",
+    creditRule:"Attendance of 70% of classes. If that is not met, the absence is made up by an essay or presentation on a topic the teacher sets (SIS). Counted in minutes, missing any one session still leaves at least 75%; missing any two leaves less than 70%." },
+  { id:"brn", key:"BRN", sis:"EAV090X02", title:"Brain – mechanisms and pathophysiology of its higher functions", elective:true,
+    short:"Brain (Neuroseminar)", dept:"14-90", ects:5, color:"#4338CA", sem:"winter",
+    completion:{ winter:"credit" }, examId:null, creditDue:"2026-12-08",
+    note:"Core elective, Doc. Ježek’s Neuroseminar: eight Tuesday talks, 13 Oct to 8 Dec, none on 17 Nov. Planned talks, which may change with guest lecturers: concept of memory and its classification; neural representations of the external world; brain and sleep; new methods in neural research; short-term memory; non-declarative long-term memory; declarative long-term memory; synaptic and network mechanisms of memory storage and retrieval. Enrolled on 8 Oct 2026.",
+    creditRule:"Attend 6 of the 8 talks, in person or online — he accepts no further excuses. Online, log in under your real name: the platform records who was there, and an unidentified login may not be counted. He recommends coming in person. The online link is in his e-mail of 7 Oct 2026." },
 ];
 
 /* Five graded exams. Everything else is a credit, signed off in the last week of teaching. */
@@ -691,6 +703,17 @@ const TIMETABLE = [
   { id:"pat-lec",  term:"winter", day:4, start:"13:10", end:"15:40", subject:"pat", kind:"lecture",   room:"P-HNĚDÁ",      teacher:"Skálová Alena, prof. MUDr., CSc.",       weeks:"all" },
   { id:"pat-prac", term:"winter", day:5, start:"08:00", end:"10:30", subject:"pat", kind:"practical", room:"U3.15",        teacher:"Daumová Magdaléna, MUDr., Ph.D.",        weeks:"all" },
   { id:"mpe-lec",  term:"winter", day:5, start:"11:15", end:"13:45", subject:"mpe", kind:"lecture",   room:"P-MODRÁ",      teacher:"Vevera Jan, prof. MUDr., Ph.D.; Fiala…", weeks:"all" },
+  /* Core electives (8 Oct 2026). Brain: Doc. Ježek's e-mail of 7 Oct lists the eight dates; SIS
+     room P-AZUROVÁ, Tue 16:00–17:40. ECG Principles: one slot per session, from the SIS room
+     timetables of P-HNĚDÁ and P-MODRA (read 8 Oct 2026) — every session has its own time. */
+  { id:"brn-sem",  term:"winter", day:2, start:"16:00", end:"17:40", subject:"brn", kind:"seminar",   room:"P-AZUROVÁ",    teacher:"Ježek Karel, doc. MUDr., Ph.D.",          weeks:"all",
+    dates:["2026-10-13","2026-10-20","2026-10-27","2026-11-03","2026-11-10","2026-11-24","2026-12-01","2026-12-08"],
+    note:"In person or online under your real name. Credit: 6 of 8." },
+  { id:"ecg-1",    term:"winter", day:1, start:"16:20", end:"18:50", subject:"ecg", kind:"seminar",   room:"P-HNĚDÁ",      teacher:"Cendelín Jan, prof. MUDr., Ph.D.; Kotoulas Sotirios, MUDr.", weeks:"all", dates:["2026-10-19"] },
+  { id:"ecg-2",    term:"winter", day:2, start:"16:20", end:"18:50", subject:"ecg", kind:"seminar",   room:"P-MODRÁ",      teacher:"Cendelín Jan, prof. MUDr., Ph.D.; Kotoulas Sotirios, MUDr.", weeks:"all", dates:["2026-10-20"] },
+  { id:"ecg-3",    term:"winter", day:3, start:"18:00", end:"19:40", subject:"ecg", kind:"seminar",   room:"P-HNĚDÁ",      teacher:"Cendelín Jan, prof. MUDr., Ph.D.; Kotoulas Sotirios, MUDr.", weeks:"all", dates:["2026-10-21"] },
+  { id:"ecg-4",    term:"winter", day:4, start:"16:20", end:"18:00", subject:"ecg", kind:"seminar",   room:"P-HNĚDÁ",      teacher:"Cendelín Jan, prof. MUDr., Ph.D.; Kotoulas Sotirios, MUDr.", weeks:"all", dates:["2026-10-22"] },
+  { id:"ecg-5",    term:"winter", day:5, start:"14:00", end:"15:40", subject:"ecg", kind:"seminar",   room:"P-HNĚDÁ",      teacher:"Cendelín Jan, prof. MUDr., Ph.D.; Kotoulas Sotirios, MUDr.", weeks:"all", dates:["2026-10-23"] },
 ];
 /* One-off changes. Cancelled: date → slot ids. Confirm: a date the week rule is unsure about. */
 /* Pathology's own 2026/27 schedules (SIS, did=357295 lectures / 357296 practicals, both dated
@@ -715,6 +738,9 @@ const TIMETABLE_NOTES = {
   "2026-10-15": { "mpe-sem":"Doctor–patient relationship. Chronic patient, acute patient. Joined with group 1.",
                   "pat-lec":"Moodle only — no lecture in the hall. Acute and chronic inflammation, SIRS, sepsis. — Michalová" },
   "2026-10-16": { "pat-prac":"01. Cell injury and cell death." },
+  "2026-10-19": { "ecg-1":"First of five ECG Principles seminars this week. Credit: 70% attendance — one missed session is fine, two are not." },
+  "2026-10-20": { "brn-sem":"Clashes with ECG Principles (16:20–18:50, Blue hall). The Neuroseminar allows two absences of eight; the ECG block allows one of five. Your call.",
+                  "ecg-2":"Clashes with the Neuroseminar (16:00–17:40, Azure hall). The Neuroseminar allows two absences of eight; the ECG block allows one of five. Your call." },
   "2026-10-22": { "pat-lec":"Hemodynamic disorders: hemostasis, thrombosis, embolism, hemorrhage, hyperemia, congestion, edema, infarction, shock. — Bradová" },
   "2026-10-23": { "pat-prac":"02. Cellular adaptations." },
   "2026-10-29": { "mpe-sem":"You present today, with Silvia: Communication with an agitated or aggressive patient. Anxious patient.",
@@ -759,6 +785,7 @@ const PUBLIC_HOLIDAYS = {
 const ROOMS = {
   "P-HNĚDÁ":  "Brown lecture hall · UniMeC U1, 1st floor, door 1.1",
   "P-MODRÁ":  "Blue lecture hall · UniMeC U2 (the older building), entrance level",
+  "P-AZUROVÁ":"Azure lecture hall · UniMeC U1 (the 2022 building) — not the Blue hall",
   "P4":       "FN Bory hospital, Dr. E. Beneše 13 · 2nd Int. Med. classroom, 1st floor, door 02.3417 — NOT on campus",
   "FN-2IK":   "FN Bory hospital, Dr. E. Beneše 13 · 2nd Dept. of Internal Medicine, on the wards — NOT on campus",
   "PSY-SEM":  "Dept. of Psychiatry, FN Lochotín, alej Svobody 80 · seminar room, 1st floor",
@@ -1679,6 +1706,7 @@ function examOf(subjectId){ for(let i=0;i<EXAMS.length;i++){ if(EXAMS[i].subject
 function deadlineOf(s, data){
   if(s.examId){ const e=EXAMS.filter(function(x){return x.id===s.examId;})[0];
                 if(e) return addDays(examWhen(e,data).iso, -1); }
+  if(s.creditDue) return s.creditDue;
   return CREDIT_DUE[s.sem==="winter" ? "winter" : "summer"];
 }
 /* Block-level deadline. A winter block of a two-semester course is due at the January credit when
@@ -2895,6 +2923,11 @@ function ClassesView(){
           <strong style={{color:"var(--ink)"}}>No classes.</strong> Wed 28 Oct and Tue 17 Nov are public holidays.
         </div>
         <div style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.6,marginTop:6}}>
+          <strong style={{color:"var(--ink)"}}>Core electives.</strong> The Neuroseminar (Brain) on Tuesdays 16:00 in the
+          Azure hall: <strong>13, 20 and 27 Oct, 3, 10 and 24 Nov, 1 and 8 Dec</strong>. ECG Principles is a block
+          week, <strong>19–23 Oct</strong>, at a different time each day. On <strong>Tue 20 Oct</strong> the two overlap.
+        </div>
+        <div style={{fontSize:12.5,color:"var(--ink-2)",lineHeight:1.6,marginTop:6}}>
           <strong style={{color:"var(--ink)"}}>Cancelled.</strong> Pathology has nothing in week 1 (Thu 1 and Fri 2 Oct) and its 15 Oct
           lecture is on Moodle only. Psychology lecture, Fri 16 Oct.
         </div>
@@ -3381,7 +3414,13 @@ function SubjectCard({s, data, A, today, over}){
           {pace.remaining} topic{pace.remaining>1?"s":""} left · about {pace.perWeek} a week to be ready · {s.hrsRange} h each
         </div>
       )}
-      {cov.total===0 && <div style={{fontSize:12,color:"var(--ink-3)",marginTop:3}}>No topic list captured yet.</div>}
+      {cov.total===0 && !s.elective && <div style={{fontSize:12,color:"var(--ink-3)",marginTop:3}}>No topic list captured yet.</div>}
+      {s.elective && <div style={{fontSize:12,color:"var(--ink-2)",marginTop:5,lineHeight:1.5}}>
+        Attendance only — nothing to study for the credit. Sessions: {TIMETABLE.filter(function(t){ return t.subject===s.id; })
+          .reduce(function(a,t){ return a.concat((t.dates||[]).map(function(d){ return {d:d, t:t}; })); },[])
+          .sort(function(a,b){ return a.d<b.d?-1:1; })
+          .map(function(x){ return fmtDay(x.d)+" "+x.t.start; }).join(" · ")}
+      </div>}
       {s.note && <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:5,fontStyle:"italic"}}>{s.note}</div>}
       {(s.examFormat||s.creditRule) && (
         <div style={{marginTop:8}}>
@@ -3405,10 +3444,10 @@ function SubjectCard({s, data, A, today, over}){
 
       <div style={{display:"flex",flexWrap:"wrap",gap:7,alignItems:"center",marginTop:10}}>
         {exam && <ExamDateEditor exam={exam} data={data} A={A} compact/>}
-        <button className="ln-btn" style={{fontSize:12}} onClick={()=>A.go("progress", s.id)}>
+        {blocks.length>0 && <button className="ln-btn" style={{fontSize:12}} onClick={()=>A.go("progress", s.id)}>
           <i className="fa-regular fa-square-check" aria-hidden="true"/> Topics
-        </button>
-        <span style={{fontSize:11,color:"var(--ink-3)"}}>{blocks.length} block{blocks.length===1?"":"s"} · dept {s.dept}</span>
+        </button>}
+        <span style={{fontSize:11,color:"var(--ink-3)"}}>{blocks.length?blocks.length+" block"+(blocks.length===1?"":"s")+" · ":""}dept {s.dept}</span>
       </div>
     </div>
   );
@@ -3422,17 +3461,19 @@ function SubjectsView({data, A}){
   const graded=SUBJECTS.filter(function(s){ return s.examId; });
   const booked=graded.filter(function(s){ return examWhen(EXAMS.filter(function(e){return e.id===s.examId;})[0], data).booked; }).length;
   const GROUPS=[
-    ["winter","Winter semester", function(s){ return s.sem==="winter"; }],
-    ["both",  "Both semesters",  function(s){ return s.sem==="both"; }],
-    ["summer","Summer semester", function(s){ return s.sem==="summer"; }],
+    ["winter","Winter semester", function(s){ return s.sem==="winter" && !s.elective; }],
+    ["both",  "Both semesters",  function(s){ return s.sem==="both" && !s.elective; }],
+    ["summer","Summer semester", function(s){ return s.sem==="summer" && !s.elective; }],
+    ["elective","Core electives", function(s){ return !!s.elective; }],
   ];
   return (
     <div>
       <div className="eyebrow" style={{marginTop:18}}>{SUBJECTS.length} courses · {totalEcts} credits · {YEAR.label}</div>
       <h1 style={{fontSize:28,margin:"2px 0 6px"}}>Subjects</h1>
       <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 14px"}}>
-        Every compulsory course of the third year, as the study plan lists it. Five end in a graded
-        exam; the other six are credits, signed off in the last week of teaching. Exam dates are
+        Every compulsory course of the third year, as the study plan lists it, and your two core
+        electives. Five compulsory courses end in a graded exam; the other six are credits, signed
+        off in the last week of teaching. The electives are attendance credits. Exam dates are
         booked by you in SIS — set one here and the whole plan re-paces around it.
       </p>
 

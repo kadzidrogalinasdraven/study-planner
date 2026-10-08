@@ -94,15 +94,11 @@ in dry run until 6 Oct and live from 7 Oct (see "The planner check" below).
    appears after an hour is unanswered, and so is whether Chrome's pop-up default was already
    "allow" before 30 Sep.
 5. Whether the **hour estimates** (`SIZE_HOURS`) feel right after a week of real study.
-6. **Core elective EAV090X02** (Brain, Doc. Ježek, Neuroseminar, Tue 16:00, 8 dates 13 Oct–8 Dec,
-   credit = 6 of 8): approved by Ježek on 7 Oct; two Gmail drafts wait for his Send — a thank-you
-   reply and the enrolment request to the Study Department. Calendar series is in. Not in the
-   planner's `TIMETABLE` (electives are not modelled) — ask before adding it. **ECG Principles**
-   (EAV090X03, prof. Cendelín): asked 7 Oct, no answer yet.
-7. **Instagram (via Claude in Chrome) and uni WhatsApp groups** as sources: wanted 7 Oct; a cloud
-   run cannot reach Chrome. Design in AUTOMATION.md §1a (a Mac scheduled task e-mails a
-   `planner: social digest`). **Not set up** — needs a session on the Mac (he has a cc-prompt for it, 7 Oct). WhatsApp: only
-   the group "Group 5 2.0".
+6. **The 20 Oct clash:** the Neuroseminar (16:00–17:40) and ECG Principles seminar 2 (16:20–18:50)
+   overlap. Flagged on both sessions in `TIMETABLE_NOTES` and in Calendar; which to attend is his.
+7. **Instagram (via Claude in Chrome) and the WhatsApp group "Group 5 2.0"** as sources: the Mac
+   scheduled task of AUTOMATION.md §1a, being built 8 Oct 2026 in a Mac session; its state and
+   README live in `~/Projects/advisor/` (outside every repo). WhatsApp Web needed linking first.
 
 **Due later, for whichever session touches the engine then:**
 - **February**, with the summer timetable: decide the summer split — the shares stop on 15 Feb and
@@ -164,6 +160,19 @@ entirely. Everything above was re-derived from SIS.
 56 credits, five graded exams, six credits. **The Pathophysiology II and Pharmacology II exams
 examine the second-year half of each course as well** — that is why `SUBJECTS` carries `examEcts`
 (8 and 7) rather than the year-3 credit value.
+
+**Plus two core electives, enrolled 8 Oct 2026** (Study Department e-mails): `EAV090X03` ECG
+Principles (4 cr, credit, 70% attendance, a block week 19–23 Oct) and `EAV090X02` Brain –
+mechanisms and pathophysiology of its higher functions (5 cr, credit, 6 of 8 Tuesday talks,
+13 Oct–8 Dec, Doc. Ježek). **How electives are modelled:** `SUBJECTS` entries with
+`elective:true` and `creditDue` (the last session — `deadlineOf` reads it), a "Core electives"
+group on Subjects, and `TIMETABLE` slots with `dates` — one slot per ECG session, because each has
+its own day, time and room. **No `CURRICULUM` blocks:** both credits are attendance only, so they
+add no study hours and do not touch the shares or the overflow. Rooms from the SIS room
+timetables (8 Oct): the Neuroseminar is in **P-AZUROVÁ, the Azure hall in U1 — not the Blue hall**,
+as the Calendar series first guessed. Calendar: the Neuroseminar series
+`nqqaj52jpkgtqnhkec4fc58s3g` (now tagged `[planner:class brn]`) and five single ECG events tagged
+`[planner:class ecg]`.
 
 ### 569 topics, and where they came from
 

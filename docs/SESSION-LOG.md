@@ -574,3 +574,10 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 - 2026-10-07 · He asked for Instagram through Claude in Chrome and maybe uni WhatsApp groups. This
   cloud session has no Chrome tools; the bridge (a Mac scheduled task that mails a "planner: social
   digest" the cloud check already reads) is designed in AUTOMATION.md §1a, not built.
+- 2026-10-08 · **Core electives in the planner**, at his request ("add them under subjects, and
+  then under today and plan"): ECG Principles (EAV090X03) and Brain (EAV090X02), both enrolled by
+  the Study Department this morning. Subjects cards, a "Core electives" group, timetable slots
+  (Today, Plan, Classes), no topics. Dates and rooms verified in SIS room timetables; the
+  Neuroseminar is in the Azure hall (U1), so the Calendar series' "most likely the Blue hall" was
+  corrected. Five ECG Calendar events added. Clash Tue 20 Oct flagged, not decided. This answers
+  the briefing card's "Needs your OK" item on the ECG seminars.

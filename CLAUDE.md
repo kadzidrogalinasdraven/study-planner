@@ -672,7 +672,7 @@ apply to you".
 | **During the winter semester** | A 2026-27 version of "Pharmacology II_Credit and Exam" — on 1 Oct SIS still had the 2025-26 file, and the "no credit test" rule is so far only the teacher's word. Also the pre-term dates. |
 | ~~Late September 2026~~ **done 2026-09-30** | Pathology's three question PDFs (`did=335822/335828/335830`) re-downloaded and compared question by question with `CURRICULUM`: all 224 identical. The same page now carries the department's 2026/27 lecture and practical schedules (`did=357295`, `357296`, dated 8 Sept 2026) — those are in `TIMETABLE_NOTES`. |
 | **By 11 December 2026** | Guarantors must publish winter exam dates in SIS (dean's measure 6/2026, Art. 3.1). |
-| **Start of term** | The Pathophysiology WS 2026/2027 practical programme — the department page still links the **2024/2025** file, and the credit condition ("protocols of all experiments") hangs on it. |
+| ~~Start of term~~ **settled 2026-10-12, by Linas** | Pathophysiology practicals: **no protocols this year, no excuse e-mail** — two absences allowed; substituting a practical in another group needs the teacher's agreement beforehand. SIS and the 2024/25 programme still say otherwise; his word is the current rule. |
 
 One 2026/27 primary source exists **outside** SIS that no SIS page links:
 `lfp.cuni.cz/wp-content/uploads/2025/09/Syllabus-of-Pathological-Physiology-II-2026_27.pdf`.

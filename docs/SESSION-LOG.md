@@ -587,3 +587,8 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   no tick moves), and the practical-exam form (`did=336406`, "Application for the practical exam
   / Examination record") — print it, fill in his half, hand it in at the 2nd Dept. office after
   the examiner writes the result — is on the subject card and the 8 Dec, 15 Dec and 5 Jan notes.
+
+## 2026-10-12
+- Talk to the 2nd year, Tue 13 Oct 15:00, Brown hall: the existing Calendar event `aq81o1ov82dndqokmfain25bj4` moved to 14:50 with location; SPPČ meeting (14:00–15:00, room 5.27) overlaps the arrival.
+- Missed the pathophysiology practical (Mon 12 Oct). No English make-up this week: groups 3/4 Tue 08:00 clash with the IIM practical, groups 1/2 Fri 08:00 with the first Pathology practical (SIS room timetables UPF-J/UPF-S). Counted as his first of two absences.
+- Linas: pathophysiology has no protocols and needs no excuse e-mail this year; substitution must be asked beforehand. `creditRule`, the archive note and CLAUDE.md updated.

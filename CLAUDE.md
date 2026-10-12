@@ -672,6 +672,7 @@ apply to you".
 | **During the winter semester** | A 2026-27 version of "Pharmacology II_Credit and Exam" — on 1 Oct SIS still had the 2025-26 file, and the "no credit test" rule is so far only the teacher's word. Also the pre-term dates. |
 | ~~Late September 2026~~ **done 2026-09-30** | Pathology's three question PDFs (`did=335822/335828/335830`) re-downloaded and compared question by question with `CURRICULUM`: all 224 identical. The same page now carries the department's 2026/27 lecture and practical schedules (`did=357295`, `357296`, dated 8 Sept 2026) — those are in `TIMETABLE_NOTES`. |
 | **By 11 December 2026** | Guarantors must publish winter exam dates in SIS (dean's measure 6/2026, Art. 3.1). |
+| ~~Pathophysiology dates~~ **published 5–7 Oct 2026** | 23 dates for `EAP0103090`, all 07:00 in UPF-S, registration opening **12 Oct 2026, 20:00**. Pre-terms (15 places each) 14–18 Dec and 5–8 Jan; in the period (25–35 places) 12–14, 19–20, 26–28 Jan, 2–4 and 10–12 Feb. Every date needs the credit first. Read in SIS → Exam dates – registration → "Register" tab (his login). Pharmacology and internal-medicine dates were not yet out on 12 Oct. |
 | ~~Start of term~~ **settled 2026-10-12, by Linas** | Pathophysiology practicals: **no protocols this year, no excuse e-mail** — two absences allowed; substituting a practical in another group needs the teacher's agreement beforehand. SIS and the 2024/25 programme still say otherwise; his word is the current rule. |
 
 One 2026/27 primary source exists **outside** SIS that no SIS page links:

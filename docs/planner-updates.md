@@ -8,3 +8,4 @@ The rules are in `AUTOMATION.md`.
 - 2026-10-03 · Infrastructure test from the cloud: the planner check can publish.
 - 2026-10-07 · Intro to Internal Medicine II: notes for Tue 13 Oct (heart examination) and the teacher's exam advice, from his recording of the first practical.
 - 2026-10-07 · Medical Czech: homework for Wed 14 Oct, from his recording of the first seminar.
+- 2026-10-13 · Pathophysiology II: exam registration reopens Wed 14 Oct 20:00 (SIS had blocked it; e-mail from Prof. Cendelín).

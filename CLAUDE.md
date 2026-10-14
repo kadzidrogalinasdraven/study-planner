@@ -87,8 +87,7 @@ in dry run until 6 Oct and live from 7 Oct (see "The planner check" below).
 1. The four **"Ask:" events** in his Calendar (Mon 5, Tue 6, Thu 8, Thu 15 Oct): the answers go
    into the planner, by the planner check if they arrive by official mail. Tue 6 Oct: tell
    Dr. Nussbaumerová he swapped into 5B, and ask for his practical-exam date (15 Dec or 5 Jan).
-2. The **final pharmacology list** (pre-final since 1 Oct): diff by content, new codes from
-   `PHA335` — "Pharmacology: the official list is in".
+2. ~~The final pharmacology list~~ **settled 14 Oct**: the 1 Oct file is the final list (see below).
 3. The **essay date**: 11 Nov stands, flagged, until 18 Nov is confirmed.
 4. **Sign-in:** the no-popup sign-in is deferred ("we'll do it later"); whether Reconnect still
    appears after an hour is unanswered, and so is whether Chrome's pop-up default was already
@@ -184,7 +183,7 @@ is the curriculum**, because it is literally what is examined:
 | Pathology | General 47 / Special 108 / Oncological 69 | **224** | the three exam-question PDFs |
 | Pathophysiology II | 4 oral groups (30/35/35/35) + practical 18 | **153** | oral + practical question PDFs, 2026/27 edition |
 | Intro to Internal Medicine II | Propedeutics 24 / ECG+varia 18 | **42** | exam PDF, **2026/27 edition** (`did=357554`, read 2026-09-30) |
-| Pharmacology II | General 35 / Special I 52 / Special II 47 | **134** | the department's 2026-27 Word file, read 2026-10-01, **pre-final** — see below |
+| Pharmacology II | General 35 / Special I 52 / Special II 47 | **134** | the department's 2026-27 Word file, read 2026-10-01, **final** since 2026-10-14 — see below |
 | Medical Psychology and Ethics | 1 | 20 | SIS syllabus (labels abridged; full text in SIS) |
 | Internal Medicine I | Cardiovascular 10 / Pneumology 4 | 14 | SIS syllabus |
 | Propedeutics of Surgery | 1 | 32 | SIS syllabus |
@@ -596,7 +595,7 @@ the 2025/2026 schedule. **Trust the body, never the filename or the comment.**
 And do not diff whole SIS pages when re-checking — every `skr=2026` page differs from `skr=2025`
 in auto-generated fields (capacity, schedule links, teacher rosters). Diff the editorial blocks.
 
-### Pharmacology: the official list is in, and it is pre-final (2026-10-01)
+### Pharmacology: the official list is in, and it is final (2026-10-01, final 2026-10-14)
 
 **The curriculum is the department's own 2026-27 oral list: 134 questions — General 35,
 Special I 52, Special II 47 — all three blocks `sem:"winter"`, all examined at the winter exam.**
@@ -608,11 +607,13 @@ edit anything there**, and use the list itself, not the transcriber's notes afte
 no question numbers and no sub-points; the G/S1/S2 numbers in the transcription were added by
 whoever transcribed it.
 
-**It is not final.** At the first practical on 1 Oct the teacher (Dr. Dědečková) said the list
-gets small changes that week — numbering, and some questions moved elsewhere — and that she will
-announce the final version. Hence the source status `prefinal`, a status added for this: amber
-badge "2026/27 · pre-final", ranked between `old` and `recent`, counted under "lists to replace".
-Flip `pha-q` to `current` when the final list is in.
+**It is final (2026-10-14).** On 1 Oct the teacher said the list would still change and that she
+would announce the final version; on 13 Oct she answered his e-mail that the final list is in SIS
+and on Moodle. Re-read on 14 Oct (`did=347852`, 23,770 bytes, the same size as on 1 Oct): all 134
+questions identical to `CURRICULUM` — the file only carries a trailing space after seven titles.
+`pha-q` is `current`. The status `prefinal` stays in the code for the next list that needs it.
+**SIS gotcha:** a direct link to a course page shows no Files section even when signed in — sign
+in on the SIS home page first, then open Předměty and search the code from there.
 
 **The codes are `PHA201`–`PHA334`, and the number means nothing.** Codes are tick keys and belong
 to a question's content, not its place (the `IIM042` rule):
@@ -668,7 +669,7 @@ apply to you".
 | When | What |
 | --- | --- |
 | ~~Immediately, once logged in~~ **done 2026-10-01** | The Pharmacology Word file. It was under `EAP0102100` (Pharmacology I) → Files, not `EAP0103100`; its 134 questions are now the curriculum. Moodle courses 620 and 498 were not needed. |
-| **When the practical teacher announces it (she said: the week of 1 Oct)** | The final 2026-27 pharma list, announced by the practical teacher — diff by content, keep the codes of unchanged questions. New questions take `PHA335` onwards; then set `pha-q` to `current`. |
+| ~~When the practical teacher announces it~~ **done 2026-10-14** | The final 2026-27 pharma list: the 1 Oct file, unchanged. Any later edit: diff by content, keep the codes of unchanged questions, new questions from `PHA335`. |
 | **During the winter semester** | A 2026-27 version of "Pharmacology II_Credit and Exam" — on 1 Oct SIS still had the 2025-26 file, and the "no credit test" rule is so far only the teacher's word. Also the pre-term dates. |
 | ~~Late September 2026~~ **done 2026-09-30** | Pathology's three question PDFs (`did=335822/335828/335830`) re-downloaded and compared question by question with `CURRICULUM`: all 224 identical. The same page now carries the department's 2026/27 lecture and practical schedules (`did=357295`, `357296`, dated 8 Sept 2026) — those are in `TIMETABLE_NOTES`. |
 | **By 11 December 2026** | Guarantors must publish winter exam dates in SIS (dean's measure 6/2026, Art. 3.1). |

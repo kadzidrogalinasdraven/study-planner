@@ -233,14 +233,29 @@ topic. The figures sit at the top of `index.html` (`SIZE_HOURS`, `TOPIC_SIZE`); 
 three numbers to re-pace it. They replaced a formula from credit values that gave 45 minutes a
 question, which was never enough.
 
-Five things the scheduler does that are worth knowing:
+**Until the end of winter teaching (8 Jan) it follows your focus rule** (15–16 Oct 2026):
+
+- **Internal Medicine and Pathophysiology get the whole daily budget, 60:40**, in the order their
+  practicals cover their questions — the questions of the next class first, then the rest of the
+  list. When the Internal Medicine practicals run a week late, one line in `CLASS_TOPICS` moves them.
+- **Every other subject is studied only around its own classes.** The exam questions a practical
+  covers come from the day before it until the day before the next one; a missed one comes first
+  the next day. Pharmacology, Pathology, Psychology and Simulation Medicine work this way.
+- **Class topics come on top of the budget, never instead of it**, up to 8 hours a day. A day that
+  runs long says so, and every topic card says which class it belongs to.
+- **Today has a Tomorrow section**: tomorrow's classes (with what each covers), deadlines,
+  calendar events and tasks, the study list, and the mail and news the evening planner check puts
+  on tomorrow's briefing card.
+
+From the exam period on, the rules below apply again. Five things the scheduler does that are
+worth knowing:
 
 - **It plans by block, not by course.** A block is due when something actually examines it:
   Simulation Medicine's winter sessions at the January credit, Pathology's general questions at
   the June final — the winter Pathology credit is attendance only, so nothing is due in January.
 - **It will not schedule a course before the semester that teaches it.** Propedeutics of Surgery
   is a summer course, so it does not appear in October.
-- **It shares the winter's hours in your order:** Pathophysiology 40%, Pharmacology 30%,
+- **In the exam period it shares the hours in your order:** Pathophysiology 40%, Pharmacology 30%,
   Introduction to Internal Medicine 20%, Pathology 7% — about one or two of its shorter topics a
   week — and 3% for everything else. Each topic goes to whichever group is furthest below its
   share, so none of them is ever parked, which is what the pharmacology teacher warned against.

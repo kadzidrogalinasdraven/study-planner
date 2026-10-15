@@ -76,12 +76,23 @@ PY
 
 ---
 
-## Now — state and open items (updated 2026-10-07)
+## Now — state and open items (updated 2026-10-16)
 
-**Live:** the third-year planner on GitHub Pages. Since 3 Oct the winter's study time is shared
-40/30/20/7/3 (pathophysiology, pharmacology, internal medicine, pathology, the rest) and the
-overflow banner reads about 505 h. The planner check — a cloud routine, morning and evening — is
-in dry run until 6 Oct and live from 7 Oct (see "The planner check" below).
+**Live:** the third-year planner on GitHub Pages. **Since 16 Oct, until the end of winter teaching
+(8 Jan), the plan follows his focus rule** — Internal Medicine and Pathophysiology share the budget
+60:40, every other subject is studied only around its own classes, on top of the budget (see "The
+focus rule and class topics"). On an untouched year the overflow banner reads **444 h**
+(Pathophysiology 145, Pharmacology 270, Pathology 23). A Tomorrow section on Today gathers the next
+day. The planner check — a cloud routine, morning and evening — has been live since 7 Oct.
+
+**Open from 16 Oct:** (a) the Pharmacology practicals' dated plan is on Moodle (course 498); he was
+to log in — add each practical's topics to `CLASS_TOPICS["pha-prac"]`; (b) **Pharmacology exam in
+summer?** He is checking the faculty rules. Not applied; the what-if is 444 h → 250 h (Pharmacology
+34 h short by May instead of 270 h by January) — change `EXAMS` `pha-w` `period` to `"summer"` only
+on his word; (c) Pathology practical 20 Nov "09. Pathology of reproduction" is ASSUMED to be
+pregnancy/fetus/newborn — check at the class or in his recording; (d) Internal Medicine on 1 and
+8 Dec: topics unknown; (e) the Pathophysiology practical letters A/B/C1/C2 (weeks 3–10) are not
+explained — if his group rotates, its order differs from the print.
 
 **Open, for him — his clicks and his answers:**
 1. The four **"Ask:" events** in his Calendar (Mon 5, Tue 6, Thu 8, Thu 15 Oct): the answers go
@@ -282,7 +293,7 @@ Five rules that are load-bearing and easy to break:
   a week, fewer than Pathology's 1.4 — the reverse of his order — and making internal medicine
   third would have needed it to carry the LARGEST weight, which reads as nonsense. Shares of
   hours say what he said.
-  **Class preparation is outside the shares (`PREP_PIN`, 2026-10-03).** The k-th topic of
+  **Class preparation is outside the shares (`PREP_PIN`, 2026-10-03; since 16 Oct `CLASS_TOPICS` with `prep:true` — see "The focus rule").** The k-th topic of
   `SIM-W` is pinned to the day before the k-th date of the `sim-prac` slot (`PIN_DAY`), because
   the Moodle work is checked at the door and is a condition for being let in. The coordinator's
   e-mail gives no topic per date, only that each topic builds on the one before, so syllabus
@@ -369,6 +380,56 @@ Things that are easy to break here:
 Daily budgets come from `PHASES` and are **the user's own choice**: 3 h on a teaching day, +2 at a
 teaching weekend and on Dean's Day, 8 h inside an exam period, 2 h over the winter break. Look
 phases up with `phaseById()`, never by index.
+
+### The focus rule and class topics (2026-10-15/16, Linas's decisions)
+
+He said, 15 Oct: "Internal Medicine and Pathophysiology are the focus and follow their syllabus and
+classes; every other subject is studied only around its own classes." 16 Oct: 60:40 is good; the
+3 h / 5 h budget "shouldn't be a rule all other things obey to … if I have to study more, just tell
+me … the absolute max while having classes should be 8 h"; "don't shrink focus topics ever, just
+because of the other classes"; his Wispr Flow class recordings "should be the main source" for what
+a class did; an official e-mail from the teacher overrules everything.
+
+How it is built (`index.html`):
+- **`CLASS_TOPICS`** — per timetable slot, the sessions as the SOURCE dates them, each with `what`,
+  `codes` and `src`. `insert:[{at, what, codes, src}]` models a department running late: every
+  later session moves to the slot's next REAL class (holidays skipped) — Internal Medicine's ECG
+  continuation on 20 Oct is one. `fixed:true` (exams, credits) never moves. `prep:true` (Simulation
+  Medicine) = due the day before. It replaced `PREP_PIN`/`PIN_DAY`.
+- **`LINK[code]`** is derived at load: the class it belongs to as held, and the day it is due —
+  topics of a class are spread from the day before it to the day before the slot's next class
+  (seven days at most). A code may be in ONE session (the gate fails on a duplicate or an unknown
+  code, through `console.warn`). **`CLASS_ON[date][slot]`** feeds "Covers: …" on class rows.
+- **`fillDay`, until `FOCUS_UNTIL` (= `CREDIT_DUE.winter`):** (1) class topics of the non-focus
+  subjects whose day has come — preparation first, then earliest due, so a missed one comes first —
+  go into a ROOM ON TOP of the budget, up to `CLASS_DAY_MAX` (8 h) a day, during teaching only;
+  (2) the whole budget goes to `FOCUS_SHARE` (pfy 60, iim 40), hours done ÷ share, and inside each
+  focus subject its class topics come first, in class order, then the block with most hours left.
+  Nothing else is placed. After 8 Jan, `STUDY_SHARE` (40/30/20/7/3) runs exactly as before.
+- Items carry `why` ({link} or {share}) and `extra` (in the room); days carry `extra`. `whyText`
+  writes the grey line on every topic card; DayBody announces a longer day.
+- **Only practicals and seminars are linked.** He does not attend the Pathophysiology lectures;
+  Pharmacology, Internal Medicine and Psychology publish no dated lecture plan; Pathology's
+  lecture topics come back at a practical one to three weeks later. Medical Czech: no topic per
+  date exists — notes from his recordings go into `TIMETABLE_NOTES` instead.
+- **Pathophysiology practicals: his Monday group runs one week behind the printed week numbers**
+  (Mon 28 Sep was a holiday): 5 Oct was week 1, 12 Oct week 2 — his recordings and his word.
+
+Why it is built like this (measured on a prototype, 15 Oct, untouched year):
+- Class topics inside the budget took ~11 h of a 25 h week and left the focus subjects ~11 h;
+  as a third share they ran a median 10 days late. Hence the room on top — his own answer.
+- Pinning the focus subjects' class topics too made the 27 nervous-system lecture topics swamp
+  everything; for focus subjects a link is an ORDER, not a pin.
+- The rule ends with teaching on purpose: running it to 14 Feb wasted the 8 h exam-period days.
+- A class topic of a summer block (Pathology Special/Oncological) is placed in the winter when a
+  practical covers it: the room looks at every live block, not only at open ones.
+
+Tests (`tools/engine-tests.js`): nothing outside the focus without a link; 60:40 within 2 points
+(61.6 : 38.4 on 19 Oct–29 Nov); the budget is never shrunk by class topics; never past 8 h; preps on
+the day before; each November class topic inside its window; one class's topics spread over days;
+a missed one re-flows; the Internal Medicine insert. **Overflow, untouched year from 16 Oct:
+546 h before → 444 h after.** Pharmacology's 270 h is the cost of "little Pharmacology" with a
+January exam, and shrinks as each practical's topics are added.
 
 ### Exam dates are booked, not known
 
@@ -540,9 +601,9 @@ e-mail sign-off — are kept in a private Gmail **draft** titled "📌 Student p
 (do not send)", so any assistant with Gmail can find them. **Never copy them into this public repo**;
 the safety check blocked a commit that tried (7 Oct).
 
-**Recordings without a marker word in the title are never read automatically** — "Czech class
-overview" or "Pathophysio class" would be missed. Tell him to put intro / info / organisation in
-the title of any recording the planner should read.
+**Recordings are read by title** — since 16 Oct the marker words include his class words (class,
+practical, lecture, seminar and the subject names), because his class recordings are the main
+source for what a class covered (AUTOMATION.md §5). Everything else he dictates stays unread.
 
 Things that are easy to get wrong:
 - **`main` moves under you.** The routine commits to `main`. Before deploying from `test`:

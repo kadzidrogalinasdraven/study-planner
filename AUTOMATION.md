@@ -69,6 +69,7 @@ What may change, and where:
 | --- | --- | --- |
 | A class cancelled, Moodle-only, moved, or in another room | `TIMETABLE_CANCELLED`, `TIMETABLE_EXTRA`, `TIMETABLE_NOTES` (comment naming the source) | the instance: retitle `NO CLASS — <course> (<reason>)` or `MOODLE ONLY — …`, reminders off, show as free. **Never delete.** |
 | Something said about one session: what to bring, the topic, a test that day | `TIMETABLE_NOTES[date][slot]` | that instance's description |
+| What a class covers, or a department running late (his rule, 16 Oct 2026: "an official e-mail from the professor overrules everything — check the timing") | `CLASS_TOPICS[slot]`: a session `{date, what, codes, src}` dated as the e-mail dates it, or an `insert` for a class that runs late. Codes only from `CURRICULUM`, matched by title; a session the e-mail does not tie to exam questions gets `codes:[]`. The e-mail beats his word and a recording; say in the commit what it replaced | that instance's description |
 | A dated thing he must do: hand-in, form, registration, Moodle task | `DEADLINES` — `{id, subject, iso, time, label, short, detail, confirm?}`; when two dates are possible the **earlier** goes in, with `confirm` saying why | a single event with reminders a day and an hour before; **not** tagged `[planner:class]`, so it shows in Upcoming |
 | A credit or exam rule, stated by the department | `SUBJECTS[].creditRule` / `examFormat` — quote the source's sentence, do not interpret | — |
 | Exam dates published in SIS | nothing (he books them himself) | — ; put it **first** in the briefing: good dates go fast |
@@ -117,9 +118,10 @@ answer or a follow-up e-mail from him, write it as a **Gmail draft**, never send
 
 ## 3. Never applied automatically — a question instead
 
-- Topic lists: anything in `CURRICULUM`, codes included. When the final pharmacology list arrives,
+- Topic lists: anything in `CURRICULUM`, codes included. (`CLASS_TOPICS` is not a topic list: it
+  says which existing codes a class covers — see §2 and §5.) When the final pharmacology list arrives,
   follow CLAUDE.md "Pharmacology: the official list is in" (diff by content, new codes from `PHA335`).
-- Hours, shares, budgets, priorities: `SIZE_HOURS`, `TOPIC_SIZE`, `STUDY_SHARE`, `PHASES`.
+- Hours, shares, budgets, priorities: `SIZE_HOURS`, `TOPIC_SIZE`, `STUDY_SHARE`, `FOCUS_SHARE`, `CLASS_DAY_MAX`, `PHASES`.
 - Anything from classmates or unofficial channels — including what he forwards himself, unless his
   forward says "apply".
 - Anything that contradicts another official source.
@@ -150,10 +152,19 @@ requests were the first idea; `gh` has no valid token in the cloud, so they are 
 ## 5. Class recordings
 
 He marks the recordings worth reading with a word in the title — "Pharma introduction 01.10.26",
-"… information …" (his words, 3 Oct 2026). Through the Wispr Flow connector, `search_meetings` with
+"… information …" (his words, 3 Oct 2026). Since 16 Oct 2026 his class recordings are **the main
+source for what a class covered and what to review** ("just check always my Wispr Flow notes"), so
+the class words are markers too. Through the Wispr Flow connector, `search_meetings` with
 `field: "title"` and `since` seven days ago, once for each of `introduction`, `intro`,
-`information`, `info`, `announcement`, `organisation`, `organization`. **Never list or search
-recordings any other way:** the unmarked ones are private and are never opened.
+`information`, `info`, `announcement`, `organisation`, `organization`, `class`, `practical`,
+`lecture`, `seminar`, `pharma`, `patho`, `internal`, `czech`, `simulation`, `psychology`. **Never
+list or search recordings any other way:** a recording whose title carries none of these is
+private and is never opened.
+
+From a class recording: what the class covered goes into `CLASS_TOPICS` for that slot and date
+(`src: "your recording of <date>"`), with the `CURRICULUM` codes whose titles match — only codes not
+already linked elsewhere; homework and "review this" go into `TIMETABLE_NOTES` for the next session.
+A recording never overrides an official e-mail.
 
 Skip every id already in `tools/state/recordings-read.json`. For a new one, read the summary
 (`get_meeting` without a transcript); ask for the transcript only when the summary points at
@@ -183,8 +194,15 @@ date, time or room is a question unless an official e-mail or SIS says the same.
 ## 6. The briefing card
 
 One all-day event per day in his primary calendar, titled `📋 Daily Briefing — YYYY-MM-DD`; the
-planner shows it at the top of Today. The morning run creates it; the evening run adds a section to the
-same event instead of creating another, and creates the card only if the morning left none. Plain lines, most important first:
+planner shows it at the top of Today. The morning run creates it — or, if the evening run already
+started it, adds its own section to it; the evening run adds a section to the same event instead of
+creating another, and creates the card only if the morning left none.
+
+**Tomorrow (his request, 16 Oct 2026).** The evening run also starts TOMORROW's card, with one
+section, `For tomorrow (evening check HH:MM):` — every mail, news item, Instagram or WhatsApp
+finding and Calendar event that concerns tomorrow, plus anything to bring or prepare, most
+important first. The planner's Tomorrow section shows that card; classes, deadlines and study it
+takes from the planner itself, so do not repeat those. Plain lines, most important first:
 
 ```
 Morning check 06:31 · Gmail 4 new · SIS no change · planner 1 change

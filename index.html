@@ -590,7 +590,7 @@ const SUBJECTS = [
     examEcts:7,   // 4 here + 3 for Pharmacology I, which this exam also covers
     note:"the exam covers Pharmacology I from second year in full as well",
     examFormat:"A computer test of 50 single-best-answer questions, four options each, 35 correct to pass. Then an oral where you draw three questions: one general and two special. It covers Pharmacology I in full as well as this year\u2019s. Two rules that bite: fail the test at your FIRST term and you lose the term and are graded 4, and fail the ORAL and you re-sit the computer test too. Neither half banks.",
-    creditRule:"Active participation in the practicals. One unexcused absence a semester is allowed; anything beyond it needs a proper excuse for serious, demonstrable reasons, e-mailed to your teacher. There is no credit test this semester \u2014 the practical teacher said so at the first practical on 1 October 2026. After each practical there is an optional short test, for revision and as practice for the computer test. Pre-term (an exam date in advance): you need 100% attendance at the practicals \u2014 the one allowed absence does not apply. If you miss one, join another group or arrange a make-up lesson with the teacher; if neither is possible, the department\u2019s rules say you are examined on that topic individually. The written rules in SIS are still the 2025/26 file." },
+    creditRule:"Active participation in the practicals. One unexcused absence a semester is allowed; anything beyond it needs a proper excuse for serious, demonstrable reasons, e-mailed to your teacher. There is no credit test this semester \u2014 the practical teacher said so at the first practical on 1 October 2026. After each practical there is an optional short test, for revision and as practice for the computer test. Pre-term (an exam date in advance): you need 100% attendance at the practicals \u2014 the one allowed absence does not apply. If you miss one, join another group or arrange a make-up lesson with the teacher; if neither is possible, the department\u2019s rules say you are examined on that topic individually. The department’s 2026/27 rules (Moodle practicals course, read 16 Oct 2026) say the same: credit for active participation, no credit test." },
   { id:"iim", key:"IIM", sis:"EAP0103322", title:"Introduction to Internal Medicine II",
     short:"Intro to Internal Medicine", dept:"14-320", ects:7, color:"#BE123C", sem:"winter",
     completion:{ winter:"credit+exam" }, examId:"iim-w",
@@ -839,21 +839,21 @@ const CLASS_TOPICS = {
       { date:"2026-12-14", what:"Water and ion metabolism", codes:["PFY083","PFY084","PFY085","PFY086"] },
       { date:"2027-01-04", what:"Anaemias; acid–base balance disorders", codes:["PFY051","PFY052","PFY053","PFY054","PFY082"] } ] },
   "pha-prac": {
-    src:"your recordings of the practicals; the department’s dated plan is on Moodle (not yet read)",
+    src:"your recordings of the practicals, and the section titles of the Moodle practicals course (id 498, read 16 Oct 2026) — Moodle lists a practical only once it has been taught, and publishes no dated plan; asked the teacher on 16 Oct",
     sessions:[
-      { date:"2026-10-01", what:"Gastrointestinal drugs: antidiarrhoeals, laxatives, prokinetics, antiemetics, IBD, GERD", codes:["PHA297","PHA298","PHA299","PHA300"], src:"your recording of 1 Oct" },
-      { date:"2026-10-08", what:"Allergy and asthma: antihistamines, cromones, corticosteroids, adrenaline; asthma and COPD", codes:["PHA295","PHA296"], src:"your recording of 8 Oct" },
+      { date:"2026-10-01", what:"Gastrointestinal drugs: antidiarrhoeals, laxatives, prokinetics, antiemetics, IBD, GERD", codes:["PHA297","PHA298","PHA299","PHA300","PHA302"], src:"your recording of 1 Oct; Moodle section “GIT” (also hepatoprotectives)" },
+      { date:"2026-10-08", what:"Allergy and asthma: antihistamines, cromones, corticosteroids, adrenaline; asthma and COPD", codes:["PHA295","PHA296","PHA294"], src:"your recording of 8 Oct; Moodle section “RS”, therapy of respiratory tract diseases" },
       { date:"2026-10-15", what:"Pain: opioids, analgesics, NSAIDs", codes:["PHA260","PHA261","PHA262","PHA263","PHA264"], src:"Linas, 15 Oct 2026" } ] },
   "pat-prac": {
-    src:"Practicals General Medicine Winter Semester 2026-2027.pdf (department, 8 Sep 2026)",
+    src:"Practicals General Medicine Winter Semester 2026-2027.pdf (department, 8 Sep 2026); what each practical covers from the Moodle course (id 527, read 16 Oct 2026) — matched by content, because Moodle’s question NUMBERS follow an older list",
     sessions:[
       { date:"2026-10-09", what:"00. Introduction. Methods and death", codes:["PAT001","PAT004"] },
       { date:"2026-10-16", what:"01. Cell injury and cell death", codes:["PAT003"] },
-      { date:"2026-10-23", what:"02. Cellular adaptations", codes:["PAT002"] },
+      { date:"2026-10-23", what:"02. Cellular adaptations, intracellular accumulations, pigments, calcification", codes:["PAT002","PAT011","PAT012","PAT013","PAT014","PAT016","PAT017","PAT018"] },
       { date:"2026-10-30", what:"03. Inflammation", codes:["PAT019","PAT020","PAT021","PAT022","PAT023"] },
       { date:"2026-11-06", what:"04. Disorders of blood flow", codes:["PAT006","PAT007","PAT008","PAT009","PAT010"] },
       { date:"2026-11-13", what:"05. Etiological pathology", codes:["PAT030","PAT031","PAT032","PAT033","PAT034","PAT035","PAT036","PAT037","PAT038"] },
-      { date:"2026-11-20", what:"09. Pathology of reproduction — assumed to be pregnancy, fetus and newborn, as in the 5 Nov lecture; ask at the practical", codes:["PAT122","PAT123","PAT153","PAT154","PAT155","PAT210"] },
+      { date:"2026-11-20", what:"09. Pathology of reproduction — pregnancy, fetus and newborn (Moodle files it under that topic)", codes:["PAT122","PAT123","PAT153","PAT154","PAT155","PAT210"] },
       { date:"2026-11-27", what:"06. Immunopathology", codes:["PAT015","PAT026","PAT027","PAT028","PAT029"] },
       { date:"2026-12-04", what:"07. Epithelial tumours", codes:["PAT161","PAT162"] },
       { date:"2026-12-11", what:"08. Mesenchymal and other tumours", codes:["PAT163","PAT164","PAT165","PAT166","PAT167","PAT168","PAT169","PAT170","PAT171"] },

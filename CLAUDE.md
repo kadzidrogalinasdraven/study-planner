@@ -85,12 +85,15 @@ focus rule and class topics"). On an untouched year the overflow banner reads **
 (Pathophysiology 145, Pharmacology 270, Pathology 23). A Tomorrow section on Today gathers the next
 day. The planner check — a cloud routine, morning and evening — has been live since 7 Oct.
 
-**Open from 16 Oct:** (a) the Pharmacology practicals' dated plan is on Moodle (course 498); he was
-to log in — add each practical's topics to `CLASS_TOPICS["pha-prac"]`; (b) **Pharmacology exam in
+**Open from 16 Oct:** (a) the Pharmacology practicals have NO dated plan anywhere — Moodle course
+498 lists a practical only after it is taught (read 16 Oct). A Gmail draft asking Dr. Dědečková
+(her address from her own reply of 13 Oct) waits for him to send; until she answers, each Thursday
+is added from his recording or the new Moodle section — `CLASS_TOPICS["pha-prac"]`; (b) **Pharmacology exam in
 summer?** He is checking the faculty rules. Not applied; the what-if is 444 h → 250 h (Pharmacology
 34 h short by May instead of 270 h by January) — change `EXAMS` `pha-w` `period` to `"summer"` only
-on his word; (c) Pathology practical 20 Nov "09. Pathology of reproduction" is ASSUMED to be
-pregnancy/fetus/newborn — check at the class or in his recording; (d) Internal Medicine on 1 and
+on his word; (c) ~~Pathology 20 Nov "reproduction"~~ settled 16 Oct: Moodle course 527 files practical 09 under
+pregnancy, fetus and newborn. **Moodle's Pathology question numbers follow an older list** — match
+by content, never by number; (d) Internal Medicine on 1 and
 8 Dec: topics unknown; (e) the Pathophysiology practical letters A/B/C1/C2 (weeks 3–10) are not
 explained — if his group rotates, its order differs from the print.
 
@@ -731,7 +734,7 @@ apply to you".
 | --- | --- |
 | ~~Immediately, once logged in~~ **done 2026-10-01** | The Pharmacology Word file. It was under `EAP0102100` (Pharmacology I) → Files, not `EAP0103100`; its 134 questions are now the curriculum. Moodle courses 620 and 498 were not needed. |
 | ~~When the practical teacher announces it~~ **done 2026-10-14** | The final 2026-27 pharma list: the 1 Oct file, unchanged. Any later edit: diff by content, keep the codes of unchanged questions, new questions from `PHA335`. |
-| **During the winter semester** | A 2026-27 version of "Pharmacology II_Credit and Exam" — on 1 Oct SIS still had the 2025-26 file, and the "no credit test" rule is so far only the teacher's word. Also the pre-term dates. |
+| **During the winter semester** | ~~A 2026-27 version of "Pharmacology II_Credit and Exam"~~ found 16 Oct on Moodle (practicals course 498): credit = active participation, one absence, no credit test — the teacher's word confirmed. Still due: the pre-term dates. |
 | ~~Late September 2026~~ **done 2026-09-30** | Pathology's three question PDFs (`did=335822/335828/335830`) re-downloaded and compared question by question with `CURRICULUM`: all 224 identical. The same page now carries the department's 2026/27 lecture and practical schedules (`did=357295`, `357296`, dated 8 Sept 2026) — those are in `TIMETABLE_NOTES`. |
 | **By 11 December 2026** | Guarantors must publish winter exam dates in SIS (dean's measure 6/2026, Art. 3.1). |
 | ~~Pathophysiology dates~~ **published 5–7 Oct 2026** | 23 dates for `EAP0103090`, all 07:00 in UPF-S, registration opening **12 Oct 2026, 20:00**. Pre-terms (15 places each) 14–18 Dec and 5–8 Jan; in the period (25–35 places) 12–14, 19–20, 26–28 Jan, 2–4 and 10–12 Feb. Every date needs the credit first. Read in SIS → Exam dates – registration → "Register" tab (his login). Pharmacology and internal-medicine dates were not yet out on 12 Oct. |

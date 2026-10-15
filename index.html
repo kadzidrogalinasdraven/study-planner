@@ -552,10 +552,24 @@ const TOPIC_SIZE = {
    Pathology is examined in June and its winter credit is attendance only, so 7% is about one or
    two of its shorter topics a week; "the rest" (Medical Czech, Psychology) shares what is left.
    Simulation Medicine is outside the shares: its preparation is pinned to the day before each
-   class (PREP_PIN). From the summer semester the shares stop and every course is paced to its
-   own deadline. To re-balance, change the numbers — only their ratios count. */
+   class (CLASS_TOPICS, prep). From the summer semester the shares stop and every course is paced to its
+   own deadline. To re-balance, change the numbers — only their ratios count.
+   Since 15 Oct 2026 these shares run only from the end of winter teaching to the summer semester
+   (the exam period); until then FOCUS_SHARE below decides. */
 const STUDY_SHARE = [ { id:"pfy", share:40 }, { id:"pha", share:30 }, { id:"iim", share:20 }, { id:"pat", share:7 } ];
 const REST_SHARE = 3;
+
+/* Linas, 15 Oct 2026: "Internal Medicine and Pathophysiology are the focus and follow their syllabus
+   and classes; every other subject is studied only around its own classes." From then until the last
+   day of winter teaching, the day's budget (PHASES) belongs to these two alone, shared 60:40 — his
+   ratio. Everything else is studied only where a class covers it (CLASS_TOPICS), and those topics go
+   ON TOP of the budget, never instead of it: "don't shrink focus topics ever, just because of the
+   other classes". A day with class topics may run up to CLASS_DAY_MAX hours ("the absolute max while
+   having classes should be 8 h"); the Plan says when a day runs over the usual budget. From the
+   exam period on, STUDY_SHARE above applies again, unchanged. */
+const FOCUS_SHARE = [ { id:"pfy", share:60 }, { id:"iim", share:40 } ];
+const FOCUS_UNTIL = CREDIT_DUE.winter;   // the last day of winter teaching
+const CLASS_DAY_MAX = 8;
 
 const SUBJECTS = [
   { id:"pat", key:"PAT", sis:"EAP0103500", title:"Pathology",
@@ -771,6 +785,96 @@ const TIMETABLE_NOTES = {
   "2027-01-05": { "iim-prac":"Practical exam window: it is sat in class time in the last two weeks, with the parallel group’s teacher — 5A, doc. Hirmerová — if possible. Bring the “Application for the practical exam / Examination record” form, printed from SIS with your half filled in; once the examiner has written the result on it, hand it in at the 2nd Department of Internal Medicine’s office." },
   "2027-01-07": { "mpe-sem":"Evaluation of essays.", "pat-lec":"Pathology of the lung, pleura and mediastinum. — Vaňková" },
   "2027-01-08": { "pat-prac":"10. Cardiovascular system. Credits." },
+};
+/* Internal medicine runs one week late from 20 Oct (Linas, 15 Oct 2026): the classes themselves
+   come from CLASS_TOPICS below, with its `insert`; these notes only say so on the day. */
+Object.assign(TIMETABLE_NOTES["2026-10-20"], { "iim-prac":"ECG, continued — the practicals run one week late from today (your word, 15 Oct). Lungs move to 27 Oct." });
+TIMETABLE_NOTES["2026-10-21"] = Object.assign(TIMETABLE_NOTES["2026-10-21"]||{}, { "cze-sem":"Homework: revise numbers and dates. (From your recording of the 14 Oct seminar.)" });
+TIMETABLE_NOTES["2026-11-24"] = Object.assign(TIMETABLE_NOTES["2026-11-24"]||{}, { "iim-prac":"Extremities and vessels — assumed: one week late puts it on Tue 17 Nov, a public holiday, so the next Tuesday. Ask if it is not." });
+
+/* ── what each class covers, and which exam topics it brings up ─────────────
+   Linas, 15 Oct 2026: "when a class covers something, the matching exam and credit topics come up
+   around that class". One entry per timetable slot; each session is dated AS ITS SOURCE PRINTS IT,
+   so it can always be checked against that source. `src` says where it came from. His own class
+   recordings (Wispr Flow) are the main source for what was actually done — his rule, 16 Oct 2026.
+
+   A department that falls behind is an `insert`: one extra session at `at`, and every later session
+   of the slot moves to the slot's next real class (holidays and cancellations skipped). Sessions
+   marked `fixed` — exams, credits — never move. `prep:true` (Simulation Medicine) means the topic is
+   due the DAY BEFORE its class, because the Moodle work is checked at the door. Otherwise a session's
+   topics are spread from the day before the class to the day before the slot's next class (a week
+   at most), and a missed one comes first on the next day it fits.
+
+   For Internal Medicine and Pathophysiology a link only sets the ORDER inside the subject — class
+   order first, then the rest of the list. For every other subject a link is the only way a topic is
+   studied this winter. Lectures are not linked: he does not attend the Pathophysiology lectures, and
+   Pharmacology, Internal Medicine and Psychology publish no dated lecture plan. A code may sit in only
+   one session; the earliest one owns it (the engine warns otherwise). Codes are CURRICULUM's. */
+const CLASS_TOPICS = {
+  "iim-prac": {
+    src:"the order of the practicals as Dr. Nussbaumerová gave it on 6 Oct (your recording); the department publishes no dated plan",
+    insert:[ { at:"2026-10-20", what:"ECG, continued", codes:["IIM024","IIM025","IIM026","IIM027"],
+               src:"Linas, 15 Oct 2026: the ECG block was not finished, so 20 Oct continues ECG and every later practical runs one week late" } ],
+    sessions:[
+      { date:"2026-10-13", what:"Heart examination", codes:["IIM006","IIM007"], src:"your recording of 13 Oct" },
+      { date:"2026-10-20", what:"Lungs", codes:["IIM005","IIM021"] },
+      { date:"2026-10-27", what:"Abdomen", codes:["IIM008"] },
+      { date:"2026-11-03", what:"Head and neck", codes:["IIM004"] },
+      { date:"2026-11-10", what:"Extremities and vessels", codes:["IIM009","IIM010"] },
+      { date:"2026-12-15", what:"Practical exam window — history and examination", codes:["IIM001","IIM002"], fixed:true,
+        src:"Rules general medicine 3rd year winter 26-27.pdf: the practical exam in the last two weeks" } ] },
+  "pfy-prac": {
+    src:"Practicals-Pathological-physiology-II-WS-2026_2027-ENG.pdf (department, Sept 2026). Your Monday group runs ONE WEEK BEHIND the printed week numbers, because Mon 28 Sep was a holiday: 5 Oct was week 1 (motor function) and 12 Oct week 2 (EEG, epilepsy) — your recordings and your word, 16 Oct. The letters A/B/C1/C2 of weeks 3–10 are not explained; the printed order is assumed",
+    sessions:[
+      { date:"2026-10-05", what:"Pathophysiology of motor function", codes:["PFY122","PFY124","PFY109","PFY107"], src:"your recordings of 5 Oct" },
+      { date:"2026-10-12", what:"EEG, epilepsy, stereotaxis", codes:["PFY121","PFY147","PFY148","PFY149"] },
+      { date:"2026-10-19", what:"A: EEG, stereotaxis", codes:[] },
+      { date:"2026-10-26", what:"B: Pathophysiology of wounds — repetition", codes:["PFY030"] },
+      { date:"2026-11-02", what:"C1: Spirometry, hypoxia", codes:["PFY144","PFY055","PFY058"] },
+      { date:"2026-11-09", what:"C2: Spinal cord and brainstem; disorders of consciousness", codes:["PFY103","PFY104","PFY125"] },
+      { date:"2026-11-16", what:"A: Functional capacity of the cardiovascular system; step test, Letunov’s test", codes:["PFY146"] },
+      { date:"2026-11-23", what:"B: ECG — repetition", codes:["PFY145","PFY035","PFY036","PFY037"] },
+      { date:"2026-11-30", what:"C1: Cerebellum and ataxias", codes:["PFY105","PFY123"] },
+      { date:"2026-12-07", what:"C2: Cognitive functions and behaviour, lobar syndromes", codes:["PFY111","PFY112","PFY113"] },
+      { date:"2026-12-14", what:"Water and ion metabolism", codes:["PFY083","PFY084","PFY085","PFY086"] },
+      { date:"2027-01-04", what:"Anaemias; acid–base balance disorders", codes:["PFY051","PFY052","PFY053","PFY054","PFY082"] } ] },
+  "pha-prac": {
+    src:"your recordings of the practicals; the department’s dated plan is on Moodle (not yet read)",
+    sessions:[
+      { date:"2026-10-01", what:"Gastrointestinal drugs: antidiarrhoeals, laxatives, prokinetics, antiemetics, IBD, GERD", codes:["PHA297","PHA298","PHA299","PHA300"], src:"your recording of 1 Oct" },
+      { date:"2026-10-08", what:"Allergy and asthma: antihistamines, cromones, corticosteroids, adrenaline; asthma and COPD", codes:["PHA295","PHA296"], src:"your recording of 8 Oct" },
+      { date:"2026-10-15", what:"Pain: opioids, analgesics, NSAIDs", codes:["PHA260","PHA261","PHA262","PHA263","PHA264"], src:"Linas, 15 Oct 2026" } ] },
+  "pat-prac": {
+    src:"Practicals General Medicine Winter Semester 2026-2027.pdf (department, 8 Sep 2026)",
+    sessions:[
+      { date:"2026-10-09", what:"00. Introduction. Methods and death", codes:["PAT001","PAT004"] },
+      { date:"2026-10-16", what:"01. Cell injury and cell death", codes:["PAT003"] },
+      { date:"2026-10-23", what:"02. Cellular adaptations", codes:["PAT002"] },
+      { date:"2026-10-30", what:"03. Inflammation", codes:["PAT019","PAT020","PAT021","PAT022","PAT023"] },
+      { date:"2026-11-06", what:"04. Disorders of blood flow", codes:["PAT006","PAT007","PAT008","PAT009","PAT010"] },
+      { date:"2026-11-13", what:"05. Etiological pathology", codes:["PAT030","PAT031","PAT032","PAT033","PAT034","PAT035","PAT036","PAT037","PAT038"] },
+      { date:"2026-11-20", what:"09. Pathology of reproduction — assumed to be pregnancy, fetus and newborn, as in the 5 Nov lecture; ask at the practical", codes:["PAT122","PAT123","PAT153","PAT154","PAT155","PAT210"] },
+      { date:"2026-11-27", what:"06. Immunopathology", codes:["PAT015","PAT026","PAT027","PAT028","PAT029"] },
+      { date:"2026-12-04", what:"07. Epithelial tumours", codes:["PAT161","PAT162"] },
+      { date:"2026-12-11", what:"08. Mesenchymal and other tumours", codes:["PAT163","PAT164","PAT165","PAT166","PAT167","PAT168","PAT169","PAT170","PAT171"] },
+      { date:"2026-12-18", what:"14. Gastrointestinal tract", codes:["PAT083","PAT084","PAT085","PAT086","PAT087","PAT088","PAT089","PAT090","PAT091","PAT092","PAT093","PAT094","PAT192","PAT193","PAT194","PAT195","PAT196"] },
+      { date:"2027-01-08", what:"10. Cardiovascular system. Credits", codes:["PAT048","PAT049","PAT050","PAT051","PAT052","PAT053","PAT054","PAT055","PAT056","PAT057","PAT058","PAT174"], fixed:true } ] },
+  "mpe-sem": {
+    src:"the department’s seminar list for group 5",
+    sessions:[
+      { date:"2026-10-15", what:"Doctor–patient relationship", codes:["MPE002"] },
+      { date:"2026-10-29", what:"Agitated or aggressive patient; anxious patient (you present)", codes:["MPE010"] },
+      { date:"2026-11-26", what:"Pain; placebo, nocebo", codes:["MPE013","MPE009"] },
+      { date:"2026-12-10", what:"Elderly patients", codes:["MPE011"] } ] },
+  "sim-prac": {
+    src:"the course coordinator’s e-mail of 1 Oct 2026 (dates); the SIS syllabus order is taken as class order", prep:true,
+    sessions:[
+      { date:"2026-10-07", what:"Introduction to simulation medicine", codes:["SIM001"] },
+      { date:"2026-10-21", what:"Airway management", codes:["SIM002"] },
+      { date:"2026-11-04", what:"Vascular access, infusion and transfusion therapy", codes:["SIM003"] },
+      { date:"2026-11-18", what:"Basic Life Support", codes:["SIM004"] },
+      { date:"2026-12-02", what:"Advanced Life Support", codes:["SIM005"] },
+      { date:"2026-12-16", what:"ABCDE approach, basic monitoring, patient handover", codes:["SIM006"] } ] },
 };
 /* Czech public holidays that fall on a teaching weekday: no classes. Not in TERMS.breaks,
    because a break week is skipped when teaching weeks are counted and a single day is not. */
@@ -1995,7 +2099,10 @@ function dueForReview(data, today, live){
    its blocks moving together. Measuring by subject and group rather than by block matters: when
    blocks were ranked one by one, a subject cut into more blocks won more slots.
 
-   Preparation pinned to a class (PREP_PIN) is placed before any of this, on its own day.
+   Preparation pinned to a class (CLASS_TOPICS, prep) is placed before any of this, on its own day.
+
+   FROM 15 OCT 2026 TO THE END OF WINTER TEACHING all of this is set aside for his focus rule —
+   see FOCUS_SHARE and CLASS_TOPICS. The shares below take over again from the exam period.
 
    A topic can cost more than a whole day — Pharmacology and Pathophysiology's largest are 3.5 h
    against a three-hour teaching day. Capping its cost at the day's budget is what stops such a
@@ -2008,47 +2115,120 @@ function groupOf(subject, date){
   return date < SEM_OPEN.summer && GROUP_SHARE[subject]!==undefined && subject!=="rest" ? subject : "rest";
 }
 
-/* Preparation that belongs to a class rather than to a share. Simulation Medicine's Moodle
-   theory and assignments are checked at the start of every practical and are a condition for
-   being let in (the course coordinator's e-mail of 1 Oct 2026), so the k-th topic of the block
-   is due the day before the k-th date of its timetable slot. The e-mail gives no topic per date;
-   it says each topic builds on the one before, so syllabus order is taken as class order. A
-   pinned topic that was missed is placed first on the next day it fits. Summer sessions get
-   pinned once their dates are in TIMETABLE; until then SIM-S is paced like any other block. */
-const PREP_PIN = { "SIM-W":"sim-prac" };
-const PIN_DAY = {};
-Object.keys(PREP_PIN).forEach(function(key){
-  const b=CURRICULUM.filter(function(x){ return x.key===key; })[0];
-  const slot=TIMETABLE.filter(function(t){ return t.id===PREP_PIN[key]; })[0];
-  if(!b || !slot || !slot.dates){ console.warn("PREP_PIN: no block or no class dates for", key); return; }
-  if(slot.dates.length!==b.topics.length) console.warn("PREP_PIN:", key, "has", b.topics.length, "topics but", slot.dates.length, "class dates");
-  b.topics.forEach(function(t, i){ if(slot.dates[i]) PIN_DAY[t[0]]=addDays(slot.dates[i], -1); });
+/* ── class links: CLASS_TOPICS resolved into real dates, once, at load ──────
+   LINK[code] = { slot, date (the class it belongs to, as held), what, prep,
+                  day (from this day on it is due — a missed one is placed first after it) }.
+   CLASS_ON[date][slot] is the session itself, so a class row can say what it covers. */
+function slotClassDates(slot){
+  return dateRange(TERMS.winter.from, TERMS.winter.to).filter(function(d){
+    return classesOn(d).some(function(s){ return s.id===slot && !s.cancelled; }); });
+}
+const LINK = {}, CLASS_ON = {};
+Object.keys(CLASS_TOPICS).forEach(function(slot){
+  const ct=CLASS_TOPICS[slot], ds=slotClassDates(slot), ins=ct.insert||[], list=[];
+  ct.sessions.forEach(function(s){
+    let held=s.date;
+    const k=s.fixed ? 0 : ins.filter(function(i){ return i.at<=s.date; }).length;
+    if(k){
+      const i=ds.indexOf(s.date);
+      if(i<0){ console.warn("CLASS_TOPICS:", slot, s.date, "is not a class date, so it cannot be moved"); return; }
+      held=ds[i+k];
+      if(!held){ console.warn("CLASS_TOPICS:", slot, s.date, "is pushed past the slot's last class"); return; }
+    }
+    list.push(Object.assign({}, s, { held:held }));
+  });
+  ins.forEach(function(i){ list.push(Object.assign({}, i, { held:i.at, inserted:true })); });
+  list.sort(function(a,b){ return a.held<b.held ? -1 : a.held>b.held ? 1 : 0; });
+  list.forEach(function(s){
+    (CLASS_ON[s.held]=CLASS_ON[s.held]||{})[slot]=s;
+    const from=addDays(s.held,-1), next=ds.filter(function(d){ return d>s.held; })[0];
+    let end=next ? addDays(next,-1) : addDays(s.held,6);
+    if(end>addDays(s.held,6)) end=addDays(s.held,6);
+    const len=dayDiff(from,end)+1, n=s.codes.length;
+    s.codes.forEach(function(c, i){
+      if(!CODE_TITLE[c]){ console.warn("CLASS_TOPICS: unknown code", c, "in", slot, s.held); return; }
+      if(LINK[c]){ console.warn("CLASS_TOPICS:", c, "is linked to", LINK[c].slot, LINK[c].date, "and again to", slot, s.held); return; }
+      LINK[c]={ slot:slot, date:s.held, what:s.what, prep:!!ct.prep,
+                day: ct.prep ? from : addDays(from, Math.floor(i*len/n)) };
+    });
+  });
 });
+/* Blocks that are nothing but class preparation (Simulation Medicine's winter block) never take a
+   share: their topics come on their own days. */
+const PREP_BLOCK = {};
+CURRICULUM.forEach(function(b){ if(b.topics.every(function(t){ return LINK[t[0]] && LINK[t[0]].prep; })) PREP_BLOCK[b.key]=true; });
+const byLink = function(a,b){ return LINK[a].day<LINK[b].day ? -1 : LINK[a].day>LINK[b].day ? 1 : (a<b ? -1 : a>b ? 1 : 0); };
+const FOCUS_OF = {}; FOCUS_SHARE.forEach(function(g){ FOCUS_OF[g.id]=g.share; });
+function focusOn(date){ return date>=YEAR.open && date<=FOCUS_UNTIL; }
 
 function fillDay(date, blocks, queue){
   const budget=budgetFor(date); let left=budget; const items=[];
-  // the blocks being taught today and not yet due, and the hours still queued in each
-  const open=blocks.filter(function(x){ return date >= x.open && date <= x.due; });
-  const rem={}, gone={};
-  open.forEach(function(x){
-    let h=0; const q=queue[x.key]; for(let i=0;i<q.length;i++) h+=HRS_OF[q[i]];
+  const focus=focusOn(date);
+  // room for class topics ON TOP of the budget, while teaching runs (not over the Christmas break)
+  const room=focus && termOf(date) ? Math.max(0, CLASS_DAY_MAX-budget) : 0; let roomLeft=room;
+  // the blocks not yet due, the blocks being taught today, and the hours still queued in each
+  const live=blocks.filter(function(x){ return date <= x.due; });
+  const open=live.filter(function(x){ return date >= x.open; });
+  const rem={}, gone={}, home={};
+  live.forEach(function(x){
+    let h=0; const q=queue[x.key]; for(let i=0;i<q.length;i++){ h+=HRS_OF[q[i]]; home[q[i]]=x; }
     rem[x.key]=h;
     const span=budgetBetween(x.open, x.due);   // the block's whole study time, and the share of it already past
     gone[x.key]=span>0 ? budgetBetween(x.open, addDays(date,-1))/span : 1;
   });
   const opened=open.filter(function(x){ return queue[x.key].length; }).length;
-  const fits=function(x){ const c=queue[x.key][0]; return !!c && Math.min(HRS_OF[c],budget) <= left+0.001; };
-  const place=function(x){
-    const c=queue[x.key].shift();
-    items.push({ code:c, subject:x.subject, hrs:HRS_OF[c] });
-    left -= Math.min(HRS_OF[c], budget); rem[x.key] -= HRS_OF[c];
+  const cost=function(c, cap){ return Math.min(HRS_OF[c], cap); };
+  const fits=function(c){ return !!c && cost(c,budget) <= left+0.001; };
+  const fitsRoom=function(c){ return room>0 && cost(c,room) <= roomLeft+0.001; };
+  const fitsHead=function(x){ return fits(queue[x.key][0]); };
+  const place=function(c, why, extra){
+    const x=home[c], q=queue[x.key]; q.splice(q.indexOf(c),1);
+    items.push({ code:c, subject:x.subject, hrs:HRS_OF[c], why:why, extra:!!extra });
+    if(extra) roomLeft-=cost(c,room); else left-=cost(c,budget);
+    rem[x.key]-=HRS_OF[c];
   };
-  // first, preparation pinned to a class: today's, and any that was missed, in class order
-  open.forEach(function(x){
-    if(!PREP_PIN[x.key]) return;
-    while(queue[x.key].length && PIN_DAY[queue[x.key][0]] && PIN_DAY[queue[x.key][0]] <= date && fits(x)) place(x);
+  /* 1. Topics tied to a class whose day has come, earliest first, so a missed one comes first.
+        In the focus period these are every subject's class topics except the two focus subjects',
+        and they go into the room on top of the budget. Outside it, only preparation is pinned,
+        and it comes out of the budget as it always did. */
+  const due=[];
+  live.forEach(function(x){
+    if(focus && FOCUS_OF[x.subject]) return;
+    if(!focus && date < x.open) return;
+    queue[x.key].forEach(function(c){ const L=LINK[c]; if(L && L.day<=date && (focus || L.prep)) due.push(c); });
   });
-  const shared=open.filter(function(x){ return !PREP_PIN[x.key]; });
+  // preparation first, whatever else is waiting: it is checked at the door
+  due.sort(function(a,b){ return (LINK[b].prep?1:0)-(LINK[a].prep?1:0) || byLink(a,b); })
+     .forEach(function(c){ if(focus ? fitsRoom(c) : fits(c)) place(c, { link:LINK[c] }, focus); });
+
+  /* 2a. The focus period: the whole budget goes to Internal Medicine and Pathophysiology, each topic
+         to whichever is furthest below its share (hours done ÷ share, lowest first; ties in
+         FOCUS_SHARE order). Inside a subject its class topics come first, in class order, then the
+         block with most hours left — so the list follows the classes and then the syllabus. */
+  if(focus){
+    const next=function(id){
+      const xs=open.filter(function(x){ return x.subject===id; }), linked=[];
+      xs.forEach(function(x){ queue[x.key].forEach(function(c){ if(LINK[c]) linked.push(c); }); });
+      const l=linked.sort(byLink).filter(fits)[0]; if(l) return l;
+      const b=xs.filter(fitsHead).sort(function(a,b){ return rem[b.key]-rem[a.key] || (a.key<b.key?-1:a.key>b.key?1:0); })[0];
+      return b ? queue[b.key][0] : null;
+    };
+    while(left > 0.01){
+      let best=null, bestScore=0, bestCode=null;
+      FOCUS_SHARE.forEach(function(g){
+        const c=next(g.id); if(!c) return;
+        let done=0; open.forEach(function(x){ if(x.subject===g.id) done+=x.total-rem[x.key]; });
+        const score=done / g.share;
+        if(best===null || score < bestScore-1e-9){ best=g.id; bestScore=score; bestCode=c; }
+      });
+      if(best===null) break;
+      place(bestCode, { share:best });
+    }
+    return { items, left, budget, open:opened, extra:room-roomLeft };
+  }
+
+  /* 2b. After the focus period: the shares of STUDY_SHARE, exactly as before 15 Oct 2026. */
+  const shared=open.filter(function(x){ return !PREP_BLOCK[x.key]; });
   /* Every comparison below ends on a fixed order — group order, deadline, subject, key. Today's
      list and the week's table are built by running this from different starting points and are
      expected to agree; a tie left to the sort would let them differ. */
@@ -2056,7 +2236,7 @@ function fillDay(date, blocks, queue){
     const g={};
     shared.forEach(function(x){
       const k=groupOf(x.subject, date), e=g[k]||(g[k]={ done:0, any:false });
-      e.done+=x.total-rem[x.key]; if(fits(x)) e.any=true;
+      e.done+=x.total-rem[x.key]; if(fitsHead(x)) e.any=true;
     });
     let best=null, bestScore=0;
     GROUP_ORDER.forEach(function(k){
@@ -2071,17 +2251,17 @@ function fillDay(date, blocks, queue){
       if(groupOf(x.subject, date)!==best) return;
       const e=subj[x.subject]||(subj[x.subject]={ id:x.subject, total:0, rem:0, due:x.due, target:0, fit:false });
       e.total+=x.total; e.rem+=rem[x.key]; e.target+=x.total*gone[x.key];
-      if(x.due<e.due) e.due=x.due; if(fits(x)) e.fit=true;
+      if(x.due<e.due) e.due=x.due; if(fitsHead(x)) e.fit=true;
     });
     const behind=function(e){ return (e.target-(e.total-e.rem))/e.total; };
     const s=Object.keys(subj).map(function(k){ return subj[k]; }).filter(function(e){ return e.fit; })
       .sort(function(a,b){ return behind(b)-behind(a) || (a.due<b.due?-1:a.due>b.due?1:(a.id<b.id?-1:a.id>b.id?1:0)); })[0];
     // … then its block with most hours left
-    const x=shared.filter(function(y){ return y.subject===s.id && fits(y); })
+    const x=shared.filter(function(y){ return y.subject===s.id && fitsHead(y); })
       .sort(function(a,b){ return rem[b.key]-rem[a.key] || (a.key<b.key?-1:a.key>b.key?1:0); })[0];
-    place(x);
+    place(queue[x.key][0], { share:best });
   }
-  return { items, left, budget, open:opened };
+  return { items, left, budget, open:opened, extra:0 };
 }
 
 /* What actually does not fit, established by simulating the whole remaining year rather than by
@@ -2152,7 +2332,7 @@ function buildPlan(data, today){
   const out = days.map(function(date, n){
     // day 0 is today, pinned to this morning: its items include the ones already ticked
     const f = n===0 ? sd.first : fillDay(date, blocks, queue);
-    const items=f.items, review=[]; let left=f.left; const budget=f.budget, open=f.open;
+    const items=f.items, review=[]; let left=f.left; const budget=f.budget, open=f.open, extra=f.extra||0;
     dueForReview(data, date, live).forEach(function(c){
       if(reviewed[c] || review.length>=REVIEW_PER_DAY || left < REVIEW_HRS) return;
       reviewed[c]=1; review.push(c); left-=REVIEW_HRS;
@@ -2164,7 +2344,7 @@ function buildPlan(data, today){
              label: subs.length ? subs.map(function(id){ return SUBJECT[id].short; }).join(" · ")
                   : review.length ? "Review — nothing new due"
                   : ph.label,
-             budget, est:"~"+(Math.round((budget-left)*2)/2)+" h",
+             budget, est:"~"+(Math.round((budget-left+extra)*2)/2)+" h", extra,
              open, items, review };
   });
 
@@ -2408,7 +2588,18 @@ function CompletionBadge({kind, color}){
     {exam ? "credit + exam" : "credit"}</span>;
 }
 
-function TopicCard({code, done, onToggle, tier}){
+/* Why a topic is on a day: the class it belongs to, or the focus share. One grey line on the card. */
+const SLOT_BY_ID = {}; TIMETABLE.forEach(function(t){ SLOT_BY_ID[t.id]=t; });
+function whyText(it){
+  const w=(it&&it.why)||{}, L=w.link || (it && LINK[it.code]);
+  const cls=function(L){ const t=SLOT_BY_ID[L.slot], s=t&&SUBJECT[t.subject];
+    return (s?s.short+" ":"")+(t?KIND_LABEL[t.kind]||t.kind:"class")+", "+fmtDay(L.date)+(L.what?" · "+L.what:""); };
+  if(w.link) return (L.prep ? "preparation for the " : "from the ")+cls(L)+(L.prep ? " — checked at the door" : "")+(it.extra ? " · on top of your budget" : "");
+  if(w.share && L) return "class order · "+cls(L);
+  if(w.share) return FOCUS_OF[w.share] ? "focus share · next on the list" : "";
+  return "";
+}
+function TopicCard({code, done, onToggle, tier, why}){
   const title=CODE_TITLE[code]||code;
   const s=SUBJECT[SUBJECT_OF[code]];
   if(!s) return null;
@@ -2420,6 +2611,7 @@ function TopicCard({code, done, onToggle, tier}){
         <div style={{flex:1,minWidth:0,opacity:done?.55:1}}>
           <div style={{fontSize:14,color:"var(--ink)",display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>{title}<TierBadge tier={tier||"todo"} hrs={HRS_OF[code]}/></div>
           <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2}}>{s.short} · {BLOCK_OF[code]}</div>
+          {why && <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2,fontStyle:"italic"}}>{why}</div>}
         </div>
       </div>
     </div>
@@ -2506,8 +2698,8 @@ function DayBody({p, data, A, showNote}){
   const bySub=[];
   p.items.forEach(function(it){
     let g=bySub.filter(function(x){ return x.id===it.subject; })[0];
-    if(!g){ g={ id:it.subject, codes:[] }; bySub.push(g); }
-    g.codes.push(it.code);
+    if(!g){ g={ id:it.subject, codes:[], items:[] }; bySub.push(g); }
+    g.codes.push(it.code); g.items.push(it);
   });
   const empty = !p.items.length && !p.review.length;
   /* Only today can be finished: its list is the one the day started with, ticked topics and all
@@ -2515,7 +2707,11 @@ function DayBody({p, data, A, showNote}){
   const finished = p.date===todayStr() && p.items.length>0 && p.items.every(function(i){ return data.done[i.code]; });
   return (
     <>
-      {showNote && p.items.length>0 && <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px",fontStyle:"italic"}}>{p.phaseLabel} <span style={{color:"var(--ink-3)",fontStyle:"normal"}}>· {p.est} of {p.budget} h</span></p>}
+      {showNote && p.items.length>0 && <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px",fontStyle:"italic"}}>{p.phaseLabel} <span style={{color:"var(--ink-3)",fontStyle:"normal"}}>· {p.est}{p.extra>0 ? "" : " of "+p.budget+" h"}</span></p>}
+      {p.extra>0 && <p style={{fontSize:12.5,color:"var(--warn)",margin:"0 0 10px",lineHeight:1.5}}>
+        <i className="fa-regular fa-clock" style={{marginRight:6}} aria-hidden="true"/>
+        A longer day: about {Math.round((p.budget+p.extra)*2)/2} h — {Math.round(p.extra*2)/2} h of class topics on top of your {p.budget} h (never more than {CLASS_DAY_MAX} h).
+      </p>}
       {bySub.map(function(g){
         const s=SUBJECT[g.id];
         return (
@@ -2523,7 +2719,7 @@ function DayBody({p, data, A, showNote}){
             <div className="seclabel" style={{display:"flex",alignItems:"center",gap:7}}>
               <Dot color={s.color} size={8}/>{s.title}
             </div>
-            {g.codes.map(function(c){ return <TopicCard key={c} code={c} tier={tierOf(c,data)} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)}/>; })}
+            {g.items.map(function(it){ const c=it.code; return <TopicCard key={c} code={c} why={whyText(it)} tier={tierOf(c,data)} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)}/>; })}
           </div>
         );
       })}
@@ -2799,8 +2995,9 @@ function TaskItem({task, A, gcalOn}){
 const KIND_LABEL = { lecture:"lecture", practical:"practical", seminar:"seminar" };
 function nowMinutes(){ const d=new Date(); return d.getHours()*60+d.getMinutes(); }
 
-function ClassRow({s, isToday, dense}){
+function ClassRow({s, isToday, dense, date}){
   const subj=SUBJECT[s.subject]; if(!subj) return null;
+  const covers=date && CLASS_ON[date] && CLASS_ON[date][s.id];
   const nm=nowMinutes();
   const live = isToday && !s.cancelled && nm>=hm(s.start) && nm<hm(s.end);
   const past = isToday && nm>=hm(s.end);
@@ -2818,6 +3015,7 @@ function ClassRow({s, isToday, dense}){
           {s.confirm && <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"#B4530914",color:"var(--warn)"}}>confirm in SIS</span>}
           {s.weeks!=="all" && !dense && <span style={{fontSize:10,color:"var(--ink-3)"}}>every second week</span>}
         </div>
+        {covers && covers.what && <div style={{fontSize:12,color:"var(--ink-2)",marginTop:2,lineHeight:1.45}}>Covers: {covers.what}{covers.codes.length ? " · "+covers.codes.length+" exam topic"+(covers.codes.length>1?"s":"") : ""}</div>}
         {s.today && <div style={{fontSize:12,color:"var(--ink-2)",marginTop:2,lineHeight:1.45}}>{s.today}</div>}
         <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:1}}>
           {s.place ? s.place : "room not shown"}{!dense && s.teacher ? " · "+s.teacher : ""}
@@ -2852,7 +3050,7 @@ function ClassesToday({today}){
       {term && !list.length && <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"6px 0 0"}}>
         {PUBLIC_HOLIDAYS[today] ? "Public holiday — "+PUBLIC_HOLIDAYS[today]+". No classes." : "Nothing timetabled today."}
       </p>}
-      {list.length>0 && <div style={{marginTop:6}}>{list.map(function(s){ return <ClassRow key={s.id} s={s} isToday={true}/>; })}</div>}
+      {list.length>0 && <div style={{marginTop:6}}>{list.map(function(s){ return <ClassRow key={s.id} s={s} isToday={true} date={today}/>; })}</div>}
     </div>
   );
 }
@@ -2909,7 +3107,7 @@ function ClassesView(){
               <span style={{fontSize:11.5,color:"var(--ink-3)",marginLeft:"auto"}}>{list.length?Math.round(classHours(d)*10)/10+" h":""}</span>
             </div>
             {list.length
-              ? <div style={{marginTop:4}}>{list.map(function(s){ return <ClassRow key={s.id} s={s} isToday={isT}/>; })}</div>
+              ? <div style={{marginTop:4}}>{list.map(function(s){ return <ClassRow key={s.id} s={s} isToday={isT} date={d}/>; })}</div>
               : <p style={{fontSize:12.5,color:"var(--ink-3)",margin:"4px 0 6px"}}>{!termOf(d) ? "no teaching" : PUBLIC_HOLIDAYS[d] ? "public holiday — "+PUBLIC_HOLIDAYS[d] : "free"}</p>}
           </div>
         );
@@ -3006,6 +3204,48 @@ function PhaseStrip({today}){
   );
 }
 
+/* Tomorrow, in one place (Linas, 16 Oct 2026: "a complete tomorrow section … classes, study topics,
+   calendar events, emails, news, organised for the next day"). Nothing new is stored: the mail and
+   news come from tomorrow's briefing card, which the evening planner check starts the night before
+   (AUTOMATION.md §6); classes, deadlines and study come from the planner itself; events from the
+   calendar feed Today already reads. */
+function TomorrowSection({data, A, sched, cal, gcalOn}){
+  const tm=addDays(todayStr(),1);
+  const p=sched.find(function(x){ return x.date===tm; });
+  const classes=classesOn(tm);
+  const events=(cal.events||[]).filter(function(e){ return eventDateKey(e)===tm && !isBriefing(e) && (e.description||"").trim()!=="Added from Study planner"; });
+  const briefing=(cal.events||[]).find(function(e){ return isBriefing(e) && e.start===tm; });
+  const dues=DEADLINES.filter(function(x){ return x.iso===tm; });
+  const exams=EXAMS.filter(function(e){ const w=examWhen(e,data); return w.booked && w.iso===tm; });
+  const tasks=data.tasks.filter(function(t){ return t.date===tm; });
+  const sub=function(t){ return <div style={{fontSize:11,fontWeight:600,letterSpacing:".03em",textTransform:"uppercase",color:"var(--ink-3)",margin:"12px 0 4px"}}>{t}</div>; };
+  return (
+    <>
+      <div className="seclabel">Tomorrow — {parseISO(tm).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</div>
+      <hr className="rule" style={{marginBottom:10}}/>
+      {sub("Mail and news")}
+      {briefing && briefing.description
+        ? <div style={{fontSize:13.5,color:"var(--ink-2)",lineHeight:1.6,whiteSpace:"pre-wrap",wordBreak:"break-word",background:UI.accent+"0a",border:"0.5px solid "+UI.accent+"33",borderRadius:"var(--r-lg)",padding:"10px 13px"}}>{briefing.description}</div>
+        : <p style={{fontSize:12.5,color:"var(--ink-3)",margin:0}}>{gcalOn ? "Nothing yet — the evening check (about 18:30) puts tomorrow’s mail and news here." : "Turn on sync to see tomorrow’s mail and news here."}</p>}
+      {sub("Classes")}
+      {classes.length
+        ? <div>{classes.map(function(s){ return <ClassRow key={s.id} s={s} isToday={false} date={tm}/>; })}</div>
+        : <p style={{fontSize:12.5,color:"var(--ink-3)",margin:0}}>{PUBLIC_HOLIDAYS[tm] ? "Public holiday — "+PUBLIC_HOLIDAYS[tm]+"." : termOf(tm) ? "No classes." : "No teaching."}</p>}
+      {(dues.length>0 || exams.length>0) && sub("Deadlines")}
+      {exams.map(function(e){ const w=examWhen(e,data); return <p key={e.id} style={{fontSize:13.5,color:"var(--ink)",margin:"0 0 4px"}}><strong>{e.label}</strong>{w.time?" · "+w.time:""} · {w.place}</p>; })}
+      {dues.map(function(x){ return <p key={x.id} style={{fontSize:13.5,color:"var(--ink)",margin:"0 0 4px",lineHeight:1.5}}><strong>{x.label}</strong> · {x.time} — {x.short}</p>; })}
+      {(events.length>0 || tasks.length>0) && sub("Calendar and tasks")}
+      {events.map(function(e){ return (
+        <div key={e.id} style={{fontSize:13.5,color:"var(--ink)",padding:"5px 0",borderTop:"0.5px solid var(--line)"}}>
+          {e.title}<span style={{fontSize:11.5,color:"var(--ink-3)"}}> · {fmtEventTime(e)}{e.location?" · "+e.location:""}</span>
+        </div>); })}
+      {tasks.map(function(t){ return <TaskItem key={t.id} task={t} A={A} gcalOn={gcalOn}/>; })}
+      {sub("Study")}
+      {p ? <DayBody p={p} data={data} A={A} showNote={true}/> : <p style={{fontSize:12.5,color:"var(--ink-3)",margin:0}}>Nothing planned.</p>}
+    </>
+  );
+}
+
 function TodayView({data, A, gcalStatus}){
   const ts=todayStr();
   const sched=useMemo(()=>buildPlan(data, ts), [data, ts]);
@@ -3046,6 +3286,8 @@ function TodayView({data, A, gcalStatus}){
           <p style={{fontSize:14,color:"var(--ink-2)"}}>Nothing scheduled today. Open <button onClick={()=>A.go("subjects")} style={{background:"none",border:0,color:"var(--accent)",padding:0,textDecoration:"underline"}}>Subjects</button> to see where each course stands.</p>
         </>
       )}
+
+      <TomorrowSection data={data} A={A} sched={sched} cal={cal} gcalOn={gcalOn}/>
 
       <div className="seclabel">Today’s plan</div><hr className="rule" style={{marginBottom:10}}/>
       <CalendarBar status={gcalStatus} onConnect={A.connectGcal} onDisconnect={A.disconnectGcal} busy={A.gcalBusy} sync={A.syncState} onSync={A.syncNow} onReconnect={A.reconnect} email={A.syncEmail} err={A.syncErr} onSwitch={A.switchAccount}/>
@@ -3107,10 +3349,14 @@ function PlanView({data, A}){
         Days are filled to a budget that follows the academic calendar — {phaseById("wteach").hrs} h on a
         teaching day, {phaseById("wteach").hrs+WEEKEND_BONUS} h at the weekend, {phaseById("wexam").hrs} h inside an
         exam period. Each topic has an estimated length — small, medium or large, with hours per
-        size for each course. Over the winter the study time is shared out in your order —{" "}
+        size for each course. Until the end of winter teaching ({fmtShort(FOCUS_UNTIL)}) that budget belongs to your two
+        focus subjects —{" "}{FOCUS_SHARE.map(function(g){ return SUBJECT[g.id].short+" "+g.share+"%"; }).join(", ")} — in the order
+        their classes cover them. Every other subject is studied only around its own classes: the topics a
+        class covers come from the day before it until the day before the next one, on top of the budget
+        (never past {CLASS_DAY_MAX} h a day), and each card says which class it belongs to. Simulation Medicine's
+        preparation falls on the day before each class. From the exam period the shares are{" "}
         {STUDY_SHARE.map(function(g){ return SUBJECT[g.id].short+" "+Math.round(g.share/SHARE_TOTAL*100)+"%"; }).join(", ")},
-        everything else {Math.round(REST_SHARE/SHARE_TOTAL*100)}% — and Simulation Medicine's
-        preparation falls on the day before each class.
+        everything else {Math.round(REST_SHARE/SHARE_TOTAL*100)}%.
       </p>
       <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px"}}>
         You have ticked <strong>{cov.done} of {cov.total}</strong> topics across the year.

@@ -28,7 +28,7 @@
       const p = buildPlan(d, T), l = lists(p);
       ok(l[0] === l0[0], "ticking one of tomorrow's topics leaves today's list alone");
       ok(l[1].indexOf(ahead) < 0, "…removes it from tomorrow");
-      { const used = p[1].items.reduce((a, i) => a + Math.min(i.hrs, p[1].budget), 0); const least = Math.min(...Object.values(SIZE_HOURS).map(h => h.S));
+      { const used = p[1].items.filter(i => !i.extra).reduce((a, i) => a + Math.min(i.hrs, p[1].budget), 0); const least = Math.min(...Object.values(SIZE_HOURS).map(h => h.S));
         ok(p[1].budget - used < least, "…and tomorrow is refilled to its budget (no topic would still fit)", [l[1], l0[1], used, p[1].budget]); }
       ok(p.overflow.hours <= p0.overflow.hours, "…and the overflow does not grow", [p.overflow.hours, p0.overflow.hours]); }
     { const d = migrate({}); let bad = 0, checks = 0, firstBad = null;
@@ -79,8 +79,8 @@
       ok(wp.total === base.total, "…the week's target is unchanged", [wp.total, base.total]);
       ok(mondays.every(c => wp.planned[c] === T0), "…and Monday's topics are still on Monday in the table");
       ok(mondays.every(c => plan[0].items.some(i => i.code === c)), "…while the Plan has moved them into today", [mondays, lists(plan)[0]]);
-      const hrs = plan[0].items.reduce((a, i) => a + Math.min(i.hrs, plan[0].budget), 0);
-      ok(hrs <= plan[0].budget + 0.001, "…inside today's budget, not piled on top of it", [hrs, plan[0].budget]); }
+      const hrs = plan[0].items.filter(i => !i.extra).reduce((a, i) => a + Math.min(i.hrs, plan[0].budget), 0);
+      ok(hrs <= plan[0].budget + 0.001 && plan[0].budget + plan[0].extra <= CLASS_DAY_MAX + 0.001, "…inside today's budget (class topics on top, never past " + CLASS_DAY_MAX + " h), not piled on top of it", [hrs, plan[0].budget, plan[0].extra]); }
     { const d = migrate({}); const S = prodStats(d, "2026-09-23");
       ok(S.plan.total === 0 && !S.byKey.work.configured && S.counted === 2, "21–27 Sept, before term: nothing planned, coursework not counted", [S.plan.total, S.counted]);
       const S2 = prodStats(d, "2026-09-30");
@@ -124,24 +124,47 @@
     eq([S.byKey.lang.d, S.byKey.lang.pct, S.byKey.work.d, S.combined, S.bonus], [4, 175, W2, 119, 19], "scoring: full week, 7 of 4 → 175, combined 119");
     S = prodStats(mk("2026-09-23", { lang: [0, 2, 4, 6], gym: [0, 2, 4] }), "2026-09-23");
     eq([S.counted, S.byKey.work.configured, S.byKey.lang.d, S.combined], [2, false, 4, 100], "scoring: week before term: two categories, 100");
-    // the study shares, the pinned preparation and General Pathology's deadline (3 Oct 2026)
-    { const d = migrate({}), T0 = "2026-10-03", bl = liveBlocks(d, T0), q = {};
-      bl.forEach(x => { q[x.key] = blockQueue(x.b, d).slice(); });
-      const hrs = {}; let placed = {};
-      dateRange(T0, "2027-01-10").forEach(D => fillDay(D, bl, q).items.forEach(i => {
-        placed[i.code] = D;
-        if (D >= "2026-10-05" && D <= "2026-12-20") { const k = PREP_PIN[BLOCK_OF[i.code]] ? "pin" : groupOf(i.subject, D); hrs[k] = (hrs[k] || 0) + Math.min(i.hrs, budgetFor(D)); } }));
-      const tot = Object.keys(hrs).filter(k => k !== "pin").reduce((a, k) => a + hrs[k], 0);
-      const want = Object.assign({}, GROUP_SHARE), wsum = Object.values(want).reduce((a, b) => a + b, 0);
-      const off = Object.keys(want).map(k => [k, Math.round((hrs[k] || 0) / tot * 1000) / 10, Math.round(want[k] / wsum * 1000) / 10]).filter(r => Math.abs(r[1] - r[2]) > 2);
-      ok(off.length === 0, "an untouched winter splits its hours within 2 points of the shares", off);
-      const pins = Object.keys(PIN_DAY);
-      ok(pins.length === 6 && pins.every(c => placed[c] === PIN_DAY[c]), "each Simulation Medicine prep falls on the day before its class", pins.map(c => [c, placed[c], PIN_DAY[c]]));
-      const pg = bl.filter(x => x.key === "PAT-G")[0];
+    // the focus rule and the class links (15–16 Oct 2026)
+    const sim = (d, from, to) => { const sd = startDay(d, from), out = {}; out[from] = sd.first;
+      dateRange(addDays(from, 1), to).forEach(D => { out[D] = fillDay(D, sd.blocks, sd.queue); }); return out; };
+    const placedIn = (days) => { const at = {}; Object.keys(days).forEach(D => days[D].items.forEach(i => { at[i.code] = D; })); return at; };
+    { const days = sim(migrate({}), "2026-10-16", FOCUS_UNTIL), at = placedIn(days);
+      const stray = Object.keys(at).filter(c => !FOCUS_OF[SUBJECT_OF[c]] && !LINK[c]);
+      ok(stray.length === 0, "until the end of winter teaching no topic of another subject is placed unless a class covers it", stray.slice(0, 5));
+      const hrs = { pfy: 0, iim: 0 };
+      dateRange("2026-10-19", "2026-11-29").forEach(D => days[D].items.forEach(i => { if (!i.extra) hrs[i.subject] += Math.min(i.hrs, days[D].budget); }));
+      const pct = Math.round(hrs.pfy / (hrs.pfy + hrs.iim) * 1000) / 10;
+      ok(Math.abs(pct - 60) <= 2, "Pathophysiology and Internal Medicine share the budget 60:40 within 2 points (" + pct + " : " + Math.round((100 - pct) * 10) / 10 + ")", hrs);
+      const shrunk = Object.keys(days).filter(D => D <= "2026-12-20" && days[D].left >= 1.5 - 0.001);
+      ok(shrunk.length === 0, "class topics never shrink the focus subjects: every day's budget is filled with them", shrunk.slice(0, 3).map(D => [D, days[D].left]));
+      const over = Object.keys(days).filter(D => days[D].extra > 0 && days[D].budget + days[D].extra > CLASS_DAY_MAX + 0.001);
+      ok(over.length === 0, "a day with class topics never runs past " + CLASS_DAY_MAX + " h", over.slice(0, 3));
+      ok(Object.keys(days).some(D => days[D].extra > 0), "…and class topics do run on top of the budget"); }
+    { const days = sim(migrate({}), "2026-10-03", FOCUS_UNTIL), at = placedIn(days);
+      const pins = Object.keys(LINK).filter(c => LINK[c].prep);
+      ok(pins.length === 6 && pins.every(c => at[c] === LINK[c].day && LINK[c].day === addDays(LINK[c].date, -1)), "each Simulation Medicine prep falls on the day before its class", pins.map(c => [c, at[c], LINK[c].day])); }
+    { // everything before 1 Nov done: the November classes' topics come around their class
+      const d = migrate({}); Object.keys(LINK).forEach(c => { if (LINK[c].date < "2026-11-01") tick(d, c, "2026-10-31"); });
+      const days = sim(d, "2026-11-01", "2026-12-06"), at = placedIn(days);
+      const win = c => { const L = LINK[c], nx = Object.keys(CLASS_ON).filter(x => x > L.date && CLASS_ON[x][L.slot]).sort()[0];
+        let end = nx ? addDays(nx, -1) : addDays(L.date, 6); if (end > addDays(L.date, 6)) end = addDays(L.date, 6); return [addDays(L.date, -1), end]; };
+      const mine = Object.keys(LINK).filter(c => !FOCUS_OF[SUBJECT_OF[c]] && !LINK[c].prep && LINK[c].date >= "2026-11-02" && LINK[c].date <= "2026-11-30");
+      const off = mine.filter(c => !at[c] || at[c] < win(c)[0] || at[c] > win(c)[1]);
+      ok(mine.length > 10 && off.length === 0, "with nothing behind, each of " + mine.length + " class topics lands between the day before its class and the day before the next one", off.slice(0, 4).map(c => [c, at[c], win(c)]));
+      const big = mine.filter(c => LINK[c].slot === "pat-prac" && LINK[c].date === "2026-11-13"), spread = {};
+      big.forEach(c => { spread[at[c]] = 1; });
+      ok(big.length >= 5 && Object.keys(spread).length >= 3, "several topics of one class are spread over the days before the next class (" + big.length + " topics over " + Object.keys(spread).length + " days)", spread);
+      const c0 = mine.filter(c => LINK[c].slot === "pha-prac").concat(mine)[0], late = addDays(at[c0], 2);
+      const d2 = migrate({}); Object.keys(LINK).forEach(c => { if (LINK[c].date < "2026-11-01") tick(d2, c, "2026-10-31"); });
+      const p = buildPlan(d2, late);
+      ok(p[0].items.some(i => i.code === c0), "a missed class topic re-flows: two days late, it is on today's list", [c0, at[c0], lists(p)[0]]); }
+    ok(LINK.IIM024.date === "2026-10-20" && LINK.IIM005.date === "2026-10-27" && LINK.IIM004.date === "2026-11-10" && LINK.IIM009.date === "2026-11-24" && LINK.IIM001.date === "2026-12-15",
+       "Internal Medicine runs one week late from 20 Oct: ECG continues on the 20th, lungs on the 27th, extremities skip the 17 Nov holiday; the practical exam does not move", ["IIM024", "IIM005", "IIM004", "IIM009", "IIM001"].map(c => LINK[c].date));
+    { const d = migrate({}), bl = liveBlocks(d, "2026-10-16"), pg = bl.filter(x => x.key === "PAT-G")[0];
       ok(pg && pg.due === deadlineOf(SUBJECT.pat, d) && pg.due > CREDIT_DUE.winter, "General Pathology is paced to the June exam, not the January credit", pg && pg.due);
-      ok(groupOf("pfy", "2027-02-14") === "pfy" && groupOf("pat", "2027-02-15") === "rest", "the shares hold through the winter exam period and stop when summer teaching opens"); }
-    { const d = migrate({}), first = Object.keys(PIN_DAY).sort((a, b) => PIN_DAY[a] < PIN_DAY[b] ? -1 : 1)[0];
-      const classDay = addDays(PIN_DAY[first], 1), p = buildPlan(d, classDay);
+      ok(groupOf("pfy", "2027-02-14") === "pfy" && groupOf("pat", "2027-02-15") === "rest" && !focusOn("2027-01-09") && focusOn(FOCUS_UNTIL), "the focus rule ends with winter teaching; the old shares hold through the exam period and stop when summer teaching opens"); }
+    { const d = migrate({}), first = Object.keys(LINK).filter(c => LINK[c].prep).sort((a, b) => LINK[a].day < LINK[b].day ? -1 : 1)[0];
+      const p = buildPlan(d, addDays(LINK[first].day, 1));
       ok(p[0].items.length && p[0].items[0].code === first, "a missed prep is the first thing on the next day's list", [first, lists(p)[0]]); }
     return { checks: res.length, fails, failed: res.filter(r => r.indexOf("FAIL") === 0) };
 })()

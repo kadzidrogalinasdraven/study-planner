@@ -596,11 +596,11 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 - WhatsApp good-morning messages: declined to send unattended (each message needs his approval); offered a one-tap version. Shortcuts did not work well for him.
 - 2026-10-14 · Pharmacology final list: SIS file `did=347852` re-read in his session; 134/134 identical to `CURRICULUM` (trailing spaces only). Teacher's e-mail 13 Oct: final, in SIS and Moodle. `pha-q` → current. Pathophysiology registration reopens 14 Oct 20:00 (the 12 Oct opening was blocked by SIS).
 
-## 2026-10-15 — questions: pharma list, psychology absences, Lindau appointment
+## 2026-10-15 — questions: pharma list, psychology absences, a calendar entry
 
 - Pharmacology list: confirmed final (settled 14 Oct); no change.
 - Psychology & Ethics: seminars one absence a semester; lectures one absence, more costs an essay (stamped).
-- Calendar: "Orthopaedics appointment · Lindau", Thu 22 Oct 11:00 (`nsea1qd2cdhp0tmine91u87bj4`), popups 2 days / 1 day / 3 h before. Clashes that day: pharma practical 08:00, pathology lecture 13:10, ECG 4/5 16:20 — ECG allows one miss, and 20 Oct already clashes with the Neuroseminar. Told him.
+- Calendar: a private appointment was entered for Thu 22 Oct. On 16 Oct he said it belongs to 22 Dec (moved by the student-for-students advisor); nothing in the planner depended on it.
 
 ## 2026-10-16 — the focus rule: Internal Medicine and Pathophysiology first, everything else around its classes
 

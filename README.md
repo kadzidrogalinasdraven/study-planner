@@ -250,6 +250,15 @@ question, which was never enough.
 - **The Tomorrow tab**, next to Today: tomorrow's classes (with what each covers), deadlines,
   calendar events and tasks, the study list, and the mail and news the evening planner check puts
   on tomorrow's briefing card.
+- **Notes before their day.** Every Pathophysiology and Pharmacology card says whether its note
+  is ready. If a topic's note is still missing on its day, Today swaps it for another topic of the
+  same subject whose note is ready, and the card still names the planned topic ("planned: … — no
+  note yet, swapped for …"). The planned topic comes back once its note exists. Tomorrow's cards
+  warn you the evening before. The notes factories build in the plan's order, from
+  `tools/export-plan.mjs`. Internal Medicine and the other subjects have no factory yet, so they
+  are never swapped.
+- **A planner left open updates itself.** When it comes back to the front and a newer version is
+  live, it reloads, but only if no change of yours is still being saved.
 
 From the exam period on, the rules below apply again. Five things the scheduler does that are
 worth knowing:

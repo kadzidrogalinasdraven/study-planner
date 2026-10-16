@@ -84,7 +84,9 @@ PY
 focus rule and class topics"). On an untouched year the overflow banner reads **442 h**
 (Pathophysiology 142, Pharmacology 294 — class topics past their date wait in a pile until 9 Jan). A Tomorrow section gathers the next
 day — the **Tomorrow tab**, next to Today. The planner check — a cloud routine, morning and
-evening — has been live since 7 Oct.
+evening — has been live since 7 Oct. **Since 16 Oct, THE CLOCK** (see "The clock"): the notes
+factories build in the plan's order from `tools/export-plan.mjs`, and Today swaps a Pathophysiology or
+Pharmacology topic whose note is not filed yet for one whose note is.
 
 **Open from 16 Oct:** (a) the Pharmacology practicals have NO dated plan anywhere — Moodle course
 498 lists a practical only after it is taught (read 16 Oct). A Gmail draft asking Dr. Dědečková
@@ -436,13 +438,62 @@ Why it is built like this (measured on a prototype, 15 Oct, untouched year):
 - A class topic of a summer block (Pathology Special/Oncological) is placed in the winter when a
   practical covers it: the room looks at every live block, not only at open ones.
 
-Tests (`tools/engine-tests.js`, 51): nothing outside the focus without a link; the unlinked topics
+Tests (`tools/engine-tests.js`, 51 of the 60): nothing outside the focus without a link; the unlinked topics
 60:40 within 2 points; the budget never shrunk by other subjects' class topics; every class topic
 from today on exactly on its day; preps on the day before; one class's topics spread over days; a
 missed one waits in the pile and the next classes' topics keep their dates; the pile is empty from
 the exam period; the Internal Medicine insert. **Overflow, untouched year from 16 Oct: 546 h before
 → 442 h** (the pile counts as unplaced until 9 Jan, when it rejoins the shares). Pharmacology's 270 h is the cost of "little Pharmacology" with a
 January exam, and shrinks as each practical's topics are added.
+
+### The clock — notes before their day (2026-10-16, Linas's decisions)
+
+He said, 16 Oct: "it has to run like a clock" — every topic the planner gives him must have its note
+filed BEFORE that day. If a note is missing anyway: swap in a topic of the same subject whose note is
+ready, and keep the planned one visible on the card. The notes factories (student-for-students
+advisor, `~/Projects/notes-runner`) build Pathophysiology and Pharmacology only, one note at a time,
+on his Mac. The proposal he approved: `~/Projects/advisor/study-planner advisor/CLOCK-PROPOSAL.md`.
+
+- **`tools/export-plan.mjs`** — the factories run it before every build, after
+  `git -C ~/Projects/study-planner pull --ff-only`. It loads `index.html` as the gate does and runs
+  the page's own engine (`startDay` + `fillDay`), and fails if its first 14 days differ from
+  `buildPlan`. It writes `~/Projects/advisor/plan/plan-next-21-days.json`: rows {date, subject,
+  subject_id, code, title, why, class, hours, factory {code, status, filed, ready, in_time}}, `next`
+  (the order beyond the window, 10 per subject) and `pile`. **No ticks**: they live only in his
+  browsers and the planner's Drive file, and a Mac reader would need a Google consent that Testing
+  mode expires every 7 days. The plan is made as if nothing were ticked.
+- **Matching** — the factories' `QUEUE.json` files are read, never written: Pathophysiology by its
+  own `pfy` field (153/153), Pharmacology by exact title (134/134). A topic that stops matching fails
+  the run. Ready = status `done` and the file exists. Twelve Pathophysiology rows hold the file's path
+  in `filed`; the file's own date stands in.
+- **`notes.json`** (code → filed date) — `--publish` commits it onto `origin/main` through a temporary
+  index (`git commit-tree`), never touching the working tree or the current branch, and only when it
+  changed; a refused push is rebuilt on the new main, three tries. The gate checks it with the app's
+  own `isNotes`. The cloud routine may not touch it (the gate's file list) and, when its push is
+  refused because main moved, rebases and pushes again (AUTOMATION.md, step 5).
+- **The swap is in the app only** (`noteSwaps`, `withNotes`), never in `fillDay`. If the engine
+  swapped, the export would list only topics that already have notes, and the factories would never
+  be told to build the missing ones. Only TODAY swaps, decided from this morning's state and notes
+  filed before today, so the list holds still. The stand-in is the next topic of that subject in the
+  engine's order after tomorrow, else list order, not on today's or tomorrow's list, not in the pile.
+  No stand-in → the planned card stays, "no note yet". Tomorrow carries a hint, later days a badge,
+  the pile "note ready since …". A share topic comes back by itself (still unticked); a class topic
+  goes to the pile like any missed one. The day's hours stay the planned ones.
+- **Only subjects with a factory** (`NOTE_SUBJECTS`: pfy, pha). Internal Medicine has 40 % of the
+  focus and no factory yet; it would otherwise be swapped away every day. Add `iim` when its
+  factory files notes.
+- **A page left open keeps its old code with the new date** — the PHA288 case of 16 Oct: the
+  pre-midnight build (Pharmacology 30 %) still offered it after the focus rule went live. The app now
+  sends a HEAD request when it comes to the front (at most every 5 min). If the ETag has changed, it
+  reloads, but only when no Drive push is pending and no text is half-typed, and at most once in
+  10 min.
+- Tests (9 of the 60): no notes known → nothing changes; each topic without a note gets a different
+  stand-in; ticking the stand-in changes nothing; a note filed today counts from tomorrow; no stand-in
+  → marked; Internal Medicine never marked; only tomorrow carries the hint.
+- **What 16 Oct – 5 Nov needs** (export of 16 Oct): Pathophysiology 14 topics, 11 with a note in
+  time; Pharmacology 3, none. Missing: PX14 (17 Oct), FA27 (17 Oct), FA28 (18 Oct), FA29 (20 Oct),
+  PG30 (25 Oct), PX09 (1 Nov). The PX sheets wait for the Pathophysiology factory's gates
+  (its DECISIONS §17.2). Pharmacology practicals enter the planner only after they are taught.
 
 ### Exam dates are booked, not known
 

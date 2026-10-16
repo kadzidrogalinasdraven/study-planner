@@ -93,6 +93,13 @@ const tests = code ? run(fs.readFileSync(path.join(TOOLS, "engine-tests.js"), "u
 if (!tests || typeof tests.checks !== "number") fail("the engine tests did not run");
 else if (tests.fails) fail(`${tests.fails} of ${tests.checks} engine tests failed:\n    ` + tests.failed.join("\n    "));
 
+// 4b. notes.json (published by tools/export-plan.mjs --publish) must pass the app's own check
+if (code && fs.existsSync(path.join(ROOT, "notes.json"))) {
+  let n = null;
+  try { n = JSON.parse(fs.readFileSync(path.join(ROOT, "notes.json"), "utf8")); } catch (e) { fail("notes.json is not JSON: " + e.message); }
+  if (n && !run(`isNotes(${JSON.stringify(n)})`, "notes.json")) fail("notes.json holds an unknown code or a value that is not a date");
+}
+
 // 5. what an unattended change may touch
 if (AUTO) {
   let changed = [];

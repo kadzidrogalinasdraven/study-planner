@@ -596,6 +596,12 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 - WhatsApp good-morning messages: declined to send unattended (each message needs his approval); offered a one-tap version. Shortcuts did not work well for him.
 - 2026-10-14 · Pharmacology final list: SIS file `did=347852` re-read in his session; 134/134 identical to `CURRICULUM` (trailing spaces only). Teacher's e-mail 13 Oct: final, in SIS and Moodle. `pha-q` → current. Pathophysiology registration reopens 14 Oct 20:00 (the 12 Oct opening was blocked by SIS).
 
+## 2026-10-15 — questions: pharma list, psychology absences, Lindau appointment
+
+- Pharmacology list: confirmed final (settled 14 Oct); no change.
+- Psychology & Ethics: seminars one absence a semester; lectures one absence, more costs an essay (stamped).
+- Calendar: "Orthopaedics appointment · Lindau", Thu 22 Oct 11:00 (`nsea1qd2cdhp0tmine91u87bj4`), popups 2 days / 1 day / 3 h before. Clashes that day: pharma practical 08:00, pathology lecture 13:10, ECG 4/5 16:20 — ECG allows one miss, and 20 Oct already clashes with the Neuroseminar. Told him.
+
 ## 2026-10-16 — the focus rule: Internal Medicine and Pathophysiology first, everything else around its classes
 
 - His decisions (15–16 Oct): focus Internal Medicine + Pathophysiology 60:40; Pathology and Pharmacology only around their practicals; class topics on top of the 3 h / 5 h budget, up to 8 h a day, never shrinking the focus; Wispr Flow class recordings are the main source for what a class did; an official e-mail overrules everything; a Tomorrow section on Today.
@@ -606,3 +612,11 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 - Gate: 47/47 engine tests (12 new or rewritten). Checked in the built-in browser (clean profile): Today, Tomorrow, phone width, no console errors.
 - Moodle, after his login: course 498 (Pharmacology practicals) has no dated plan — sections appear once taught (GIT, RS, Pain); added PHA302 hepatoprotectives (1 Oct) and PHA294 antitussives (8 Oct). The 2026/27 "Pharmacology II_Credit and Exam" is there (rules only, no credit test). Course 527 (Pathology) settles practical 09 = pregnancy, fetus, newborn and widens practical 02 to accumulations, pigments, calcification (PAT011–014, PAT016–018); its question numbers follow an older list, so mapped by content. Gmail draft to Dr. Dědečková asking for the coming practical topics — not sent.
 - His second rule, same day: class topics always on their date, whatever the hours (past 8 h too); one left unticked past its date is not moved later — it waits on Today under "Still open from earlier classes", counted in no day, until 9 Jan, when it rejoins the shares. The first version (missed topics first, inside an 8 h room) pushed the next practical's topics weeks later. Tomorrow moved to its own tab; the gate now opens it too (tools/check.mjs). SIS checked for a Pharmacology practical schedule: only the 2024 undated seminar list, which does not match. Gate 51/51; untouched-year overflow 442 h.
+
+## 2026-10-16 — THE CLOCK: notes before their day
+
+- His word (via the student-for-students advisor, INBOX 11:20 and 11:32): every planned topic needs its note filed before its day; a card without one swaps to a ready topic of the same subject and still names the planned one. Proposal `~/Projects/advisor/study-planner advisor/CLOCK-PROPOSAL.md`, answered in INBOX 11:58; he OK'd building it exactly as proposed.
+- PHA288 on Today, 16 Oct: no build since 00:12 (push 134c506) can place it (Pharmacology only through CLASS_TOPICS); the pre-midnight build 28a54a4 gave Pharmacology 30 % and picks Special II's first question once that block leads. His page was older than the deploy. Not reproduced with his own ticks (none on the Mac). Hence the reload guard.
+- Built: `tools/export-plan.mjs` (export + `--publish` of notes.json through a temporary index), `NOTE_SUBJECTS`/`noteState`/`noteSwaps`/`withNotes`, `NoteBadge` and the swap line on `TopicCard`, notes fetched on load and on focus (cached in `sp_notes`), the reload guard, the gate's notes.json check, AUTOMATION.md step 5 (rebase when main moved). Rules: CLAUDE.md "The clock".
+- Export of 16 Oct, 16 Oct–5 Nov, untouched: 48 topics; Pathophysiology 14 (11 notes in time), Pharmacology 3 (0). Missing: PX14, FA27, FA28, FA29, PG30, PX09. The swap on 17 Oct (checked in the built-in browser with the real notes): Stereotaxis → Mechanisms of endocrine disorders, Analgesics-antipyretics → Beta sympatholytics (the one Pharmacology note; 3.5 h instead of 1.5 — the day's hours stay the planned ones).
+- Gate 60/60 (9 new). The Productivity week grid still shows the intended plan: a stand-in ticked counts as "+1", the planned box stays open.

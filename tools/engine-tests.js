@@ -174,5 +174,29 @@
       ok(p.backlog.indexOf(first) >= 0 && !p.some(x => x.items.some(i => i.code === first)), "a missed prep joins the pile (oldest first) instead of a later day — its class is over", [first, p.backlog.slice(0, 3)]);
       const after = buildPlan(d, "2027-01-11");
       ok(after.backlog.length === 0, "from the exam period the pile is empty: what is left goes back into the shares"); }
+    /* THE CLOCK (16 Oct 2026): a topic without a note is swapped on Today only, never in the plan. The
+       codes are taken from the plan of the day, so a CLASS_TOPICS edit does not break these. */
+    { const T = "2026-10-17", d = migrate({}), plan = buildPlan(d, T);
+      const pf = plan[0].items.map(i => i.code).filter(c => SUBJECT_OF[c] === "pfy");
+      const N = {}; CODES_OF.pfy.forEach(c => { if (pf.indexOf(c) < 0) N[c] = addDays(T, -10); });
+      ok(Object.keys(noteSwaps(d, T, null)).length === 0 && withNotes(plan, d, T, null) === plan, "the clock: with notes.json unknown nothing is swapped or marked");
+      const sw = noteSwaps(d, T, N), ys = pf.map(c => sw[c]), near = {};
+      plan[0].items.concat(plan[1].items).forEach(i => { near[i.code] = 1; });
+      ok(pf.length > 0 && ys.every(y => y && SUBJECT_OF[y] === "pfy" && N[y] && !near[y]) && new Set(ys).size === ys.length,
+         "…each of today's " + pf.length + " Pathophysiology topics without a note is swapped for a different one with a note, not on today's or tomorrow's list", [pf, ys]);
+      const shown = withNotes(plan, d, T, N);
+      ok(pf.every(c => shown[0].items.some(i => i.code === sw[c] && i.swapFor === c)) && !shown.slice(1).some(p => p.items.some(i => ys.indexOf(i.code) >= 0)),
+         "…the card names the planned topic, and the stand-in is not listed again on a later day");
+      ok(!plan[0].items.some(i => i.swapFor || i.note) && JSON.stringify(lists(plan)) === JSON.stringify(lists(buildPlan(d, T))), "…and the plan itself is untouched");
+      const d2 = migrate({}); tick(d2, ys[0], T);
+      ok(JSON.stringify(noteSwaps(d2, T, N)) === JSON.stringify(sw), "…ticking the stand-in leaves today's swaps exactly as they were");
+      const N2 = Object.assign({}, N, { [pf[0]]: T }), N3 = Object.assign({}, N, { [pf[0]]: addDays(T, -1) });
+      ok(noteSwaps(d, T, N2)[pf[0]] === sw[pf[0]] && !(pf[0] in noteSwaps(d, T, N3)), "…a note filed today counts from tomorrow; one filed yesterday stops the swap");
+      const none = withNotes(plan, d, T, {});
+      ok(none[0].items.filter(i => SUBJECT_OF[i.code] === "pfy").every(i => i.note === "none" && !i.swapFor), "…with no note anywhere in the subject the planned topic stays, marked no note yet");
+      ok(shown.every(p => p.items.every(i => NOTE_SUBJECTS[i.subject] || i.note === undefined)) && noteState("IIM007", T, N) === null,
+         "…subjects without a factory (Internal Medicine, Pathology) are never marked or swapped");
+      const tmNo = none[1].items.filter(i => NOTE_SUBJECTS[i.subject]);
+      ok(tmNo.length > 0 && tmNo.every(i => i.noteHint) && none.slice(2).every(p => p.items.every(i => !i.noteHint)), "…tomorrow's topics without a note say so the evening before, and only tomorrow's"); }
     return { checks: res.length, fails, failed: res.filter(r => r.indexOf("FAIL") === 0) };
 })()

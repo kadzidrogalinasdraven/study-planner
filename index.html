@@ -2418,6 +2418,83 @@ function weekPlan(data, today){
            subjects: SUBJECTS.filter(function(s){ return cells[s.id]; }) };
 }
 
+/* ── THE CLOCK: the notes the factories have filed (Linas, 16 Oct 2026) ─────
+   "It has to run like a clock": every Pathophysiology and Pharmacology topic the plan gives him
+   should have its note filed BEFORE its day. The notes factories on his Mac build one note at a
+   time; tools/export-plan.mjs reads their queues and publishes notes.json — planner code → the day
+   the note was filed — which the app fetches (App, `notes`).
+
+   Nothing here changes the plan. fillDay never looks at notes, so the plan — and the export the
+   factories build from — is always the INTENDED plan. Were the swap inside the engine, the plan
+   would list only topics that already have notes, and the factories would never be told to build
+   the missing ones.
+
+   His rule (16 Oct ~11:25): on TODAY a topic without a note is swapped for another topic of the
+   same subject whose note is ready, and the card still names the planned one. The swap is decided
+   from this morning's state and from notes filed before today, so the list holds still all day.
+   Later days carry a badge only, because the factories build at night. The planned topic comes
+   back by itself: a share topic is still unticked, so the plan places it again; a class topic goes
+   to the pile like every missed class topic.
+
+   Only subjects with a factory. Internal Medicine has none yet: under the swap rule every one of
+   its topics would be swapped away, every day. */
+const NOTE_SUBJECTS = { pfy:true, pha:true };
+function noteFiled(code, notes){ return (notes && NOTE_SUBJECTS[SUBJECT_OF[code]] && notes[code]) || null; }
+// "ready" | "none" for a subject with a factory; null when the notes are unknown or there is no factory
+function noteState(code, date, notes){
+  if(!notes || !NOTE_SUBJECTS[SUBJECT_OF[code]]) return null;
+  const f=notes[code]; return f && f < date ? "ready" : "none";
+}
+/* Today's swaps, { planned code: the code studied instead, or null when no topic of that subject has
+   a note }. The stand-in is the next topic of the same subject in the engine's own order after
+   tomorrow, else in list order — unticked this morning, its note filed before today, not on today's
+   or tomorrow's list, not in the pile. */
+function noteSwaps(data, today, notes){
+  const out={}; if(!notes) return out;
+  const morning=beforeTicks(data, [today]);
+  const sd=startDay(morning, today);
+  const todays=sd.first.items.map(function(i){ return i.code; });
+  const want=todays.filter(function(c){ return noteState(c, today, notes)==="none"; });
+  if(!want.length) return out;
+  const later=[];
+  for(let n=1;n<PLAN_DAYS;n++) later.push(fillDay(addDays(today,n), sd.blocks, sd.queue).items.map(function(i){ return i.code; }));
+  const taken={}; todays.concat(later[0]).forEach(function(c){ taken[c]=1; });
+  const order=[].concat.apply([], later.slice(1));
+  const openKey={}; sd.blocks.forEach(function(x){ if(today>=x.open) openKey[x.key]=1; });
+  want.forEach(function(x){
+    const sid=SUBJECT_OF[x];
+    const ok=function(c){ return SUBJECT_OF[c]===sid && !taken[c] && openKey[BLOCK_OF[c]] && !morning.done[c]
+      && tierOf(c, morning)!=="skip" && !(LINK[c] && LINK[c].day < today) && noteState(c, today, notes)==="ready"; };
+    const y=order.filter(ok)[0] || (CODES_OF[sid]||[]).filter(ok)[0] || null;
+    out[x]=y; if(y) taken[y]=1;
+  });
+  return out;
+}
+/* The plan as shown: buildPlan's days with each card's note state, and today's swaps laid over it.
+   A stand-in is taken off the later days it was planned on, so it is not listed twice. */
+function withNotes(sched, data, today, notes){
+  if(!notes) return sched;
+  const swaps=noteSwaps(data, today, notes), tm=addDays(today,1), used={};
+  Object.keys(swaps).forEach(function(x){ if(swaps[x]) used[swaps[x]]=1; });
+  const out=sched.map(function(p){
+    const items=[];
+    p.items.forEach(function(it){
+      const st=noteState(it.code, p.date, notes);
+      if(!st){ items.push(it); return; }
+      if(p.date===today && swaps[it.code]){
+        const y=swaps[it.code];
+        items.push(Object.assign({}, it, { code:y, hrs:HRS_OF[y], why:null, note:"ready", swapFor:it.code }));
+        return;
+      }
+      if(p.date>today && used[it.code]) return;
+      items.push(Object.assign({}, it, { note:st, noteHint: p.date===tm && st==="none" }));
+    });
+    return Object.assign({}, p, { items:items });
+  });
+  out.overflow=sched.overflow; out.backlog=sched.backlog; out.pace=sched.pace;
+  return out;
+}
+
 /* The next thing with a date on it — a booked exam, an exam period opening, a credit deadline,
    or one of your own (DEADLINES). Countdown and the Subjects tab both read this. */
 function nextMilestone(data, today){
@@ -2620,7 +2697,7 @@ function whyText(it){
   if(w.share) return FOCUS_OF[w.share] ? "focus share · next on the list" : "";
   return "";
 }
-function TopicCard({code, done, onToggle, tier, why}){
+function TopicCard({code, done, onToggle, tier, why, note, since, swapFor, hint}){
   const title=CODE_TITLE[code]||code;
   const s=SUBJECT[SUBJECT_OF[code]];
   if(!s) return null;
@@ -2630,13 +2707,22 @@ function TopicCard({code, done, onToggle, tier, why}){
         <input type="checkbox" className="cb" style={{"--ck":s.color}} checked={done} onChange={onToggle} aria-label={"Mark "+title+" done"}/>
         <CodeChip code={code}/>
         <div style={{flex:1,minWidth:0,opacity:done?.55:1}}>
-          <div style={{fontSize:14,color:"var(--ink)",display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>{title}<TierBadge tier={tier||"todo"} hrs={HRS_OF[code]}/></div>
+          <div style={{fontSize:14,color:"var(--ink)",display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>{title}<TierBadge tier={tier||"todo"} hrs={HRS_OF[code]}/>{!done && <NoteBadge note={note} since={since}/>}</div>
           <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2}}>{s.short} · {BLOCK_OF[code]}</div>
+          {swapFor && <div style={{fontSize:11.5,color:"#92400e",marginTop:2}}>planned: {CODE_TITLE[swapFor]||swapFor} — no note yet, swapped for {title}</div>}
+          {hint && !done && <div style={{fontSize:11.5,color:"#92400e",marginTop:2}}>no note yet — if it is still missing tomorrow morning, a topic with a note takes its place</div>}
           {why && <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:2,fontStyle:"italic"}}>{why}</div>}
         </div>
       </div>
     </div>
   );
+}
+/* THE CLOCK: whether the factories have filed this topic's note (see noteSwaps). Nothing for a
+   subject without a factory, or before notes.json has loaded. */
+function NoteBadge({note, since}){
+  if(note==="ready") return <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"var(--accent-soft)",color:"var(--accent)",whiteSpace:"nowrap"}}>{since ? "note ready since "+fmtShort(since) : "note ready"}</span>;
+  if(note==="none") return <span style={{fontSize:10,padding:"1px 7px",borderRadius:10,background:"#b453091a",color:"#92400e",whiteSpace:"nowrap"}}>no note yet</span>;
+  return null;
 }
 
 /* One line, no expansion: a review is a two-minute "can I still say this", not a re-study. */
@@ -2740,7 +2826,7 @@ function DayBody({p, data, A, showNote}){
             <div className="seclabel" style={{display:"flex",alignItems:"center",gap:7}}>
               <Dot color={s.color} size={8}/>{s.title}
             </div>
-            {g.items.map(function(it){ const c=it.code; return <TopicCard key={c} code={c} why={whyText(it)} tier={tierOf(c,data)} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)}/>; })}
+            {g.items.map(function(it){ const c=it.code; return <TopicCard key={c} code={c} why={whyText(it)} tier={tierOf(c,data)} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)} note={it.note} swapFor={it.swapFor} hint={it.noteHint}/>; })}
           </div>
         );
       })}
@@ -3267,7 +3353,8 @@ function TomorrowSection({data, A, sched, cal, gcalOn}){
 
 function TomorrowView({data, A, gcalStatus}){
   const ts=todayStr();
-  const sched=useMemo(()=>buildPlan(data, ts), [data, ts]);
+  const plan=useMemo(()=>buildPlan(data, ts), [data, ts]);
+  const sched=useMemo(()=>withNotes(plan, data, ts, A.notes), [plan, A.notes]);
   const gcalOn=gcalStatus==="on";
   const cal=useCalendarFeed(gcalOn);
   return (
@@ -3281,7 +3368,8 @@ function TomorrowView({data, A, gcalStatus}){
 
 function TodayView({data, A, gcalStatus}){
   const ts=todayStr();
-  const sched=useMemo(()=>buildPlan(data, ts), [data, ts]);
+  const plan=useMemo(()=>buildPlan(data, ts), [data, ts]);
+  const sched=useMemo(()=>withNotes(plan, data, ts, A.notes), [plan, A.notes]);
   const today=sched.find(p=>p.date===ts);
   const overdue=data.tasks.filter(t=>!t.done && t.date<ts);
   const todays=data.tasks.filter(t=>t.date===ts);
@@ -3323,7 +3411,7 @@ function TodayView({data, A, gcalStatus}){
       {sched.backlog.length>0 && <>
         <div className="seclabel">Still open from earlier classes <span style={{fontSize:12,color:"var(--ink-3)"}}>· {sched.backlog.filter(function(c){ return !data.done[c]; }).length} topics, not counted in any day’s hours</span></div>
         <hr className="rule" style={{marginBottom:10}}/>
-        {sched.backlog.map(function(c){ return <TopicCard key={c} code={c} why={whyText({code:c, why:{link:LINK[c]}})} tier={tierOf(c,data)} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)}/>; })}
+        {sched.backlog.map(function(c){ const f=noteFiled(c, A.notes); return <TopicCard key={c} code={c} why={whyText({code:c, why:{link:LINK[c]}})} tier={tierOf(c,data)} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)} note={A.notes && NOTE_SUBJECTS[SUBJECT_OF[c]] ? (f ? "ready" : "none") : null} since={f}/>; })}
       </>}
 
       <div className="seclabel">Today’s plan</div><hr className="rule" style={{marginBottom:10}}/>
@@ -3369,7 +3457,8 @@ function GoalRowMini({g}){
 
 function PlanView({data, A}){
   const ts=todayStr();
-  const sched=useMemo(()=>buildPlan(data, ts), [data, ts]);
+  const plan=useMemo(()=>buildPlan(data, ts), [data, ts]);
+  const sched=useMemo(()=>withNotes(plan, data, ts, A.notes), [plan, A.notes]);
   const cov=yearCoverage(data);
   const p0=phaseOf(ts);
   return (
@@ -4336,6 +4425,20 @@ function ProdTodayStrip({data, A}){
 /* ── root ───────────────────────────────────────────────────────── */
 const TABS = [["today","Today"],["tomorrow","Tomorrow"],["plan","Plan"],["classes","Classes"],["subjects","Subjects"],["progress","Progress"],["goals","Goals"],["timeline","Timeline"],["prod","Productivity"]];
 
+/* notes.json is published to main by tools/export-plan.mjs --publish: { "PFY031": "2026-10-04", … }.
+   The last copy is kept in this browser, so an offline open still knows which notes exist. */
+const NOTES_KEY = "sp_notes";
+const isNotes = function(n){ return !!n && typeof n==="object" && !Array.isArray(n) &&
+  Object.keys(n).every(function(k){ return CODE_TITLE[k] && /^\d{4}-\d\d-\d\d$/.test(n[k]); }); };
+function loadNotesCache(){ try{ const n=JSON.parse(localStorage.getItem(NOTES_KEY)); return isNotes(n) ? n : null; }catch(e){ return null; } }
+function fetchNotes(){
+  if(typeof fetch!=="function" || !/^https?:$/.test(location.protocol)) return Promise.resolve(null);
+  return fetch("notes.json",{cache:"no-store"})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(n){ if(!isNotes(n)) return null; try{ localStorage.setItem(NOTES_KEY, JSON.stringify(n)); }catch(e){} return n; })
+    .catch(function(){ return null; });
+}
+
 function App(){
   const [tab,setTab]=useState("today");
   const [focus,setFocus]=useState(null);   // a subject id, so Subjects → Progress opens expanded
@@ -4353,6 +4456,46 @@ function App(){
   const dirty=useRef(false);
 
   useEffect(()=>{ dataRef.current=data; },[data]);
+
+  // THE CLOCK: the factories' notes (noteSwaps). Fetched on load and when the app comes back to the front.
+  const [notes,setNotes]=useState(loadNotesCache);
+  useEffect(()=>{
+    let last=0;
+    const get=()=>{
+      if(document.visibilityState!=="visible" || Date.now()-last<60000) return; last=Date.now();
+      fetchNotes().then(function(n){ if(n) setNotes(function(prev){ return JSON.stringify(prev)===JSON.stringify(n) ? prev : n; }); });
+    };
+    get();
+    window.addEventListener("focus",get); document.addEventListener("visibilitychange",get);
+    return ()=>{ window.removeEventListener("focus",get); document.removeEventListener("visibilitychange",get); };
+  },[]);
+
+  /* A page left open across a deploy keeps running its old code with the new date — on 16 Oct 2026
+     the build from before midnight still offered PHA288 after the focus rule had gone live. When the
+     app comes back to the front, ask whether a newer page is out, and reload if nothing would be
+     lost: no Drive push pending, no half-typed text. At most once in ten minutes, so a CDN edge
+     still serving the old page cannot start a loop. */
+  useEffect(()=>{
+    if(typeof fetch!=="function" || !/^https?:$/.test(location.protocol)) return;
+    const stampOf=()=>fetch(location.pathname,{method:"HEAD",cache:"no-store"})
+      .then(function(r){ return r.ok ? (r.headers.get("etag")||r.headers.get("last-modified")) : null; })
+      .catch(function(){ return null; });
+    let stamp=null, last=Date.now();
+    stampOf().then(function(s){ stamp=s; });
+    const typing=()=>Array.prototype.some.call(document.querySelectorAll("textarea, input:not([type]), input[type=text]"), function(e){ return e.value; });
+    const check=()=>{
+      if(document.visibilityState!=="visible" || !stamp || Date.now()-last<300000) return; last=Date.now();
+      stampOf().then(function(s){
+        if(!s || s===stamp || dirty.current || pushTimer.current || typing()) return;
+        let at=0; try{ at=+sessionStorage.getItem("sp_reloadAt")||0; }catch(e){}
+        if(Date.now()-at<600000) return;
+        try{ sessionStorage.setItem("sp_reloadAt", String(Date.now())); }catch(e){}
+        location.reload();
+      });
+    };
+    window.addEventListener("focus",check); document.addEventListener("visibilitychange",check);
+    return ()=>{ window.removeEventListener("focus",check); document.removeEventListener("visibilitychange",check); };
+  },[]);
 
   // save locally on every change; push to Drive (debounced) for real edits
   useEffect(()=>{
@@ -4476,7 +4619,7 @@ function App(){
 
   const A = {
     go:(t,f)=>{ setTab(t); setFocus(f||null); },
-    gcalBusy, syncState, syncEmail, syncErr,
+    gcalBusy, syncState, syncEmail, syncErr, notes,
     /* Progress-tab overrides. A skipped topic is scheduled nowhere and counted nowhere; the
        override is checked before anything else in tierOf(), so a syllabus that turns out to be
        wrong is a one-tap fix rather than a redeploy. */

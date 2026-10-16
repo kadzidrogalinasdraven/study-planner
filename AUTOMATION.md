@@ -42,7 +42,9 @@ first live run), and write in the briefing "Would change: …". From that date o
    watcher reported a change, then one line per change in `docs/planner-updates.md`.
 5. **Gate, then publish.** One commit for the run, then `node tools/check.mjs --auto`. Push to
    `main` only if it prints `GATE PASSED`. If it fails: `git reset --hard origin/main`, change
-   nothing else, and put the gate's message at the top of the briefing.
+   nothing else, and put the gate's message at the top of the briefing. If the push is refused
+   because `main` moved — the Mac publishes `notes.json` there whenever a note is filed (CLAUDE.md,
+   "The clock") — `git pull --rebase origin main`, run the gate again, and push once more.
 6. **Draft the answers** (§2a): a Gmail draft for every processed message that needs a reply or
    an e-mail from him. Never sent — he clicks Send.
 7. **Ask** (§3): numbered, in the briefing card.

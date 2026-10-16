@@ -4461,13 +4461,15 @@ function App(){
   const [notes,setNotes]=useState(loadNotesCache);
   useEffect(()=>{
     let last=0;
-    const get=()=>{
-      if(document.visibilityState!=="visible" || Date.now()-last<60000) return; last=Date.now();
+    // on load always — a tab restored in the background must not wait to be looked at — then on coming to the front
+    const get=(onLoad)=>{
+      if(!onLoad && (document.visibilityState!=="visible" || Date.now()-last<60000)) return; last=Date.now();
       fetchNotes().then(function(n){ if(n) setNotes(function(prev){ return JSON.stringify(prev)===JSON.stringify(n) ? prev : n; }); });
     };
-    get();
-    window.addEventListener("focus",get); document.addEventListener("visibilitychange",get);
-    return ()=>{ window.removeEventListener("focus",get); document.removeEventListener("visibilitychange",get); };
+    get(true);
+    const front=()=>get(false);   // a listener's event argument must not count as "on load"
+    window.addEventListener("focus",front); document.addEventListener("visibilitychange",front);
+    return ()=>{ window.removeEventListener("focus",front); document.removeEventListener("visibilitychange",front); };
   },[]);
 
   /* A page left open across a deploy keeps running its old code with the new date — on 16 Oct 2026

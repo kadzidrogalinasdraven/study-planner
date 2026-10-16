@@ -81,9 +81,10 @@ PY
 **Live:** the third-year planner on GitHub Pages. **Since 16 Oct, until the end of winter teaching
 (8 Jan), the plan follows his focus rule** — Internal Medicine and Pathophysiology share the budget
 60:40, every other subject is studied only around its own classes, on top of the budget (see "The
-focus rule and class topics"). On an untouched year the overflow banner reads **444 h**
-(Pathophysiology 145, Pharmacology 270, Pathology 23). A Tomorrow section on Today gathers the next
-day. The planner check — a cloud routine, morning and evening — has been live since 7 Oct.
+focus rule and class topics"). On an untouched year the overflow banner reads **442 h**
+(Pathophysiology 142, Pharmacology 294 — class topics past their date wait in a pile until 9 Jan). A Tomorrow section gathers the next
+day — the **Tomorrow tab**, next to Today. The planner check — a cloud routine, morning and
+evening — has been live since 7 Oct.
 
 **Open from 16 Oct:** (a) the Pharmacology practicals have NO dated plan anywhere — Moodle course
 498 lists a practical only after it is taught (read 16 Oct). A Gmail draft asking Dr. Dědečková
@@ -403,12 +404,20 @@ How it is built (`index.html`):
   topics of a class are spread from the day before it to the day before the slot's next class
   (seven days at most). A code may be in ONE session (the gate fails on a duplicate or an unknown
   code, through `console.warn`). **`CLASS_ON[date][slot]`** feeds "Covers: …" on class rows.
-- **`fillDay`, until `FOCUS_UNTIL` (= `CREDIT_DUE.winter`):** (1) class topics of the non-focus
-  subjects whose day has come — preparation first, then earliest due, so a missed one comes first —
-  go into a ROOM ON TOP of the budget, up to `CLASS_DAY_MAX` (8 h) a day, during teaching only;
-  (2) the whole budget goes to `FOCUS_SHARE` (pfy 60, iim 40), hours done ÷ share, and inside each
-  focus subject its class topics come first, in class order, then the block with most hours left.
-  Nothing else is placed. After 8 Jan, `STUDY_SHARE` (40/30/20/7/3) runs exactly as before.
+- **`fillDay` (rewritten 16 Oct, his second message):** (1) on EVERY date, each class topic whose
+  `LINK.day` is that date is placed, whatever the hours — "I want to see the practical topics before
+  the practical starts, no matter what", "even if it reaches over this 8-hour max". Focus subjects'
+  class topics count against the budget; other subjects' come on top (`extra`). (2) In the focus
+  period (until `FOCUS_UNTIL` = `CREDIT_DUE.winter`) a class topic whose day has passed unticked is
+  placed on NO later day — "they should just accumulate … don't count them in"; `buildPlan` returns
+  it in `backlog`, shown on Today under "Still open from earlier classes", oldest first, a topic
+  ticked today staying (ticked) until tomorrow. (3) The rest of the budget: the topics no class
+  covers (`x.free` in `liveBlocks`), Internal Medicine and Pathophysiology, `FOCUS_SHARE` 60:40.
+  After 8 Jan the pile is empty: what is left goes back into `STUDY_SHARE` (40/30/20/7/3).
+  `CLASS_DAY_MAX` (8) cuts nothing any more; it only turns the long-day note into a warning.
+- **Why the first version was replaced, same day:** it re-placed missed class topics first, inside
+  an 8 h room, so a backlog pushed the NEXT practical's topics weeks later — "that defeats the
+  purpose of the whole thing". Never let old class topics delay new ones.
 - Items carry `why` ({link} or {share}) and `extra` (in the room); days carry `extra`. `whyText`
   writes the grey line on every topic card; DayBody announces a longer day.
 - **Only practicals and seminars are linked.** He does not attend the Pathophysiology lectures;
@@ -427,11 +436,12 @@ Why it is built like this (measured on a prototype, 15 Oct, untouched year):
 - A class topic of a summer block (Pathology Special/Oncological) is placed in the winter when a
   practical covers it: the room looks at every live block, not only at open ones.
 
-Tests (`tools/engine-tests.js`): nothing outside the focus without a link; 60:40 within 2 points
-(61.6 : 38.4 on 19 Oct–29 Nov); the budget is never shrunk by class topics; never past 8 h; preps on
-the day before; each November class topic inside its window; one class's topics spread over days;
-a missed one re-flows; the Internal Medicine insert. **Overflow, untouched year from 16 Oct:
-546 h before → 444 h after.** Pharmacology's 270 h is the cost of "little Pharmacology" with a
+Tests (`tools/engine-tests.js`, 51): nothing outside the focus without a link; the unlinked topics
+60:40 within 2 points; the budget never shrunk by other subjects' class topics; every class topic
+from today on exactly on its day; preps on the day before; one class's topics spread over days; a
+missed one waits in the pile and the next classes' topics keep their dates; the pile is empty from
+the exam period; the Internal Medicine insert. **Overflow, untouched year from 16 Oct: 546 h before
+→ 442 h** (the pile counts as unplaced until 9 Jan, when it rejoins the shares). Pharmacology's 270 h is the cost of "little Pharmacology" with a
 January exam, and shrinks as each practical's topics are added.
 
 ### Exam dates are booked, not known

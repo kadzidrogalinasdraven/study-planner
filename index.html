@@ -564,8 +564,9 @@ const REST_SHARE = 3;
    day of winter teaching, the day's budget (PHASES) belongs to these two alone, shared 60:40 — his
    ratio. Everything else is studied only where a class covers it (CLASS_TOPICS), and those topics go
    ON TOP of the budget, never instead of it: "don't shrink focus topics ever, just because of the
-   other classes". A day with class topics may run up to CLASS_DAY_MAX hours ("the absolute max while
-   having classes should be 8 h"); the Plan says when a day runs over the usual budget. From the
+   other classes". On 16 Oct he took the cap off class topics: they stay on their date "even if it
+   reaches over this 8-hour max". CLASS_DAY_MAX is therefore only where the Plan's long-day note
+   turns into a warning; nothing is moved or cut at it. From the
    exam period on, STUDY_SHARE above applies again, unchanged. */
 const FOCUS_SHARE = [ { id:"pfy", share:60 }, { id:"iim", share:40 } ];
 const FOCUS_UNTIL = CREDIT_DUE.winter;   // the last day of winter teaching
@@ -2020,7 +2021,9 @@ function blockQueue(b, data){
 function liveBlocks(data, today){
   return CURRICULUM.map(function(b){
       const total=b.topics.reduce(function(a,t){ return tierOf(t[0],data)==="skip" ? a : a+HRS_OF[t[0]]; }, 0);
-      return { b:b, key:b.key, subject:b.subject, open:blockOpen(b), due:blockDeadline(b,data), total:total };
+      // the same, for the topics no class covers — what the focus share is measured in
+      const free=b.topics.reduce(function(a,t){ return tierOf(t[0],data)==="skip" || LINK[t[0]] ? a : a+HRS_OF[t[0]]; }, 0);
+      return { b:b, key:b.key, subject:b.subject, open:blockOpen(b), due:blockDeadline(b,data), total:total, free:free };
     })
     .filter(function(x){ return x.due >= today && x.total>0; })
     .sort(function(a,b){ return a.due<b.due ? -1 : a.due>b.due ? 1 : (a.key<b.key?-1:1); });
@@ -2162,10 +2165,8 @@ const FOCUS_OF = {}; FOCUS_SHARE.forEach(function(g){ FOCUS_OF[g.id]=g.share; })
 function focusOn(date){ return date>=YEAR.open && date<=FOCUS_UNTIL; }
 
 function fillDay(date, blocks, queue){
-  const budget=budgetFor(date); let left=budget; const items=[];
+  const budget=budgetFor(date); let left=budget, extra=0; const items=[];
   const focus=focusOn(date);
-  // room for class topics ON TOP of the budget, while teaching runs (not over the Christmas break)
-  const room=focus && termOf(date) ? Math.max(0, CLASS_DAY_MAX-budget) : 0; let roomLeft=room;
   // the blocks not yet due, the blocks being taught today, and the hours still queued in each
   const live=blocks.filter(function(x){ return date <= x.due; });
   const open=live.filter(function(x){ return date >= x.open; });
@@ -2177,55 +2178,66 @@ function fillDay(date, blocks, queue){
     gone[x.key]=span>0 ? budgetBetween(x.open, addDays(date,-1))/span : 1;
   });
   const opened=open.filter(function(x){ return queue[x.key].length; }).length;
-  const cost=function(c, cap){ return Math.min(HRS_OF[c], cap); };
-  const fits=function(c){ return !!c && cost(c,budget) <= left+0.001; };
-  const fitsRoom=function(c){ return room>0 && cost(c,room) <= roomLeft+0.001; };
+  const cost=function(c){ return Math.min(HRS_OF[c], budget); };
+  const fits=function(c){ return !!c && cost(c) <= left+0.001; };
   const fitsHead=function(x){ return fits(queue[x.key][0]); };
-  const place=function(c, why, extra){
+  // `fixed`: a class topic on its own day — always placed, whatever the hours
+  const place=function(c, why, fixed){
     const x=home[c], q=queue[x.key]; q.splice(q.indexOf(c),1);
-    items.push({ code:c, subject:x.subject, hrs:HRS_OF[c], why:why, extra:!!extra });
-    if(extra) roomLeft-=cost(c,room); else left-=cost(c,budget);
+    const onTop=fixed && !FOCUS_OF[x.subject];
+    items.push({ code:c, subject:x.subject, hrs:HRS_OF[c], why:why, extra:onTop });
+    if(onTop) extra+=HRS_OF[c]; else left-=(fixed ? HRS_OF[c] : cost(c));
     rem[x.key]-=HRS_OF[c];
   };
-  /* 1. Topics tied to a class whose day has come, earliest first, so a missed one comes first.
-        In the focus period these are every subject's class topics except the two focus subjects',
-        and they go into the room on top of the budget. Outside it, only preparation is pinned,
-        and it comes out of the budget as it always did. */
-  const due=[];
-  live.forEach(function(x){
-    if(focus && FOCUS_OF[x.subject]) return;
-    if(!focus && date < x.open) return;
-    queue[x.key].forEach(function(c){ const L=LINK[c]; if(L && L.day<=date && (focus || L.prep)) due.push(c); });
-  });
-  // preparation first, whatever else is waiting: it is checked at the door
-  due.sort(function(a,b){ return (LINK[b].prep?1:0)-(LINK[a].prep?1:0) || byLink(a,b); })
-     .forEach(function(c){ if(focus ? fitsRoom(c) : fits(c)) place(c, { link:LINK[c] }, focus); });
 
-  /* 2a. The focus period: the whole budget goes to Internal Medicine and Pathophysiology, each topic
-         to whichever is furthest below its share (hours done ÷ share, lowest first; ties in
-         FOCUS_SHARE order). Inside a subject its class topics come first, in class order, then the
-         block with most hours left — so the list follows the classes and then the syllabus. */
+  /* 2a. The focus period (Linas, 15–16 Oct 2026).
+     (1) EVERY class topic is placed on its own day — the day before its class up to the day before
+         the slot's next class — whatever that does to the day's hours: "I want to see the practical
+         topics before the practical starts, no matter what." The focus subjects' class topics count
+         against the budget; every other subject's come on top of it ("never shrink the focus").
+     (2) A class topic whose day has passed unticked is NOT placed again: it waits in the pile
+         buildPlan returns as `backlog`, shown on Today and counted in no day's hours — "they
+         should just accumulate", and they must never push the next class's topics later.
+     (3) What is left of the budget goes to the topics no class covers, Internal Medicine and
+         Pathophysiology, each to whichever is furthest below its share of those hours (done ÷
+         share, lowest first; ties in FOCUS_SHARE order), and inside a subject the block with most
+         hours left. Every sort ends on a fixed order. */
+  // (1) holds on every date, so a class's topics keep their days after teaching ends too
+  const mine=[];
+  live.forEach(function(x){ queue[x.key].forEach(function(c){ if(LINK[c] && LINK[c].day===date) mine.push(c); }); });
+  mine.sort(function(a,b){ return (LINK[b].prep?1:0)-(LINK[a].prep?1:0) || byLink(a,b); })
+      .forEach(function(c){ place(c, { link:LINK[c] }, true); });
   if(focus){
+    const freeLeft={};
+    open.forEach(function(x){ let h=0; queue[x.key].forEach(function(c){ if(!LINK[c]) h+=HRS_OF[c]; }); freeLeft[x.key]=h; });
+    const head=function(x){ const q=queue[x.key]; for(let i=0;i<q.length;i++){ if(!LINK[q[i]]) return q[i]; } return null; };
     const next=function(id){
-      const xs=open.filter(function(x){ return x.subject===id; }), linked=[];
-      xs.forEach(function(x){ queue[x.key].forEach(function(c){ if(LINK[c]) linked.push(c); }); });
-      const l=linked.sort(byLink).filter(fits)[0]; if(l) return l;
-      const b=xs.filter(fitsHead).sort(function(a,b){ return rem[b.key]-rem[a.key] || (a.key<b.key?-1:a.key>b.key?1:0); })[0];
-      return b ? queue[b.key][0] : null;
+      const b=open.filter(function(x){ return x.subject===id && fits(head(x)); })
+        .sort(function(a,b){ return freeLeft[b.key]-freeLeft[a.key] || (a.key<b.key?-1:a.key>b.key?1:0); })[0];
+      return b ? head(b) : null;
     };
     while(left > 0.01){
       let best=null, bestScore=0, bestCode=null;
       FOCUS_SHARE.forEach(function(g){
         const c=next(g.id); if(!c) return;
-        let done=0; open.forEach(function(x){ if(x.subject===g.id) done+=x.total-rem[x.key]; });
+        let done=0; open.forEach(function(x){ if(x.subject===g.id) done+=x.free-freeLeft[x.key]; });
         const score=done / g.share;
         if(best===null || score < bestScore-1e-9){ best=g.id; bestScore=score; bestCode=c; }
       });
       if(best===null) break;
+      freeLeft[home[bestCode].key]-=HRS_OF[bestCode];
       place(bestCode, { share:best });
     }
-    return { items, left, budget, open:opened, extra:room-roomLeft };
+    return { items, left, budget, open:opened, extra:extra };
   }
+
+  /* 2b-0. After the focus period a missed PREPARATION still comes first, out of the budget, as
+          before; every other topic left over from a class goes back into the shares below. */
+  live.forEach(function(x){
+    if(date < x.open) return;
+    queue[x.key].filter(function(c){ return LINK[c] && LINK[c].prep && LINK[c].day<=date; }).sort(byLink)
+      .forEach(function(c){ if(fits(c)) place(c, { link:LINK[c] }); });
+  });
 
   /* 2b. After the focus period: the shares of STUDY_SHARE, exactly as before 15 Oct 2026. */
   const shared=open.filter(function(x){ return !PREP_BLOCK[x.key]; });
@@ -2333,6 +2345,7 @@ function buildPlan(data, today){
     // day 0 is today, pinned to this morning: its items include the ones already ticked
     const f = n===0 ? sd.first : fillDay(date, blocks, queue);
     const items=f.items, review=[]; let left=f.left; const budget=f.budget, open=f.open, extra=f.extra||0;
+    const hours=budget-f.left+extra;   // a class topic on its date can take the day past its budget
     dueForReview(data, date, live).forEach(function(c){
       if(reviewed[c] || review.length>=REVIEW_PER_DAY || left < REVIEW_HRS) return;
       reviewed[c]=1; review.push(c); left-=REVIEW_HRS;
@@ -2344,12 +2357,20 @@ function buildPlan(data, today){
              label: subs.length ? subs.map(function(id){ return SUBJECT[id].short; }).join(" · ")
                   : review.length ? "Review — nothing new due"
                   : ph.label,
-             budget, est:"~"+(Math.round((budget-left+extra)*2)/2)+" h", extra,
+             budget, est:"~"+(Math.round((budget-left+extra)*2)/2)+" h", extra, hours, long: hours > budget+0.01,
              open, items, review };
   });
 
   const short = projectYear(data, today);
   out.overflow = { bySubject:short, hours: short.reduce(function(a,x){ return a+x.hours; },0) };
+  /* Class topics whose day has passed unticked, in the focus period: they are on no day any more
+     and wait here, oldest first, until ticked (fillDay, 2a). One ticked today stays, ticked, so
+     the list holds still while he works through it — like Today's own list. */
+  const liveKey={}; blocks.forEach(function(x){ liveKey[x.key]=1; });
+  const at=data.doneAt||{};
+  out.backlog = !focusOn(today) ? [] : Object.keys(LINK).filter(function(c){
+      return LINK[c].day < today && liveKey[BLOCK_OF[c]] && tierOf(c,data)!=="skip" && (!data.done[c] || at[c]===today);
+    }).sort(byLink);
   out.pace = pace;
   return out;
 }
@@ -2707,10 +2728,10 @@ function DayBody({p, data, A, showNote}){
   const finished = p.date===todayStr() && p.items.length>0 && p.items.every(function(i){ return data.done[i.code]; });
   return (
     <>
-      {showNote && p.items.length>0 && <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px",fontStyle:"italic"}}>{p.phaseLabel} <span style={{color:"var(--ink-3)",fontStyle:"normal"}}>· {p.est}{p.extra>0 ? "" : " of "+p.budget+" h"}</span></p>}
-      {p.extra>0 && <p style={{fontSize:12.5,color:"var(--warn)",margin:"0 0 10px",lineHeight:1.5}}>
+      {showNote && p.items.length>0 && <p style={{fontSize:13,color:"var(--ink-2)",margin:"0 0 12px",fontStyle:"italic"}}>{p.phaseLabel} <span style={{color:"var(--ink-3)",fontStyle:"normal"}}>· {p.est}{p.long ? "" : " of "+p.budget+" h"}</span></p>}
+      {p.long && <p style={{fontSize:12.5,color:"var(--warn)",margin:"0 0 10px",lineHeight:1.5}}>
         <i className="fa-regular fa-clock" style={{marginRight:6}} aria-hidden="true"/>
-        A longer day: about {Math.round((p.budget+p.extra)*2)/2} h — {Math.round(p.extra*2)/2} h of class topics on top of your {p.budget} h (never more than {CLASS_DAY_MAX} h).
+        A longer day: about {Math.round(p.hours*2)/2} h — class topics on their date, on top of your {p.budget} h{p.hours>CLASS_DAY_MAX+0.001 ? " — more than your "+CLASS_DAY_MAX+" h maximum" : ""}.
       </p>}
       {bySub.map(function(g){
         const s=SUBJECT[g.id];
@@ -3221,8 +3242,6 @@ function TomorrowSection({data, A, sched, cal, gcalOn}){
   const sub=function(t){ return <div style={{fontSize:11,fontWeight:600,letterSpacing:".03em",textTransform:"uppercase",color:"var(--ink-3)",margin:"12px 0 4px"}}>{t}</div>; };
   return (
     <>
-      <div className="seclabel">Tomorrow — {parseISO(tm).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</div>
-      <hr className="rule" style={{marginBottom:10}}/>
       {sub("Mail and news")}
       {briefing && briefing.description
         ? <div style={{fontSize:13.5,color:"var(--ink-2)",lineHeight:1.6,whiteSpace:"pre-wrap",wordBreak:"break-word",background:UI.accent+"0a",border:"0.5px solid "+UI.accent+"33",borderRadius:"var(--r-lg)",padding:"10px 13px"}}>{briefing.description}</div>
@@ -3243,6 +3262,20 @@ function TomorrowSection({data, A, sched, cal, gcalOn}){
       {sub("Study")}
       {p ? <DayBody p={p} data={data} A={A} showNote={true}/> : <p style={{fontSize:12.5,color:"var(--ink-3)",margin:0}}>Nothing planned.</p>}
     </>
+  );
+}
+
+function TomorrowView({data, A, gcalStatus}){
+  const ts=todayStr();
+  const sched=useMemo(()=>buildPlan(data, ts), [data, ts]);
+  const gcalOn=gcalStatus==="on";
+  const cal=useCalendarFeed(gcalOn);
+  return (
+    <div>
+      <div className="eyebrow" style={{marginTop:18}}>{fmtLong(addDays(ts,1))}</div>
+      <h1 style={{fontSize:30,margin:"2px 0 6px"}}>Tomorrow</h1>
+      <TomorrowSection data={data} A={A} sched={sched} cal={cal} gcalOn={gcalOn}/>
+    </div>
   );
 }
 
@@ -3287,7 +3320,11 @@ function TodayView({data, A, gcalStatus}){
         </>
       )}
 
-      <TomorrowSection data={data} A={A} sched={sched} cal={cal} gcalOn={gcalOn}/>
+      {sched.backlog.length>0 && <>
+        <div className="seclabel">Still open from earlier classes <span style={{fontSize:12,color:"var(--ink-3)"}}>· {sched.backlog.filter(function(c){ return !data.done[c]; }).length} topics, not counted in any day’s hours</span></div>
+        <hr className="rule" style={{marginBottom:10}}/>
+        {sched.backlog.map(function(c){ return <TopicCard key={c} code={c} why={whyText({code:c, why:{link:LINK[c]}})} tier={tierOf(c,data)} done={!!data.done[c]} onToggle={()=>A.toggleDone(c)}/>; })}
+      </>}
 
       <div className="seclabel">Today’s plan</div><hr className="rule" style={{marginBottom:10}}/>
       <CalendarBar status={gcalStatus} onConnect={A.connectGcal} onDisconnect={A.disconnectGcal} busy={A.gcalBusy} sync={A.syncState} onSync={A.syncNow} onReconnect={A.reconnect} email={A.syncEmail} err={A.syncErr} onSwitch={A.switchAccount}/>
@@ -3353,7 +3390,8 @@ function PlanView({data, A}){
         focus subjects —{" "}{FOCUS_SHARE.map(function(g){ return SUBJECT[g.id].short+" "+g.share+"%"; }).join(", ")} — in the order
         their classes cover them. Every other subject is studied only around its own classes: the topics a
         class covers come from the day before it until the day before the next one, on top of the budget
-        (never past {CLASS_DAY_MAX} h a day), and each card says which class it belongs to. Simulation Medicine's
+        whatever the hours — and each card says which class it belongs to. One left unticked past its day
+        waits on Today under “Still open from earlier classes” and is not counted in any day. Simulation Medicine's
         preparation falls on the day before each class. From the exam period the shares are{" "}
         {STUDY_SHARE.map(function(g){ return SUBJECT[g.id].short+" "+Math.round(g.share/SHARE_TOTAL*100)+"%"; }).join(", ")},
         everything else {Math.round(REST_SHARE/SHARE_TOTAL*100)}%.
@@ -4296,7 +4334,7 @@ function ProdTodayStrip({data, A}){
 }
 
 /* ── root ───────────────────────────────────────────────────────── */
-const TABS = [["today","Today"],["plan","Plan"],["classes","Classes"],["subjects","Subjects"],["progress","Progress"],["goals","Goals"],["timeline","Timeline"],["prod","Productivity"]];
+const TABS = [["today","Today"],["tomorrow","Tomorrow"],["plan","Plan"],["classes","Classes"],["subjects","Subjects"],["progress","Progress"],["goals","Goals"],["timeline","Timeline"],["prod","Productivity"]];
 
 function App(){
   const [tab,setTab]=useState("today");
@@ -4587,6 +4625,7 @@ function App(){
       )}
 
       {tab==="today" && <TodayView data={data} A={A} gcalStatus={gcalStatus}/>}
+      {tab==="tomorrow" && <TomorrowView data={data} A={A} gcalStatus={gcalStatus}/>}
       {tab==="plan" && <PlanView data={data} A={A}/>}
       {tab==="classes" && <ClassesView/>}
       {tab==="subjects" && <SubjectsView data={data} A={A}/>}

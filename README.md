@@ -241,9 +241,13 @@ question, which was never enough.
 - **Every other subject is studied only around its own classes.** The exam questions a practical
   covers come from the day before it until the day before the next one; a missed one comes first
   the next day. Pharmacology, Pathology, Psychology and Simulation Medicine work this way.
-- **Class topics come on top of the budget, never instead of it**, up to 8 hours a day. A day that
-  runs long says so, and every topic card says which class it belongs to.
-- **Today has a Tomorrow section**: tomorrow's classes (with what each covers), deadlines,
+- **Class topics always show on their date**, whatever the hours — the other subjects' on top of the
+  budget, never instead of it. A day that runs long says so (and warns past 8 hours), and every
+  topic card says which class it belongs to.
+- **A class topic you did not get to is not moved to a later day.** It waits on Today under
+  "Still open from earlier classes", counted in no day's hours, until you tick it — so it can never
+  push the next practical's topics later. From the exam period, whatever is left is planned again.
+- **The Tomorrow tab**, next to Today: tomorrow's classes (with what each covers), deadlines,
   calendar events and tasks, the study list, and the mail and news the evening planner check puts
   on tomorrow's briefing card.
 

@@ -665,6 +665,11 @@ e-mail sign-off — are kept in a private Gmail **draft** titled "📌 Student p
 (do not send)", so any assistant with Gmail can find them. **Never copy them into this public repo**;
 the safety check blocked a commit that tried (7 Oct).
 
+**Since 19 Oct it reads ALL non-marketing mail, not only school mail**, in any language, plus his
+own sent mail (AUTOMATION.md §1 step 2): the English-keyword search missed German appointment
+confirmations and a message he could not open. Personal findings go to Calendar, drafts and the
+private card only — never into the repo.
+
 **Recordings are read by title** — since 16 Oct the marker words include his class words (class,
 practical, lecture, seminar and the subject names), because his class recordings are the main
 source for what a class covered (AUTOMATION.md §5). Everything else he dictates stays unread.

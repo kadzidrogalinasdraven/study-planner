@@ -621,3 +621,8 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 - Export of 16 Oct, 16 Oct–5 Nov, untouched: 48 topics; Pathophysiology 14 (11 notes in time), Pharmacology 3 (0). Missing: PX14, FA27, FA28, FA29, PG30, PX09. The swap on 17 Oct (checked in the built-in browser with the real notes): Stereotaxis → Mechanisms of endocrine disorders, Analgesics-antipyretics → Beta sympatholytics (the one Pharmacology note; 3.5 h instead of 1.5 — the day's hours stay the planned ones).
 - Gate 60/60 (9 new). The Productivity week grid still shows the intended plan: a stand-in ticked counts as "+1", the planned box stays open.
 - Live check (built-in browser, a hidden tab): the page fetched notes.json (56 notes) and shows the badges. The first build skipped the load fetch in a hidden tab — fixed in 72f7338 (focus still re-fetches at most once a minute). INBOX: "format fixed" posted 12:48; the hub's 12:28 entry (a private calendar entry was a month off) answered — nothing in the planner depended on it.
+
+## 2026-10-19 (evening, chat) — the planner check reads all mail
+
+- He asked why the check only reads school mail. The "other events" search used English keywords over one day, so German appointment confirmations and a practice's message he could not open (his reply to a no-reply address bounced) were missed. The appointments were already in his Calendar (his own events); a draft to the practice's real address was prepared.
+- AUTOMATION.md §1 step 2 now reads every non-marketing message of the last two days in any language, plus his sent mail; §2a drafts also for non-school mail (unreadable message, bounced reply). Personal findings stay on the private card, never in the repo.

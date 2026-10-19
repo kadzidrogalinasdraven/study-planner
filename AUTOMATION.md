@@ -26,10 +26,21 @@ first live run), and write in the briefing "Would change: …". From that date o
      `Label_3` is "Planner read": every message a run has processed carries it, so nothing is
      read twice. Label each processed MESSAGE (not the thread), ignored ones included.
      Open a body only when the subject and snippet say it may matter.
-   - **Other events** (the original morning briefing): `newer_than:1d -label:Label_3 (meeting OR
-     appointment OR invitation OR reminder OR event OR trip OR conference OR webinar OR deadline
-     OR workshop OR session OR "save the date")` → genuine dated events go into Calendar as they
-     always have; marketing that borrows event words is skipped.
+   - **All other mail — not only school** (his rule, 19 Oct 2026: "other appointments in general
+     as well"). Two searches, minimal view:
+     `newer_than:2d -label:Label_3 -category:promotions -category:social` (everything that is not
+     marketing, in any language) and `newer_than:2d -label:Label_3 in:sent` (what he wrote
+     himself — a reply that bounced, or a question he asked, belongs here too). **Do not filter by
+     English keywords:** his mail comes in German and Czech as well (Termin, Bestätigung, Nachricht,
+     termín, pozvánka), and the first version of this search, English words only, missed four
+     confirmed appointments and an unreadable message on 19 Oct 2026. Every message found is
+     sorted like school mail (§1 step 3): a dated appointment, booking or event → Calendar, after
+     checking that day for an event he already made himself (never a duplicate); a message he
+     cannot open, a bounced reply, a question to him → a draft (§2a); marketing that borrows event
+     words → skipped. Label each processed message `Label_3`. **Personal mail never reaches the
+     repo** — no names of practices or doctors, no health details, not in `docs/planner-updates.md`
+     or a commit message; it goes on the briefing card (private) only, as "Calendar: …" and
+     "Drafts ready: …".
    - **SIS and department pages:** `python3 tools/watch_sources.py`. Exit 0 no change, 3 changed
      (the report says what), 2 a source could not be fetched — name it in the briefing and carry
      on (the cloud reached SIS without trouble on 3 Oct 2026, so it is the site, not a setting).
@@ -100,8 +111,11 @@ answer or a follow-up e-mail from him, write it as a **Gmail draft**, never send
 
 - **When:** a teacher or office asks him something or asks him to do something by e-mail ("ask the
   Study Department to enrol you"), approves or refuses a request of his, or a deadline needs a
-  confirmation from him. Not for circulars, newsletters, automatic SIS notices or anything only
-  informative.
+  confirmation from him. **Also outside school** (19 Oct 2026): a practice, office or service
+  whose message he cannot open or read, a reply of his that bounced from a no-reply address (draft
+  the same request to the sender's real address — find it in his own earlier mail to them), or a
+  question to him about an appointment. Write in the language of that correspondence. Not for
+  circulars, newsletters, automatic notices or anything only informative.
 - **Which:** a reply in the same thread (`replyToMessageId`), plus a new e-mail when the reply
   sends him elsewhere — e.g. to the English Study Department, `medstudy@lfp.cuni.cz`, with the
   approving teacher in Cc and the approval quoted.

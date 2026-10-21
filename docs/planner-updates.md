@@ -10,3 +10,4 @@ The rules are in `AUTOMATION.md`.
 - 2026-10-07 · Medical Czech: homework for Wed 14 Oct, from his recording of the first seminar.
 - 2026-10-13 · Pathophysiology II: exam registration reopens Wed 14 Oct 20:00 (SIS had blocked it; e-mail from Prof. Cendelín).
 - 2026-10-16 · Recordings read: Czech seminar 14 Oct (homework already in the planner) and the 13 Oct Internal Medicine heart presentation (nothing new for the planner).
+- 2026-10-21 · Medical Czech: homework and next topic (cardiology, pp. 45–51) for Wed 4 Nov, from his recording of the 21 Oct seminar; no class 28 Oct (holiday, already in the planner).

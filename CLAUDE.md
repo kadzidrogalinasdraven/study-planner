@@ -665,6 +665,13 @@ e-mail sign-off — are kept in a private Gmail **draft** titled "📌 Student p
 (do not send)", so any assistant with Gmail can find them. **Never copy them into this public repo**;
 the safety check blocked a commit that tried (7 Oct).
 
+**Since 23 Oct: a draft for every message a person wrote him that deserves an answer**, short
+thank-yous included, school or not (AUTOMATION.md §2a) — he missed the Trailin reply because it was
+one line on a long card. The card's `Drafts ready:` bullets are lifted into a "drafts to review"
+box at the top of Today (`splitDrafts`/`DraftsBox`), so keep that heading exact. **A private log**
+of every run, every draft and its fate, and what was learned from his own sent mail is the Gmail
+draft "📒 Assistant log — for assistants (do not send)" (§6a); write drafts by its lessons.
+
 **Since 19 Oct it reads ALL non-marketing mail, not only school mail**, in any language, plus his
 own sent mail (AUTOMATION.md §1 step 2): the English-keyword search missed German appointment
 confirmations and a message he could not open. Personal findings go to Calendar, drafts and the

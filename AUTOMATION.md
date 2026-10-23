@@ -60,6 +60,8 @@ first live run), and write in the briefing "Would change: …". From that date o
    an e-mail from him. Never sent — he clicks Send.
 7. **Ask** (§3): numbered, in the briefing card.
 8. **Report** in the briefing card (§6). Label the processed mail.
+9. **Log** the run in the private assistant log (§6a): the run line, the drafts, the statuses of
+   earlier drafts, and anything learned from his sent mail.
 
 ## 2. Applied automatically
 
@@ -109,13 +111,21 @@ Chrome extension lives in his Chrome on his Mac. The design, **not yet set up**:
 He asked for "draft responses I just have to click send". So when a processed message needs an
 answer or a follow-up e-mail from him, write it as a **Gmail draft**, never send it:
 
-- **When:** a teacher or office asks him something or asks him to do something by e-mail ("ask the
-  Study Department to enrol you"), approves or refuses a request of his, or a deadline needs a
-  confirmation from him. **Also outside school** (19 Oct 2026): a practice, office or service
-  whose message he cannot open or read, a reply of his that bounced from a no-reply address (draft
-  the same request to the sender's real address — find it in his own earlier mail to them), or a
-  question to him about an appointment. Write in the language of that correspondence. Not for
-  circulars, newsletters, automatic notices or anything only informative.
+- **When — every message a real person wrote to him that deserves an answer** (his rule, 23 Oct
+  2026: "always create me proposal emails in my drafts … that doesn't only count for school
+  emails, as well short responses, like thank you for reaching out"). That includes the short
+  ones: someone forwarded his request, answered his question, sent him documents, confirmed an
+  appointment, invited him — a two-line "Thank you very much for …" is a draft too. And of course:
+  a teacher or office asks him something or asks him to do something ("ask the Study Department
+  to enrol you"), approves or refuses a request of his, or a deadline needs a confirmation from
+  him. **Outside school too** (19 Oct 2026): a practice, office or service whose message he cannot
+  open or read, a reply of his that bounced from a no-reply address (draft the same request to the
+  sender's real address — find it in his own earlier mail to them), or a question to him about an
+  appointment. Write in the language of that correspondence. **Not** for circulars, newsletters,
+  marketing, automatic notices (no-reply senders, SIS/Moodle robots) or a message that is itself
+  only a thank-you closing a thread he already ended. When in doubt, draft: he deletes a draft in
+  a second, but a missed answer is what he complained about (the Trailin reply of 22 Oct sat as
+  one line on the card and was not seen; a forwarding secretary got no thanks at all).
 - **Which:** a reply in the same thread (`replyToMessageId`), plus a new e-mail when the reply
   sends him elsewhere — e.g. to the English Study Department, `medstudy@lfp.cuni.cz`, with the
   approving teacher in Cc and the approval quoted.
@@ -128,7 +138,12 @@ answer or a follow-up e-mail from him, write it as a **Gmail draft**, never send
   number or any of it into the repo.
 - **Never twice:** `list_drafts` (full view) before creating one; if a draft to the same people
   on the same matter exists, leave it. Never send, never delete or edit a draft he has touched.
-- **Report:** under "Drafts ready:" on the card, one line each: to whom, about what.
+- **Report:** under "Drafts ready:" on the card, one line each, starting with `•`: to whom, about
+  what, and what he must fill in, if anything. **List every draft still waiting**, not only this
+  run's: a draft from an earlier run that he has neither sent nor deleted goes on again, marked
+  "(since 22 Oct)". The planner lifts these lines out of the card into a "Drafts to review" box at
+  the top of Today, with a button to Gmail's drafts — keep the heading exactly `Drafts ready:`
+  and write `Drafts ready: none` when there are none.
 - Drafts are private (Gmail), so they may contain what the public repo may not — but nothing
   about drafts goes into the repo beyond "a draft was prepared".
 
@@ -237,6 +252,29 @@ Skipped: 2 newsletters, 1 library notice
 
 A missing card means a run did not happen — that is how he notices. A push notification goes out
 only when the planner changed or something needs him.
+
+## 6a. The assistant log — private, in Gmail (his request, 23 Oct 2026)
+
+He asked for "a log, what was checked, what emails have been written etc." and that the
+assistants "learn from my messages, responses". The repo is public, so the log is a Gmail
+**draft**, like the Student profile: subject `📒 Assistant log — for assistants (do not send)`,
+no recipient, never sent. Find it with `list_drafts` (full view), query `subject:"Assistant log"`;
+change it with `update_draft`, keeping everything not yours to change. Three sections, newest on
+top in each:
+
+1. **What I have learned from Linas** — his style and preferences, from his sent mail and his
+   answers. Each run reads his sent mail of the last two days (the `in:sent` search of §1) and
+   compares it with the drafts in section 2: sent as is, sent with edits (what did he change? —
+   greeting, length, tone, a fact), or deleted. A lesson that would change the next draft goes
+   in here as one line with its date. Write the next drafts by these lines.
+2. **Drafts written** — date · to whom · about what · status (`waiting`, `sent as is`,
+   `sent edited: …`, `dropped`). Update the status of earlier lines each run.
+3. **Runs** — one line per run: time, what was checked (Gmail counts, SIS, recordings, social
+   digest), what was processed, drafts, Calendar changes, skipped. Keep 30 days; drop older lines.
+
+It is private, so names and subjects may stand there — but no passwords, keys or health details
+beyond the one-word kind of appointment. Any chat session that writes an e-mail for him adds
+its draft to section 2 as well.
 
 ## 7. Cost
 

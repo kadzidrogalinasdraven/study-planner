@@ -626,3 +626,9 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 
 - He asked why the check only reads school mail. The "other events" search used English keywords over one day, so German appointment confirmations and a practice's message he could not open (his reply to a no-reply address bounced) were missed. The appointments were already in his Calendar (his own events); a draft to the practice's real address was prepared.
 - AUTOMATION.md §1 step 2 now reads every non-marketing message of the last two days in any language, plus his sent mail; §2a drafts also for non-school mail (unreadable message, bounced reply). Personal findings stay on the private card, never in the repo.
+
+## 2026-10-23 (evening, chat) — drafts for everything, a drafts box, a private log
+
+- He asked why no reply to Dr Trailin had been drafted. It had (morning run, 06:33, with a day/time placeholder), but it was one line on a long card and he did not see it. A secretary who forwarded his pharmacology request on 22 Oct got no thank-you draft at all — the old §2a only covered mail that "needs an answer". That one was drafted now.
+- AUTOMATION.md §2a: a draft for every message a person wrote him that deserves an answer, short thank-yous included, school or not; every still-waiting draft is listed on each card. New §6a and step 9: a private run/draft/lessons log in a Gmail draft ("📒 Assistant log"), seeded tonight with his style from his sent mail.
+- index.html: `splitDrafts` + `DraftsBox` lift the card's `Drafts ready:` bullets into a box at the top of Today with a link to Gmail's drafts.

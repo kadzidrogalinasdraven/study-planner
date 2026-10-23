@@ -2946,23 +2946,66 @@ function useCalendarFeed(gcalOn){
   return { events:events, err:err, loading:loading, refreshedAt:refreshedAt, refresh:function(){ setTick(function(t){return t+1;}); } };
 }
 
+// The planner check lists the Gmail drafts it wrote under "Drafts ready:" (AUTOMATION.md §2a), one "•" line each.
+// Lifted out of the card text into their own box, so a draft waiting for Send is not one line lost in a long card.
+// Every section of the card is read (morning and evening), duplicates dropped; "Drafts ready: none" gives nothing.
+function splitDrafts(desc){
+  const drafts=[], rest=[]; let inBlock=false;
+  String(desc||"").split("\n").forEach(function(line){
+    const t=line.trim();
+    if(/^Drafts ready:/i.test(t)){
+      inBlock=true;
+      const after=t.replace(/^Drafts ready:/i,"").trim();
+      if(after && !/^none\.?$/i.test(after) && drafts.indexOf(after)<0) drafts.push(after);
+      return;
+    }
+    if(inBlock && /^[•\-*]/.test(t)){
+      const d=t.replace(/^[•\-*]\s*/,"");
+      if(d && drafts.indexOf(d)<0) drafts.push(d);
+      return;
+    }
+    inBlock=false; rest.push(line);
+  });
+  return { drafts:drafts, rest:rest.join("\n").replace(/\n{3,}/g,"\n\n").trim() };
+}
+const GMAIL_DRAFTS_URL="https://mail.google.com/mail/u/0/#drafts";
+function DraftsBox({drafts}){
+  if(!drafts.length) return null;
+  return (
+    <div style={{background:"var(--card)",border:"0.5px solid "+UI.accent+"55",borderRadius:"var(--r-md)",padding:"10px 12px",margin:"2px 0 10px"}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+        <span aria-hidden="true" style={{fontSize:14,lineHeight:1}}>✉️</span>
+        <span style={{fontSize:13.5,fontWeight:600,color:"var(--ink)",flex:1}}>{drafts.length===1?"1 draft to review and send":drafts.length+" drafts to review and send"}</span>
+        <a href={GMAIL_DRAFTS_URL} target="_blank" rel="noopener noreferrer" style={{fontSize:12.5,color:UI.accent,textDecoration:"none",fontWeight:600}}>Open drafts ↗</a>
+      </div>
+      <ul style={{margin:0,paddingLeft:18,fontSize:13.5,color:"var(--ink-2)",lineHeight:1.55}}>
+        {drafts.map(function(d,i){ return <li key={i} style={{wordBreak:"break-word"}}>{d}</li>; })}
+      </ul>
+    </div>
+  );
+}
+
 // a) Briefing card — sits at the very top of Today; prominent when today's briefing exists, quiet placeholder otherwise
 function BriefingCard({gcalOn, events}){
   if(!gcalOn || events===null) return null;
   const ts=todayStr();
   const briefing=events.find(function(e){ return isBriefing(e) && e.start===ts; });
-  if(briefing) return (
+  if(briefing){
+    const parts=splitDrafts(briefing.description);
+    return (
     <div style={{background:UI.accent+"0a",border:"0.5px solid "+UI.accent+"33",borderRadius:"var(--r-lg)",padding:"14px 16px",marginBottom:16}}>
       <div style={{display:"flex",alignItems:"center",gap:9,marginBottom:8}}>
         <span aria-hidden="true" style={{fontSize:16,lineHeight:1}}>📋</span>
         <span style={{fontFamily:"var(--serif)",fontSize:16,color:"var(--ink)",flex:1}}>Daily briefing</span>
         <span style={{fontSize:11.5,color:"var(--ink-3)"}}>{fmtLong(ts)}</span>
       </div>
-      {briefing.description
-        ? <div style={{fontSize:14,color:"var(--ink-2)",lineHeight:1.6,whiteSpace:"pre-wrap",wordBreak:"break-word"}}>{briefing.description}</div>
-        : <p style={{fontSize:13,color:"var(--ink-3)",margin:0,fontStyle:"italic"}}>Today’s briefing has no summary yet.</p>}
+      <DraftsBox drafts={parts.drafts}/>
+      {parts.rest
+        ? <div style={{fontSize:14,color:"var(--ink-2)",lineHeight:1.6,whiteSpace:"pre-wrap",wordBreak:"break-word"}}>{parts.rest}</div>
+        : (!parts.drafts.length && <p style={{fontSize:13,color:"var(--ink-3)",margin:0,fontStyle:"italic"}}>Today’s briefing has no summary yet.</p>)}
     </div>
-  );
+    );
+  }
   return (
     <div style={{display:"flex",alignItems:"center",gap:9,border:"0.5px dashed var(--line-2)",borderRadius:"var(--r-lg)",padding:"12px 14px",marginBottom:16}}>
       <span aria-hidden="true" style={{fontSize:14,opacity:.55}}>📋</span>

@@ -91,12 +91,16 @@ What may change, and where:
 
 He wants the school Instagram accounts read through **Claude in Chrome** (the API never worked
 reliably), and possibly his university WhatsApp groups. Neither can be read by this cloud run: the
-Chrome extension lives in his Chrome on his Mac. The design, **not yet set up**:
+Chrome extension lives in his Chrome on his Mac. Live since 8 Oct 2026:
 
-- A **scheduled task in the Claude desktop app on the Mac**, a little before each cloud run, reads
-  them in Chrome (Instagram: the `insta-checkup` skill's account list; WhatsApp Web: **only the
-  group "Group 5 2.0"** — his choice, 7 Oct 2026, "that's enough") and e-mails him **one message to himself, subject `planner: social digest`**,
-  with one line per dated finding and its source ("Instagram @…, post of 6 Oct").
+- A **scheduled task in the Claude desktop app on the Mac** (`social-digest`, 05:00 and 17:00),
+  a little before each cloud run, reads them in Chrome (Instagram: the `insta-checkup` skill's
+  account list; WhatsApp Web: **only three chats** — "Group 5 2.0" (his practical group),
+  "Third Year 🩺" (the whole year) and "All years - Discussion" (every year of the programme;
+  only what concerns third year or all students is kept) — his choice, 27 Oct 2026; until then
+  only "Group 5 2.0") and e-mails him **one message to himself, subject `planner: social digest`**,
+  with one line per dated finding and its source ("Instagram @…, post of 6 Oct",
+  "WhatsApp Third Year 🩺, 27 Oct (unofficial)").
 - This run already reads that mail (`from:me to:me subject:planner`). Instagram posts by
   **official faculty or department accounts** count as official (§2). **WhatsApp is classmates**:
   unofficial, so every WhatsApp finding is a question (§3) unless the digest line says "apply".

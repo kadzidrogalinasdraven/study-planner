@@ -112,9 +112,10 @@ explained — if his group rotates, its order differs from the print.
 5. Whether the **hour estimates** (`SIZE_HOURS`) feel right after a week of real study.
 6. **The 20 Oct clash:** the Neuroseminar (16:00–17:40) and ECG Principles seminar 2 (16:20–18:50)
    overlap. Flagged on both sessions in `TIMETABLE_NOTES` and in Calendar; which to attend is his.
-7. **Instagram (via Claude in Chrome) and the WhatsApp group "Group 5 2.0"** as sources: the Mac
-   scheduled task of AUTOMATION.md §1a, being built 8 Oct 2026 in a Mac session; its state and
-   README live in `~/Projects/advisor/` (outside every repo). WhatsApp Web needed linking first.
+7. **Instagram (via Claude in Chrome) and three WhatsApp chats — "Group 5 2.0", and since 27 Oct
+   "Third Year 🩺" and "All years - Discussion"** as sources: the Mac scheduled task of
+   AUTOMATION.md §1a, live since 8 Oct 2026; its state and README live in `~/Projects/advisor/`
+   (outside every repo).
 
 **Due later, for whichever session touches the engine then:**
 - **February**, with the summer timetable: decide the summer split — the shares stop on 15 Feb and

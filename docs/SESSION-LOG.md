@@ -626,3 +626,10 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 
 - He asked why the check only reads school mail. The "other events" search used English keywords over one day, so German appointment confirmations and a practice's message he could not open (his reply to a no-reply address bounced) were missed. The appointments were already in his Calendar (his own events); a draft to the practice's real address was prepared.
 - AUTOMATION.md §1 step 2 now reads every non-marketing message of the last two days in any language, plus his sent mail; §2a drafts also for non-school mail (unreadable message, bounced reply). Personal findings stay on the private card, never in the repo.
+
+## 2026-10-27 — social digest: two more WhatsApp chats
+
+- His request (evening, after the 17:03 digest): read "Third Year 🩺" and "All years - Discussion" too, besides "Group 5 2.0".
+- Exact titles found in WhatsApp Web by an exact-match test (the stethoscope is U+1FA7A, the hyphen plain). The chat list's message previews carry `title` attributes too, so a regex scan of titles also catches previews of other chats — the prompt now forbids collecting titles at all.
+- Changed outside this repo: the `social-digest` task prompt (three chats, per-chat state, "All years" kept only for third year or everyone, one finding per item across sources, a "chat not found" warning, 25 scroll-ups for the busier chats), `social-digest-state.json` → version 2 (`group5` keeps its last read; `year3`/`allyears` start at null = the last 7 days on the next run), the README. Here: AUTOMATION.md §1a and CLAUDE.md item 7.
+- The 17:03 run itself: one finding, the Academic Senate elections 23–24 Nov (@skas_lfp_uk), added to Calendar; Group 5 2.0 had one message, no date.

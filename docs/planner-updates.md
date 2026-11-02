@@ -12,3 +12,4 @@ The rules are in `AUTOMATION.md`.
 - 2026-10-16 · Recordings read: Czech seminar 14 Oct (homework already in the planner) and the 13 Oct Internal Medicine heart presentation (nothing new for the planner).
 - 2026-10-21 · Medical Czech: homework and next topic (cardiology, pp. 45–51) for Wed 4 Nov, from his recording of the 21 Oct seminar; no class 28 Oct (holiday, already in the planner).
 - 2026-10-31 · Internal Medicine: note on the Tue 3 Nov Internal Medicine lecture — Prof. Mayer asks the year to say collectively whether it will attend; slides sent by e-mail (his e-mail of 30 Oct).
+- 2026-11-02 · Internal Medicine: the Tue 3 Nov lecture note now gives the warning student strike, 11:00–14:00 (SIS message of 2 Nov); not marked cancelled — the department has not confirmed.

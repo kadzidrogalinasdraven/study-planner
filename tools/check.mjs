@@ -13,6 +13,10 @@
    and the added lines may not carry an e-mail address the file did not already contain, nor
    anything that looks like an enrolment key or a password. The repo is public.
 
+   In every mode it also builds what the website would publish (tools/check-published.sh build):
+   only the files in tools/publish-list.txt, and none of them may carry an e-mail address or a
+   private link — the Pages workflow refuses to publish such a build, so it is caught here first.
+
    Whenever physio_flashcards.html differs from --base, the hard rule in CLAUDE.md is checked:
    all 4,440 statements and answers identical to the original upload, 1a2be9b.
 
@@ -21,6 +25,7 @@
            node tools/check.mjs --auto [--base REF]   (after committing, before pushing)
    Exit code 0 means pass. */
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
@@ -98,6 +103,14 @@ if (code && fs.existsSync(path.join(ROOT, "notes.json"))) {
   let n = null;
   try { n = JSON.parse(fs.readFileSync(path.join(ROOT, "notes.json"), "utf8")); } catch (e) { fail("notes.json is not JSON: " + e.message); }
   if (n && !run(`isNotes(${JSON.stringify(n)})`, "notes.json")) fail("notes.json holds an unknown code or a value that is not a date");
+}
+
+// 4c. the website: only tools/publish-list.txt, with no e-mail address or private link in it
+{
+  const site = fs.mkdtempSync(path.join(os.tmpdir(), "site-"));
+  try { execFileSync("bash", [path.join(TOOLS, "check-published.sh"), "build", site], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }); }
+  catch (e) { fail("the website would publish something it must not (tools/check-published.sh build):\n    " + String((e.stdout || "") + (e.stderr || e.message || "")).trim().split("\n").join("\n    ")); }
+  finally { fs.rmSync(site, { recursive: true, force: true }); }
 }
 
 // 5. what an unattended change may touch

@@ -2,7 +2,12 @@
 
 A single-file app. Everything lives in `index.html` — React and Babel are pulled from a CDN and
 the JSX is compiled in the browser, so there is no build step and nothing to install. Open the
-file, or push to `main` and GitHub Pages serves it within a minute.
+file, or push to `main`: a small GitHub workflow publishes it within a minute or two.
+
+**The website publishes the app and nothing else** — the four files in `tools/publish-list.txt`
+(the planner, `notes.json` and the two flashcard decks). These notes, the planner check's rules,
+the logs and the tools stay off the site. `bash tools/check-published.sh live` asks the real
+site for every file in the repo and proves it.
 
 ## Live
 
@@ -379,8 +384,16 @@ Language practice alternates Czech and Italian on every other day, half an hour 
 straight through the holidays rather than pausing for term. Those are the days the plan asks
 for; practising on the days in between is logged as extra (see "Going past 100%").
 
+The day's language chip opens your own practice chat. **Its link is yours, so it is not in the
+code**: the first time, the chip says "add your chat link" — paste the link to your Czech (or
+Italian) chat on claude.ai once, and it is saved with the rest of your data, in this browser and
+your Google Drive. The pencil beside the chip changes or removes it.
+
 ## Privacy
 
 Everything you tick, write or log stays in your browser and, if you turn sync on, in your own
 private Google Drive app-data folder. Nothing is sent anywhere else: there is no backend, no
 account, and no analytics anywhere in this app.
+
+The published files carry no e-mail address and no private link — no chat, no shared document.
+The publishing check refuses any, so the site cannot start leaking them again.

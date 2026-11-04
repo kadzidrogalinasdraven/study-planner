@@ -80,8 +80,9 @@ const { useState, useEffect, useRef, useMemo } = React;
    hue. Chrome uses UI.*; anything that belongs to a course uses that course's own colour. */
 const UI = { accent:"#534AB7", accentSoft:"#ECEAFB" };
 const LANGC = { czech:"#1F4E79", italian:"#2F8F57" };
-const CHAT_CZECH   = "https://claude.ai/chat/53820c71-73a6-4d0c-bd13-87f8136b833b";
-const CHAT_ITALIAN = "https://claude.ai/chat/a3aebc22-8fa1-41ec-8205-a05785d4ba0f";
+// His Czech and Italian practice-chat links are NOT kept in this file: the site is public.
+// They live in his own data (data.langChats), set once from the language chip, and sync
+// through his Drive like everything else he saves (see LangChip).
 // Instagram "school events": the button hands off to Claude's /insta-checkup skill (it scrapes
 // the accounts + writes events to Calendar); this app just reads them back. Swap in a dedicated
 // chat URL if you keep one, else a fresh chat works.
@@ -602,7 +603,7 @@ const SUBJECTS = [
     short:"Psychology & Ethics", dept:"14-390", ects:5, color:"#7C4A1E", sem:"both",
     completion:{ winter:"credit", summer:"credit+exam" }, examId:"mpe-s",
     examFormat:"Final oral exam, taken only after both credits are in hand.",
-    note:"Seminar teacher: Prof. Jan Vevera, Dept. of Psychiatry, FN Lochotín, alej Svobody 80 · veveraj@fnplzen.cz · +420 377 103 100 · psych.fnplzen.cz",
+    note:"Seminar teacher: Prof. Jan Vevera, Dept. of Psychiatry, FN Lochotín, alej Svobody 80 · e-mail and phone: on the card he hands out · psych.fnplzen.cz",
     creditRule:"Winter: attendance at the seminars (compulsory, one absence a semester allowed) and two pieces of group work, in groups of two or three, as Prof. Vevera set them out at the first seminar on 1 October 2026. A presentation of one seminar’s set topic: 15–25 minutes, then a discussion; PowerPoint is allowed but discouraged — he wants an interactive scene. And an essay of about three pages on a topic of your own in medical psychology, ethics or communication, unrelated to the presentation: start from something you have seen in practice, and not euthanasia. The textbook is the main source (the library has copies, the department one reference copy for use on site); AI may help as a consultant, not as the author. E-mail it to him and to the rest of the seminar group by 08:00 on the Wednesday before your essay seminar — they all read it — and present it there as a two- or three-minute elevator speech, not read aloud. Essays are evaluated at the last seminar, 7 January. The best one or two are published in the faculty’s anthology, “What are our medical students thinking about” (links in the Dept. of Psychiatry e-mail of 1 October), and the two best win the Dean’s Prize and 5,000 CZK. Summer: seminar attendance again, plus an essay or participation in a student research survey. Lectures run in the winter only, and what is said in them is examined." },
   { id:"im1", key:"IM1", sis:"EAP0103320", title:"Internal Medicine I.",
     short:"Internal Medicine I", dept:"14-320", ects:3, color:"#C2622E", sem:"summer",
@@ -1005,7 +1006,6 @@ const SOURCES = {
    The stale claims are listed rather than deleted: recognising one is what stops you acting on
    it six weeks from now when you have forgotten where the note came from. */
 const ARCHIVE_YEAR = "2020–2022";
-const ARCHIVE_URL = "https://drive.google.com/drive/folders/1avBJ6U4Egjze5_V2yGSNb1sw39OYLMys";
 const ARCHIVE = {
   iim: { where:"Bory or Lochotín. Bory: lectures building 4, practicals building 3. Lochotín: lectures entrance Bs — down the stairs past the changing room, right then left, room at the end of the hall.",
          absences:"Bory 2 a semester; Lochotín at the teacher’s discretion. SIS now states a minimum of 10 lectures and 9 practicals.",
@@ -1020,7 +1020,7 @@ const ARCHIVE = {
          whereStale:true,
          absences:"Usually 2, at the teacher’s discretion.",
          warn:"A missed practical must be made up on the same topic. In winter only one of the two weekly lectures is in person — the second is on Moodle." },
-  pfy: { protocols:{ url:"https://docs.google.com/document/d/103gFZ9xvtzpu2pBdkgAqZvJpWwSJ-uZe9aUNywT9kHY/edit",
+  pfy: { protocols:{
                      label:"Exam protocols — what examiners actually asked",
                      note:"Student write-ups of real orals, entries from January and February 2023, the document itself last touched October 2025. The format description elsewhere in the archive is out of date, but these accounts of what was asked still map onto the current question list." },
          where:"Lectures in the Biomed blue lecture hall, sometimes PRO first floor in the summer. Practicals Biomed, first floor.",
@@ -1842,7 +1842,7 @@ function blockDeadline(b, data){
 const SEM_OPEN = { winter:YEAR.open, summer:"2027-02-15", both:YEAR.open };
 function blockOpen(b){ return SEM_OPEN[b.sem||"both"] || YEAR.open; }
 
-const LANG = { czech:{name:"Czech",color:LANGC.czech,url:CHAT_CZECH}, italian:{name:"Italian",color:LANGC.italian,url:CHAT_ITALIAN} };
+const LANG = { czech:{name:"Czech",color:LANGC.czech}, italian:{name:"Italian",color:LANGC.italian} };
 
 /* Language cadence: one day on, one day off — alternating Czech → Italian → Czech …
    30 min each (≈ twice Czech + twice Italian a week). The anchor stays at 1 September and is
@@ -2621,6 +2621,7 @@ const DEFAULT_DATA = () => ({
   done:{}, doneAt:{}, tasks:[], gcalEnabled:false, updatedAt:0,
   prod:DEFAULT_PROD(), study:DEFAULT_STUDY(),
   examDates:{},          // examId → {iso, time} once booked in SIS
+  langChats:{},          // lang → the link to his own claude.ai practice chat (LangChip) — his data, never this file
   schemaV:2,
   goals:[],
 });
@@ -2798,12 +2799,41 @@ function OverflowBanner({sched, A, compact}){
   );
 }
 
-function LangChip({lang}){
+/* The day's language chip opens his own practice chat. The two chat links are his and private, so
+   they live in HIS data (data.langChats: this browser plus his Drive copy), never in this file —
+   the website publishes index.html to everyone. Until a link is saved the chip asks for it once;
+   the pencil beside it changes or removes it. Only a claude.ai address is ever accepted or opened. */
+const CHAT_LINK = /^https:\/\/claude\.ai\//;
+function askLangChat(lang, current, A){
+  const L=LANG[lang]; if(!L || !A || !A.setLangChat) return;
+  const v=window.prompt("Paste the link to your "+L.name+" practice chat (it starts with https://claude.ai/).\n\n"+
+    "It is saved only in your own data — this browser and your Google Drive — never on the website. "+
+    "Leave it empty to remove it.", current||"");
+  if(v===null) return;
+  const u=v.trim();
+  if(u && !CHAT_LINK.test(u)){ alert("That is not a claude.ai link — it should start with https://claude.ai/"); return; }
+  A.setLangChat(lang,u);
+}
+function LangChip({lang, data, A}){
   const L=LANG[lang]; if(!L) return null;
+  const saved=((data && data.langChats) || {})[lang] || "";
+  const url=CHAT_LINK.test(saved) ? saved : "";
+  const chip={display:"inline-flex",alignItems:"center",gap:9,padding:"9px 13px",border:`0.5px solid ${L.color}44`,borderRadius:"var(--r-lg)",background:L.color+"0d",textDecoration:"none",marginBottom:9};
+  if(!url) return (
+    <button type="button" onClick={()=>askLangChat(lang,"",A)} style={{...chip,cursor:"pointer",font:"inherit"}}>
+      <Dot color={L.color}/><span style={{fontSize:14,color:"var(--ink)"}}>{L.name} practice</span><span style={{fontSize:12,color:"var(--ink-3)"}}>· add your chat link</span><i className="fa-solid fa-link" style={{fontSize:11,color:L.color,marginLeft:2}} aria-hidden="true"/>
+    </button>
+  );
   return (
-    <a href={L.url} target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",gap:9,padding:"9px 13px",border:`0.5px solid ${L.color}44`,borderRadius:"var(--r-lg)",background:L.color+"0d",textDecoration:"none",marginBottom:9}}>
-      <Dot color={L.color}/><span style={{fontSize:14,color:"var(--ink)"}}>{L.name} practice</span><span style={{fontSize:12,color:"var(--ink-3)"}}>· 30 min</span><i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:11,color:L.color,marginLeft:2}} aria-hidden="true"/>
-    </a>
+    <span style={{display:"inline-flex",alignItems:"center",gap:2}}>
+      <a href={url} target="_blank" rel="noopener noreferrer" style={chip}>
+        <Dot color={L.color}/><span style={{fontSize:14,color:"var(--ink)"}}>{L.name} practice</span><span style={{fontSize:12,color:"var(--ink-3)"}}>· 30 min</span><i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:11,color:L.color,marginLeft:2}} aria-hidden="true"/>
+      </a>
+      <button type="button" onClick={()=>askLangChat(lang,url,A)} aria-label={"Change or remove the link to your "+L.name+" chat"} title="Change or remove the link"
+        style={{marginBottom:9,padding:"8px 9px",border:"none",background:"none",color:"var(--ink-3)",cursor:"pointer",fontSize:12}}>
+        <i className="fa-solid fa-pen" aria-hidden="true"/>
+      </button>
+    </span>
   );
 }
 
@@ -2851,7 +2881,7 @@ function DayBody({p, data, A, showNote}){
               : "No subject is open on this day: the winter courses have finished and the summer ones have not begun.")
           : "Nothing outstanding for this day — everything still open is ticked."}
       </p>}
-      {langForDate(p.date) && <LangChip lang={langForDate(p.date)}/>}
+      {langForDate(p.date) && <LangChip lang={langForDate(p.date)} data={data} A={A}/>}
     </>
   );
 }
@@ -3703,10 +3733,9 @@ function ArchivePanel(){
               </div>
             );
           })}
-          <a className="ln-btn" href={ARCHIVE_URL} target="_blank" rel="noopener noreferrer" style={{marginTop:11,fontSize:12}}>
-            <i className="fa-brands fa-google-drive" aria-hidden="true"/> Open the archive
-            <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/>
-          </a>
+          <div style={{marginTop:11,fontSize:11.5,color:"var(--ink-3)",lineHeight:1.5}}>
+            The archive's link is not kept in the planner: the website is public. Open it from your own Drive or bookmarks.
+          </div>
         </div>
       )}
     </div>
@@ -3727,10 +3756,9 @@ function ArchiveNote({id}){
       {a.bring    && <div style={{fontSize:12,color:"var(--ink-2)",lineHeight:1.5,marginTop:4}}><strong style={{color:"var(--ink)"}}>Bring.</strong> {a.bring}</div>}
       {a.warn     && <div style={{fontSize:12,color:"var(--warn)",lineHeight:1.5,marginTop:4}}>{a.warn}</div>}
       {a.protocols && <div style={{marginTop:7}}>
-        <a className="ln-btn" href={a.protocols.url} target="_blank" rel="noopener noreferrer" style={{fontSize:12}}>
-          <i className="fa-regular fa-comments" aria-hidden="true"/> {a.protocols.label}
-          <i className="fa-solid fa-arrow-up-right-from-square" style={{fontSize:10,opacity:.6}} aria-hidden="true"/>
-        </a>
+        <div style={{fontSize:12,color:"var(--ink)"}}>
+          <i className="fa-regular fa-comments" aria-hidden="true"/> {a.protocols.label} <span style={{color:"var(--ink-3)"}}>— its link is not kept in the planner, which is public</span>
+        </div>
         <div style={{fontSize:11.5,color:"var(--ink-3)",marginTop:4,lineHeight:1.5}}>{a.protocols.note}</div>
       </div>}
     </div>
@@ -4683,6 +4711,9 @@ function App(){
       return {...d, prod:{...d.prod, lang:{...d.prod.lang, log}}};
     }),
     setGymTarget:(v)=>mutate(d=>({...d, prod:{...d.prod, gym:{...d.prod.gym, targetPerWeek:v}}})),
+    /* His own practice-chat links (LangChip). Saved in his data, which syncs through Drive like
+       every other field — never in index.html, which the website publishes. "" removes one. */
+    setLangChat:(lang,url)=>mutate(d=>{ const c={...(d.langChats||{})}; if(url) c[lang]=url; else delete c[lang]; return {...d, langChats:c}; }),
 
     addTask:(f)=>{ const task={id:uid(),text:f.text,date:f.date,time:f.time,important:!!f.important,done:false,gcalId:null};
       mutate(d=>({...d,tasks:[...d.tasks,task]})); syncCreate(task); },

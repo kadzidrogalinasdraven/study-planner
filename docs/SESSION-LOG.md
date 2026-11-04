@@ -109,7 +109,7 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   him when the session is long enough to clear.
 - 2026-09-28 · Timetable transcribed from the screenshot (table above).
 - 2026-09-28 · Calendar connector verified: writes to the primary calendar
-  `kadzidrogalinas@gmail.com` (tz Europe/Berlin, same offset as Prague), default reminder is a
+  (his own Google account; tz Europe/Berlin, same offset as Prague), default reminder is a
   **30-min popup**, and there is only one writable calendar — no "Classes" calendar can be created
   through the connector, so events go into primary. No class events exist for October yet.
 - 2026-09-28 · Questions 1–3 above put to Linas, plus whether Connect works since the 09-08 fix.
@@ -470,11 +470,11 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
   (`trig_012JocxLdZg1M2UpMpU4EfHP`, cron `0 5 * * *` UTC, Gmail + Calendar connectors, no repo,
   Sonnet). Its Gmail query is event keywords only, so it misses most school mail: on 3 Oct it
   scanned one e-mail, and it never saw the 2 Oct e-mail from the internal-medicine secretary
-  (`KLICKOVAJ@fnplzen.cz`, "Prezenční listina 5 AB kruhu…") whose attachment holds the 5A/5B
+  (a hospital address, "Prezenční listina 5 AB kruhu…") whose attachment holds the 5A/5B
   attendance lists. Official school mail does reach his Gmail: SIS course messages
-  (`studium.noreply@is.cuni.cz`, and teachers' own addresses with a "This message in SIS" footer),
-  Moodle news-forum posts (`noreply@moodle.lfp.cuni.cz`), department staff (`@lfp.cuni.cz`),
-  hospital staff (`@fnplzen.cz`), the study department (`medstudy@lfp.cuni.cz`).
+  (SIS's own system sender at `is.cuni.cz`, and teachers' own addresses with a "This message in SIS" footer),
+  Moodle news-forum posts (Moodle's no-reply sender), department staff (`@lfp.cuni.cz`),
+  hospital staff (`@fnplzen.cz`), the study department (its address is in the "Student profile" Gmail draft).
 - 2026-10-03 · **Engine: shares of the hours.** `STUDY_PRIORITY` → `STUDY_SHARE` + `REST_SHARE`,
   `GROUP_W` → `GROUP_SHARE`, `groupOf(subject, date)`, `PREP_PIN`/`PIN_DAY`, `PAT-G` `paceTo:"exam"`,
   `blockDeadline` honours it. Rules under "The plan engine". The Plan tab's sentence about the
@@ -633,3 +633,43 @@ Propedeutics of Surgery, Neurobehavioral sciences, Radiological Anatomy) are abs
 - Exact titles found in WhatsApp Web by an exact-match test (the stethoscope is U+1FA7A, the hyphen plain). The chat list's message previews carry `title` attributes too, so a regex scan of titles also catches previews of other chats — the prompt now forbids collecting titles at all.
 - Changed outside this repo: the `social-digest` task prompt (three chats, per-chat state, "All years" kept only for third year or everyone, one finding per item across sources, a "chat not found" warning, 25 scroll-ups for the busier chats), `social-digest-state.json` → version 2 (`group5` keeps its last read; `year3`/`allyears` start at null = the last 7 days on the next run), the README. Here: AUTOMATION.md §1a and CLAUDE.md item 7.
 - The 17:03 run itself: one finding, the Academic Senate elections 23–24 Nov (@skas_lfp_uk), added to Calendar; Group 5 2.0 had one message, no date.
+
+## 2026-11-04 — the website publishes only the app (privacy, stage 1 of 2)
+
+- Found 1 Nov by a security pass of another repo; measured 4 Nov: GitHub Pages served 21 of 22
+  tracked files byte for byte (and five `.md` files again as `.html`); raw.githubusercontent.com
+  served all of them on all three branches and in every past version; the old Netlify site still
+  serves the 30 Sep copy. No secret (key, token, password) in any of the 261 file versions; 0 forks.
+- His decision: option 1, staged. Stage 1 (this change, free): the site publishes only
+  `tools/publish-list.txt`. Stage 2: the repo private once GitHub Pro is active (he applied for
+  GitHub Education's student pack today). Netlify was rejected — CLAUDE.md's "Never re-link
+  Netlify", and 48 commits on `main` in October ≈ 720 of the 300 monthly credits shared with
+  studentforstudents.com. A new public repo at the same origin was the free fallback, not needed.
+- Removed from the current files by pattern (never quoted): six third-party addresses in
+  AUTOMATION.md, CLAUDE.md, this log and the SIS snapshot; Prof. Vevera's address and phone; his own
+  address (2 places); the two chat links (now `data.langChats`, pasted once); the archive and
+  protocols links (buttons removed). Rescan: only the public OAuth client ID remains.
+- `tools/watch_sources.py` blanks addresses in SIS text: "No change in 12 sources" right after.
+- Checks before his steps: `check-published.sh live` FAILED (22 paths served that must not be),
+  `private` FAILED (23 of 23 public) — both expected until he switches the Pages source and,
+  later, makes the repo private.
+- History not rewritten (his decision). It still holds a third private link (a claude.ai project
+  link in `index.html`, 21 Jun–17 Aug), every removed item, and his Gmail on 177 commit stamps.
+- **His manual steps, in order:**
+  1. Apply to GitHub Education (student pack: "Free GitHub Pro while you are a student").
+  2. Delete the old Netlify site `peppy-lokum-2c5109` (team Planer → that project → Project
+     configuration → General → Delete project) — that one, never studentforstudents.com.
+  3. Straight after: Google Cloud Console → OpenClaw → Google Auth Platform → Clients → planner-web
+     → Authorised JavaScript origins: remove the Netlify origin, keep github.io, Save.
+  4. Merge the pull request.
+  5. Settings → Pages → Build and deployment → Source: "GitHub Actions".
+  6. Actions → "Publish the site" → Run workflow on `main` (the run started by the merge fails at
+     "Publish" because step 5 came after it — expected).
+  7. `bash tools/check-published.sh live` from an up-to-date `main` → LIVE CHECK PASSED (if a few
+     paths still answer 200, wait ~10 minutes for GitHub's cache and run it again).
+  8. In the planner: the language chip says "add your chat link" — paste the Czech chat's link,
+     and the Italian one on an Italian day.
+  9. Once Settings → Billing and plans shows Pro: Settings → General → Danger Zone → Change
+     visibility → Private. Never before — on the free plan that takes the site offline.
+  10. Then `live` and `private` both PASSED, and the next planner-check card and the Mac's notes
+      publishing still arrive.

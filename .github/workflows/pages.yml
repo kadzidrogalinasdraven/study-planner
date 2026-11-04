@@ -1,0 +1,53 @@
+# Publishes the website: ONLY the files listed in tools/publish-list.txt, never the rest of the repo.
+#
+# Push to main, or the "Run workflow" button: build _site from the list, check it, publish it.
+# Pull request: build and check only — nothing is published.
+# The check (tools/check-published.sh build) fails the run if the site would hold anything off the
+# list, anything that differs from the repo, or any e-mail address or private link — then nothing
+# is published and the site keeps its last good version.
+#
+# Needs, once, by hand: Settings → Pages → Build and deployment → Source: "GitHub Actions".
+name: Publish the site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build the site from tools/publish-list.txt and check it
+        run: bash tools/check-published.sh build _site
+      - name: Hand the site to GitHub Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    name: Publish
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v4

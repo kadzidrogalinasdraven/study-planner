@@ -32,6 +32,12 @@ FILES = {
 FIELDS = ["Semester:", "E-Credits:", "Examination process:", "Hours per week, examination:",
           "State of the course:", "Guarantor:", "Note:", "Pre-requisite :", "Interchangeability :"]
 UA = {"User-Agent": "Mozilla/5.0 (planner source watch; github.com/kadzidrogalinasdraven/study-planner)"}
+# E-mail addresses never reach the snapshot (2026-11-04): SIS pages print teachers' addresses, and the
+# snapshot lives in the repo. Blanked in text_of(), so the stored copy and every fresh copy are
+# blanked alike and a page that still prints the same address compares as unchanged. Same pattern
+# as tools/check.mjs and tools/check-published.sh.
+EMAIL = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
+EMAIL_MARK = "[e-mail removed]"
 
 
 def fetch(url, tries=3):
@@ -55,7 +61,7 @@ def text_of(fragment):
     t = re.sub(r"<[^>]+>", " ", t)
     t = html.unescape(t).replace("\xa0", " ")
     lines = [re.sub(r"[ \t\r\f\v]+", " ", ln).strip() for ln in t.split("\n")]
-    return "\n".join(ln for ln in lines if ln)
+    return EMAIL.sub(EMAIL_MARK, "\n".join(ln for ln in lines if ln))
 
 
 def div_body(s, start):

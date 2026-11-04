@@ -78,6 +78,11 @@ PY
 
 ## Now — state and open items (updated 2026-10-16)
 
+**Privacy, 4 Nov 2026 — stage 1 of 2 is a pull request** (branch `claude/sweet-hypatia-hru2he`):
+the website publishes only `tools/publish-list.txt` (see "What the website publishes"). Stage 2,
+the repo private, waits for GitHub Pro (his student-pack application of 4 Nov). His manual steps,
+in order, are in `docs/SESSION-LOG.md` (4 Nov).
+
 **Live:** the third-year planner on GitHub Pages. **Since 16 Oct, until the end of winter teaching
 (8 Jan), the plan follows his focus rule** — Internal Medicine and Pathophysiology share the budget
 60:40, every other subject is studied only around its own classes, on top of the budget (see "The
@@ -515,11 +520,12 @@ Today's countdown whenever it is the next date), `TIMELINE`, and a box on the su
 itself is marked on the class through `TIMETABLE_NOTES` ("You present today, with Silvia: …").
 Nothing is stored; it is code, so a changed date is an edit and a deploy.
 
-**Never put classmates' names in the planner.** The repo and the site are public. The Psychology
-sign-up sheet names nine other students; only Silvia's first name went in, because she is his
-partner on both pieces of work and is already in this file as a Google test user. Prof. Vevera's
-work e-mail, phone and address did go in (the subject's `note`): they are printed on the card he
-hands to students, and the e-mail is where the essay must be sent.
+**Never put classmates' names in the planner.** The site is public, and so is the repo until it
+goes private. The Psychology sign-up sheet names nine other students; only Silvia's first name went
+in, because she is his partner on both pieces of work and is a Google test user. **No e-mail
+address and no phone number go into `index.html` at all, staff's included** (4 Nov 2026): Prof.
+Vevera's were removed from the subject's `note` — they are on the card he hands to students, where
+the essay address is too — and the publishing check refuses any address in a published file.
 
 ### The timetable and its Calendar copy (winter 2026/27, group 3.AVSEOB20-5)
 
@@ -994,12 +1000,13 @@ Two static files, no build step, no npm, no bundler. React 18 UMD + in-browser B
 | Planner | <https://kadzidrogalinasdraven.github.io/study-planner/> |
 | Deck (Linas) | <https://kadzidrogalinasdraven.github.io/study-planner/physio_flashcards.html> |
 | Deck (Silvia) | <https://kadzidrogalinasdraven.github.io/study-planner/physio_flashcards_silvia.html> |
-| Netlify — **stale, do not send anyone here** | <https://peppy-lokum-2c5109.netlify.app> |
+| Netlify — **stale; he deletes it** (4 Nov) | <https://peppy-lokum-2c5109.netlify.app> |
 
 Netlify serves whatever it last built — since 30 Sep 2026 that is commit `b4856e4`, and it falls
 further behind with every push (see "Netlify was building every push" below). It is still serving,
 so the old links work and quietly show out-of-date content — which is worse than being down. Treat
-GitHub Pages as the live site.
+GitHub Pages as the live site. **It also still serves that day's `CLAUDE.md` (two e-mail addresses)
+and an `index.html` with four private links** — the reason to delete the site, not just stop it.
 
 | File | What it is |
 | --- | --- |
@@ -1037,10 +1044,46 @@ drive-only while still writing to the shared `sp_gtok`, then on a browser they b
 would overwrite the planner's and 403 its calendar calls. Never separate them.
 
 Deploy is: commit on `test` → `git checkout main && git merge test --ff-only` → `git push origin main`.
-**GitHub Pages serves `main` from the repo root within about a minute — there is nothing to configure
-per file.** Pages publishes the whole repository, so any file committed is reachable at its own path.
-Netlify still watches `main` too, and **every push costs Netlify credits until its builds are
-stopped** — see the next section.
+**Every push to `main` runs `.github/workflows/pages.yml`, which publishes ONLY the files in
+`tools/publish-list.txt`, within a minute or two** (once Settings → Pages → Source is "GitHub
+Actions"). Until 4 Nov 2026 Pages published the whole repository, so every committed file was
+reachable at its own path; a new file now stays off the site unless it is put on that list.
+Netlify builds were stopped on 3 Oct — see "Why Netlify was abandoned".
+
+### What the website publishes — and what it never may (2026-11-04)
+
+A security pass of another repo found on 1 Nov that GitHub Pages served **every committed file** —
+this file, AUTOMATION.md, the logs, the tools, the SIS snapshot — with five third-party e-mail
+addresses, Prof. Vevera's phone, two private claude.ai chat links and two shared Google links (a
+Drive folder, an `/edit` Doc). raw.githubusercontent.com served it all on every branch and in every
+past version. No secret was ever committed (all 261 file versions scanned, 4 Nov).
+
+- **The site is built from `tools/publish-list.txt` only** — `index.html`, `notes.json`, the two
+  decks — by `.github/workflows/pages.yml` (GitHub's own actions: checkout, configure-pages,
+  upload-pages-artifact, deploy-pages; approved by him 4 Nov). A pull request builds and checks
+  only. Put a file on the list only if the app itself loads it.
+- **`tools/check-published.sh`** — `build`: exactly the list, identical to the repo, no e-mail
+  address and no private link (claude.ai chat/project/share, Google Docs/Drive document links,
+  WhatsApp invites); the workflow will not publish otherwise, and `tools/check.mjs` runs it in every
+  mode, so a session or the routine is stopped before it pushes. `live`: asks the real site for
+  every repo path — the list 200 and identical, the rest 404. `private`: github.com and raw answer
+  404 (passes once the repo is private). It prints file and line, never the item.
+- **His practice-chat links are his data**, `data.langChats`, pasted once from the language chip
+  and synced through Drive; only `https://claude.ai/` is accepted or opened. Never write one back
+  into the code. The archive Drive link and the protocols Doc link were removed (his choice, 4 Nov);
+  the `ARCHIVE` logistics text stays.
+- **`tools/watch_sources.py` blanks e-mail addresses** in every SIS text (`[e-mail removed]`), the
+  stored snapshot and each fresh copy alike — it printed "No change in 12 sources" after the change.
+- **No private link in a commit message or pull request either** — not even a claude.ai session
+  link: the repo and its history are public until stage 2.
+- **Stage 2, his decision: the repo goes private once GitHub Pro is active** (applied for through
+  GitHub Education's student pack, 4 Nov). On the free plan GitHub *unpublishes* a private repo's
+  site, so never before Pro shows under Billing. A private repo's site is still public — the list
+  matters in both stages. The origin stays `https://kadzidrogalinasdraven.github.io`, so no browser
+  data and no Google setting changes.
+- **History is not rewritten** — his decision, never a session's. Until the repo is private it still
+  holds every removed item, a third private link (a claude.ai project link in `index.html`,
+  21 Jun–17 Aug) and his Gmail address on 177 of 210 commit stamps.
 
 ### Why Netlify was abandoned (2026-08-08)
 
@@ -1108,8 +1151,8 @@ so it is recorded here or it is lost:
 | Project number | `272590603949` — the first field of the client ID |
 | OAuth client | **planner-web**, `272590603949-tfgcscp9b13kka7gg8epj5tg4o47g6cq.apps.googleusercontent.com` |
 | Publishing status | **Testing**, user type External |
-| Test users | `kadzidrogalinas@gmail.com`, `silvia.stratta04@gmail.com` |
-| Authorised JS origins | `https://peppy-lokum-2c5109.netlify.app`, `https://kadzidrogalinasdraven.github.io` |
+| Test users | his own Google account and Silvia's — the addresses are on the console's Audience page, never in this repo |
+| Authorised JS origins | `https://kadzidrogalinasdraven.github.io`, and `https://peppy-lokum-2c5109.netlify.app` until he deletes that site — then it comes off too, because a freed Netlify name may be taken by someone else |
 
 There is a second client in the project ending `-3ssj…`; it belongs to something else. Do not touch it.
 
@@ -1137,7 +1180,8 @@ Keep the three HTML files **siblings at the same path depth**: the inter-page li
 planner and both decks share one origin. Avoid hosts that rewrite `/physio_flashcards.html` to a
 clean URL — deck deep-linking reads `location.pathname` (`physio_flashcards.html:737-746`).
 
-Fallback hosts, in order of preference. The repo is public, so both are free:
+Fallback hosts, in order of preference (GitHub Pages from a private repo needs GitHub Pro, and its
+site is public either way):
 
 | Host | Why |
 | --- | --- |

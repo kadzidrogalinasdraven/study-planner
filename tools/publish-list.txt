@@ -1,0 +1,8 @@
+# The ONLY files the website publishes. Everything else in the repo stays off the site.
+# Read by tools/check-published.sh, which the Pages workflow (.github/workflows/pages.yml) and the
+# gate (tools/check.mjs) both run. Add a file here only if the app itself loads it — never a notes
+# file, a log, a tool or a state file. One path per line; lines starting with # are comments.
+index.html
+notes.json
+physio_flashcards.html
+physio_flashcards_silvia.html

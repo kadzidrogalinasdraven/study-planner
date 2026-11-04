@@ -65,9 +65,9 @@ first live run), and write in the briefing "Would change: …". From that date o
 
 All three must hold, or it is a question (§3):
 
-- **Official.** A sender at `cuni.cz` (department staff, SIS messages from `studium.noreply@is.cuni.cz`
+- **Official.** A sender at `cuni.cz` (department staff, SIS's own system messages
   or a teacher's own address, the study department), at `fnplzen.cz` (hospital staff), Moodle
-  (`noreply@moodle.lfp.cuni.cz`), a SIS course page, or a teacher's own words in a marked recording
+  (its no-reply sender at `moodle.lfp.cuni.cz`), a SIS course page, or a teacher's own words in a marked recording
   (§5, with its own limits).
 - **For him.** Third year, English General Medicine (`AVSEOB`), his group 5 — or the whole year.
   For internal medicine he is in **5B (Dr. Nussbaumerová)** since 4 Oct 2026, by a swap with a
@@ -121,7 +121,7 @@ answer or a follow-up e-mail from him, write it as a **Gmail draft**, never send
   question to him about an appointment. Write in the language of that correspondence. Not for
   circulars, newsletters, automatic notices or anything only informative.
 - **Which:** a reply in the same thread (`replyToMessageId`), plus a new e-mail when the reply
-  sends him elsewhere — e.g. to the English Study Department, `medstudy@lfp.cuni.cz`, with the
+  sends him elsewhere — e.g. to the English Study Department (its address is in the "Student profile" draft — see "His details" below), with the
   approving teacher in Cc and the approval quoted.
 - **How:** English, short, polite, in his own style. Sign-off as in his own sent mail:
   "Kind regards, / Linas Kadzidroga / 3rd year, General Medicine (English programme) / Faculty of
@@ -158,10 +158,13 @@ requests were the first idea; `gh` has no valid token in the cloud, so they are 
 - Never touch `physio_flashcards*.html` or `make_silvia_copy.py`; never touch `CLAUDE.md`,
   `README.md` or this file — the gate refuses any file outside `index.html`,
   `tools/state/sources.json`, `tools/state/recordings-read.json` and `docs/planner-updates.md`.
-- **The repo is public.** Never write classmates' names, anyone's private phone number or e-mail,
-  a Moodle enrolment key, a password, or anything about his health or private life — not in the
-  code, not in a commit message, not in a pull request. Staff already named in `TIMETABLE` may be
-  named. The briefing card is in his private calendar and may say more.
+- **The website is public, and so is the repo until it goes private.** No e-mail address at all —
+  not even a teacher's work address — and no private link (a chat, a shared document) goes into
+  `index.html` or any other published file: the gate refuses it (`tools/check-published.sh`, since
+  4 Nov 2026). Never write classmates' names, anyone's phone number, a Moodle enrolment key, a
+  password, or anything about his health or private life — not in the code, not in a commit
+  message, not in a pull request. Staff already named in `TIMETABLE` may be named. The briefing
+  card is in his private calendar and may say more.
 - Never send, reply to, forward, delete, archive or mark read any e-mail. Labels and drafts
   (§2a) only.
 - Never open a recording whose title carries no marker (§5).

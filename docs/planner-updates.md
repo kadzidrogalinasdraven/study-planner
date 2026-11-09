@@ -15,3 +15,4 @@ The rules are in `AUTOMATION.md`.
 - 2026-11-02 · Internal Medicine: the Tue 3 Nov lecture note now gives the warning student strike, 11:00–14:00 (SIS message of 2 Nov); not marked cancelled — the department has not confirmed.
 - 2026-11-03 · Internal Medicine: Tue 10 Nov practical with doc. Hirmerová (5A) instead of Dr. Nussbaumerová (her e-mail of 3 Nov).
 - 2026-11-04 · Medical Czech: homework for Wed 11 Nov (cardiology words and phrases, Moodle textbook pp. 45–46), from his recording of the 4 Nov seminar.
+- 2026-11-09 · Medical Psychology and Ethics: Fri 13 Nov lecture cancelled, materials on Moodle next week (SIS message of 9 Nov). Recording of the 9 Nov Pathophysiology practical read (topics already in the planner). Tue 10 Nov: the Study Department confirmed English-programme classes run on the Rector's Day — the planner already had them running.

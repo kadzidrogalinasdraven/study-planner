@@ -737,7 +737,8 @@ const TIMETABLE = [
 /* One-off changes. Cancelled: date → slot ids. Confirm: a date the week rule is unsure about. */
 /* Pathology's own 2026/27 schedules (SIS, did=357295 lectures / 357296 practicals, both dated
    8 Sep 2026): nothing in week 1, and the 15 Oct lecture is "Moodle only". */
-const TIMETABLE_CANCELLED = { "2026-10-01":["pat-lec"], "2026-10-02":["pat-prac"], "2026-10-15":["pat-lec"], "2026-10-16":["mpe-lec"] };
+const TIMETABLE_CANCELLED = { "2026-10-01":["pat-lec"], "2026-10-02":["pat-prac"], "2026-10-15":["pat-lec"], "2026-10-16":["mpe-lec"],
+  "2026-11-13":["mpe-lec"] /* Dept. of Psychiatry, SIS message of 9 Nov 2026 */ };
 const TIMETABLE_CONFIRM   = {};   // empty since 1 Oct 2026: Simulation Medicine on 6 Jan was the one entry, and it does not run
 const TIMETABLE_EXTRA     = {};   // date → slot ids forced on against the week rule
 /* What the department's own schedule says about one session. Psychology: "Practicals schedules
@@ -768,7 +769,8 @@ const TIMETABLE_NOTES = {
   "2026-11-05": { "pat-lec":"Pathology of pregnancy, fetus and newborn. — Daumová" },
   "2026-11-06": { "pat-prac":"04. Disorders of blood flow." },
   "2026-11-12": { "pat-lec":"Diseases of the immune system: hypersensitivity, rejection, autoimmunity, immune deficiency, amyloidosis. — Pivovarčíková" },
-  "2026-11-13": { "pat-prac":"05. Etiological pathology." },
+  "2026-11-13": { "pat-prac":"05. Etiological pathology.",
+                  "mpe-lec":"Cancelled — Communication with the patient regarding sexual topics. The study materials go up on Moodle next week (Dept. of Psychiatry, SIS message of 9 Nov)." },
   "2026-11-19": { "mpe-sem":"Handicapped patient. Moved here from 12 Nov.",
                   "pat-lec":"Neoplasia: molecular oncology, classification, grading, staging, paraneoplastic syndromes. — Skálová" },
   "2026-11-20": { "pat-prac":"09. Pathology of reproduction." },

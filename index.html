@@ -737,7 +737,8 @@ const TIMETABLE = [
 /* One-off changes. Cancelled: date → slot ids. Confirm: a date the week rule is unsure about. */
 /* Pathology's own 2026/27 schedules (SIS, did=357295 lectures / 357296 practicals, both dated
    8 Sep 2026): nothing in week 1, and the 15 Oct lecture is "Moodle only". */
-const TIMETABLE_CANCELLED = { "2026-10-01":["pat-lec"], "2026-10-02":["pat-prac"], "2026-10-15":["pat-lec"], "2026-10-16":["mpe-lec"] };
+const TIMETABLE_CANCELLED = { "2026-10-01":["pat-lec"], "2026-10-02":["pat-prac"], "2026-10-15":["pat-lec"], "2026-10-16":["mpe-lec"], "2026-11-26":["pat-lec"] };
+  /* 26 Nov 2026 pat-lec: cancelled due to illness, lecture as PDF on Moodle (SIS message from the department, 26 Nov). */
   /* 13 Nov 2026 mpe-lec: cancelled by the SIS message of 9 Nov, reinstated by the SIS message of 10 Nov (starts 12:30). */
 const TIMETABLE_CONFIRM   = {};   // empty since 1 Oct 2026: Simulation Medicine on 6 Jan was the one entry, and it does not run
 const TIMETABLE_EXTRA     = {};   // date → slot ids forced on against the week rule
@@ -775,7 +776,7 @@ const TIMETABLE_NOTES = {
                   "pat-lec":"Neoplasia: molecular oncology, classification, grading, staging, paraneoplastic syndromes. — Skálová" },
   "2026-11-20": { "pat-prac":"09. Pathology of reproduction." },
   "2026-11-26": { "mpe-sem":"Pain — acute, chronic. Pharmacotherapy. Placebo, nocebo. Psychological preparation for painful procedures.",
-                  "pat-lec":"Pathology of the GIT. — Daumová" },
+                  "pat-lec":"Cancelled (illness) — the lecture is on Moodle as a PDF. Pathology of the GIT. — Daumová" },
   "2026-11-27": { "pat-prac":"06. Immunopathology." },
   "2026-12-03": { "pat-lec":"Pathology of the liver, biliary tree and pancreas. — Michalová" },
   "2026-12-04": { "pat-prac":"07. Epithelial tumors." },

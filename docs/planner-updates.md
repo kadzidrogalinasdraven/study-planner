@@ -18,3 +18,4 @@ The rules are in `AUTOMATION.md`.
 - 2026-11-09 · Medical Psychology and Ethics: Fri 13 Nov lecture cancelled, materials on Moodle next week (SIS message of 9 Nov). Recording of the 9 Nov Pathophysiology practical read (topics already in the planner). Tue 10 Nov: the Study Department confirmed English-programme classes run on the Rector's Day — the planner already had them running.
 - 2026-11-10 · Medical Psychology and Ethics: the Fri 13 Nov lecture takes place after all, 12:30–13:45 instead of 11:15 (SIS message of 10 Nov withdraws the 9 Nov cancellation). The Thu 12 Nov seminar moves to 19 Nov — confirmed by the department's e-mail of 10 Nov, already in the planner.
 - 2026-11-11 · Medical Czech: homework for Wed 18 Nov (exercises 2, 5 and 6, textbook pp. 48–49), from his recording of the 11 Nov seminar.
+- 2026-11-26 · Pathology: Thu 26 Nov lecture (GIT) cancelled due to illness, the lecture is on Moodle as a PDF (SIS message from the department, 26 Nov).
